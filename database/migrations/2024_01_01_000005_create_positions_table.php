@@ -9,12 +9,30 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('positions', function (Blueprint $table) {
+
             $table->id();
-            $table->foreignId('company_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('department_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('job_grade_id')->nullable()->constrained()->nullOnDelete();
-            $table->string('title');                 // misal: Backend Developer, HR Staff
+
+            $table->foreignId('company_id')
+                ->constrained()
+                ->cascadeOnDelete();
+
+            $table->foreignId('department_id')
+                ->constrained()
+                ->cascadeOnDelete();
+
+            $table->string('name');
+
+            $table->string('code',20)->nullable();
+
+            $table->text('description')->nullable();
+
             $table->timestamps();
+
+            $table->unique([
+                'company_id',
+                'department_id',
+                'name'
+            ]);
         });
     }
 

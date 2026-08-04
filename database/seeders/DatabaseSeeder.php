@@ -22,7 +22,6 @@ class DatabaseSeeder extends Seeder
         // 2. Buat satu data Perusahaan (Company) dummy
         $company = Company::create([
             'name'      => 'PT Testing Indonesia',
-            'subdomain' => 'testing',
             'email'     => 'admin@testing.com',
             'is_active' => true,
         ]);

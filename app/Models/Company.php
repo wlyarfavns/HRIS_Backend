@@ -10,13 +10,31 @@ class Company extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 'subdomain', 'address', 'city', 'province', 'postal_code', 
-        'phone', 'email', 'office_latitude', 'office_longitude', 
-        'geofence_radius_meters', 'is_active',
+        'name',
+        'address',
+        'city',
+        'province',
+        'postal_code',
+        'phone',
+        'email',
+        'office_latitude',
+        'office_longitude',
+        'geofence_radius_meters',
+        'is_active',
     ];
 
     public function users()
     {
         return $this->hasMany(User::class);
+    }
+
+    public function departments()
+    {
+        return $this->hasMany(Department::class);
+    }
+
+    public function positions()
+    {
+        return $this->hasMany(Position::class);
     }
 }

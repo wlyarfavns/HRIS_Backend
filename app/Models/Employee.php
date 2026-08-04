@@ -2,26 +2,60 @@
 
 namespace App\Models;
 
-use App\Traits\BelongsToCompany;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Employee extends Model
 {
-    use HasFactory, BelongsToCompany;
-
     protected $fillable = [
-        'company_id', 'user_id', 'department_id', 'position_id',
-        'nip', 'full_name', 'email', 'phone', 'address',
-        'join_date', 'contract_type', 'contract_end_date',
-        'basic_salary', 'status',
+
+        'company_id',
+
+        'user_id',
+
+        'employee_id',
+
+        'full_name',
+
+        'email',
+
+        'phone',
+
+        'gender',
+
+        'birth_place',
+
+        'birth_date',
+
+        'address',
+
+        'department_id',
+
+        'position_id',
+
+        'join_date',
+
+        'employment_status',
+
+        'status',
+
+        'activation_token',
+
+        'activation_expired_at',
     ];
 
     protected $casts = [
-        'join_date' => 'date',
-        'contract_end_date' => 'date',
-        'basic_salary' => 'decimal:2',
+
+        'birth_date'=>'date',
+
+        'join_date'=>'date',
+
+        'activation_expired_at'=>'datetime',
     ];
+
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
+    }
 
     public function user()
     {
@@ -36,5 +70,16 @@ class Employee extends Model
     public function position()
     {
         return $this->belongsTo(Position::class);
+    }
+
+    public function contracts()
+    {
+        return $this->hasMany(EmployeeContract::class);
+    }
+
+    public function activeContract()
+    {
+        return $this->hasOne(EmployeeContract::class)
+            ->where('status','active');
     }
 }

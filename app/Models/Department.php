@@ -4,11 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Position extends Model
+class Department extends Model
 {
     protected $fillable = [
         'company_id',
-        'department_id',
         'name',
         'code',
         'description'
@@ -19,9 +18,9 @@ class Position extends Model
         return $this->belongsTo(Company::class);
     }
 
-    public function department()
+    public function positions()
     {
-        return $this->belongsTo(Department::class);
+        return $this->hasMany(Position::class);
     }
 
     public function employees()
