@@ -18,7 +18,6 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        // 1. Cek Kredensial
         if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json([
                 'success' => false,
@@ -26,16 +25,13 @@ class AuthController extends Controller
             ], 401);
         }
 
-        // 2. Validasi Role (Opsional tapi direkomendasikan)
-        // Pastikan yang login di aplikasi mobile benar-benar karyawan
-        if (!$user->hasRole('employee')) {
+        if (method_exists($user, 'hasRole') && !$user->hasRole('employee')) {
             return response()->json([
                 'success' => false,
                 'message' => 'Akses ditolak. Aplikasi mobile khusus untuk karyawan.'
             ], 403);
         }
 
-        // 3. Generate Token Sanctum
         $token = $user->createToken('mobile-token')->plainTextToken;
 
         return response()->json([
@@ -48,7 +44,7 @@ class AuthController extends Controller
                     'id'         => $user->id,
                     'name'       => $user->name,
                     'email'      => $user->email,
-                    'company_id' => $user->company_id,
+                    'company_id' => $user->company_id ?? null,
                 ]
             ]
         ], 200);

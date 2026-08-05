@@ -6,15 +6,14 @@ use App\Traits\BelongsToCompany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Shift extends Model
+class Department extends Model
 {
     use HasFactory, BelongsToCompany;
 
-    protected $fillable = [
-        'company_id',
-        'name',
-        'start_time',
-        'end_time',
-        'is_cross_day'
-    ];
+    protected $fillable = ['company_id', 'name', 'description'];
+
+    public function positions()
+    {
+        return $this->hasMany(Position::class);
+    }
 }

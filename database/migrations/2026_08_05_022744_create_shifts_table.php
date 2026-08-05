@@ -1,48 +1,32 @@
 <?php
 
-namespace App\Http\Controllers;
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-use Carbon\Carbon;
-use Illuminate\Http\Request;
-
-class AttendanceStatusController extends Controller
+return new class extends Migration
 {
     /**
-     * LOGIC NO 27: Menentukan Status Presensi (On-Time, Late, Early Leave)
+     * Run the migrations.
      */
-    public function determineAttendanceStatus(Request $request)
+    public function up(): void
     {
-        // Contoh data yang dikirim dari aplikasi Flutter / request
-        $actualClockIn = Carbon::parse($request->actual_clock_in);   // Waktu aktual karyawan scan masuk
-        $actualClockOut = Carbon::parse($request->actual_clock_out); // Waktu aktual karyawan scan keluar
-        
-        $expectedClockIn = Carbon::parse($request->expected_clock_in);   // Jadwal masuk shift
-        $expectedClockOut = Carbon::parse($request->expected_clock_out); // Jadwal keluar shift
-
-        // 1. Cek Status Clock-In (On-Time atau Late)
-        // Toleransi keterlambatan misalnya 15 menit (bisa disesuaikan)
-        $toleranceMinutes = 15;
-        $lateThreshold = (clone $expectedClockIn)->addMinutes($toleranceMinutes);
-
-        if ($actualClockIn->greaterThan($lateThreshold)) {
-            $clockInStatus = 'Late';
-        } else {
-            $clockInStatus = 'On-Time';
-        }
-
-        // 2. Cek Status Clock-Out (On-Time atau Early Leave)
-        if ($actualClockOut->lessThan($expectedClockOut)) {
-            $clockOutStatus = 'Early Leave';
-        } else {
-            $clockOutStatus = 'On-Time';
-        }
-
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'clock_in_status' => $clockInStatus,   // Nilai: On-Time / Late
-                'clock_out_status' => $clockOutStatus, // Nilai: On-Time / Early Leave
-            ]
-        ]);
+        Schema::create('shifts', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('company_id')->constrained()->cascadeOnDelete();
+            $table->string('name');
+            $table->time('start_time');
+            $table->time('end_time');
+            $table->boolean('is_cross_day')->default(false);
+            $table->timestamps();
+        });
     }
-}
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('shifts');
+    }
+};

@@ -3,17 +3,17 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Models\Department;
+use App\Models\JobGrade;
 use Illuminate\Http\Request;
 
-class DepartmentController extends Controller
+class JobGradeController extends Controller
 {
     public function index()
     {
-        $departments = Department::all();
+        $jobGrades = JobGrade::all();
         return response()->json([
             'success' => true,
-            'data' => $departments
+            'data' => $jobGrades
         ]);
     }
 
@@ -21,61 +21,63 @@ class DepartmentController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
+            'level' => 'required|integer|min:1',
+            'default_allowance' => 'nullable|numeric|min:0',
         ]);
 
-        $department = Department::create($validated);
+        $jobGrade = JobGrade::create($validated);
 
         return response()->json([
             'success' => true,
-            'message' => 'Department created successfully',
-            'data' => $department
+            'message' => 'Job Grade created successfully',
+            'data' => $jobGrade
         ], 201);
     }
 
     public function show($id)
     {
-        $department = Department::findOrFail($id);
+        $jobGrade = JobGrade::findOrFail($id);
         return response()->json([
             'success' => true,
-            'data' => $department
+            'data' => $jobGrade
         ]);
     }
 
     public function update(Request $request, $id)
     {
-        $department = Department::findOrFail($id);
+        $jobGrade = JobGrade::findOrFail($id);
 
         $validated = $request->validate([
             'name' => 'sometimes|string|max:255',
-            'description' => 'nullable|string',
+            'level' => 'sometimes|integer|min:1',
+            'default_allowance' => 'nullable|numeric|min:0',
         ]);
 
-        $department->update($validated);
+        $jobGrade->update($validated);
 
         return response()->json([
             'success' => true,
-            'message' => 'Department updated successfully',
-            'data' => $department
+            'message' => 'Job Grade updated successfully',
+            'data' => $jobGrade
         ]);
     }
 
     public function destroy($id)
     {
-        $department = Department::findOrFail($id);
-        
-        if ($department->positions()->exists()) {
+        $jobGrade = JobGrade::findOrFail($id);
+
+        if ($jobGrade->positions()->exists()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Cannot delete department with assigned positions'
+                'message' => 'Cannot delete job grade with assigned positions'
             ], 400);
         }
 
-        $department->delete();
+        $jobGrade->delete();
 
         return response()->json([
             'success' => true,
-            'message' => 'Department deleted successfully'
+            'message' => 'Job Grade deleted successfully'
         ]);
     }
 }
