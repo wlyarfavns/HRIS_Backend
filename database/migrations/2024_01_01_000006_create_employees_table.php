@@ -9,63 +9,26 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('employees', function (Blueprint $table) {
-
             $table->id();
-
-            /*
-            |--------------------------------------------------------------------------
-            | Company
-            |--------------------------------------------------------------------------
-            */
 
             $table->foreignId('company_id')
                 ->constrained()
                 ->cascadeOnDelete();
-
-            /*
-            |--------------------------------------------------------------------------
-            | User Login
-            |--------------------------------------------------------------------------
-            */
 
             $table->foreignId('user_id')
                 ->nullable()
                 ->constrained()
                 ->nullOnDelete();
 
-            /*
-            |--------------------------------------------------------------------------
-            | Employee ID (NIP)
-            |--------------------------------------------------------------------------
-            */
-
             $table->string('employee_id')->unique();
 
-            /*
-            |--------------------------------------------------------------------------
-            | Biodata
-            |--------------------------------------------------------------------------
-            */
-
             $table->string('full_name');
-
             $table->string('email')->unique();
-
-            $table->string('phone',20)->nullable();
-
-            $table->enum('gender',['L','P']);
-
+            $table->string('phone', 20)->nullable();
+            $table->enum('gender', ['L', 'P']);
             $table->string('birth_place')->nullable();
-
             $table->date('birth_date')->nullable();
-
             $table->text('address')->nullable();
-
-            /*
-            |--------------------------------------------------------------------------
-            | Employment
-            |--------------------------------------------------------------------------
-            */
 
             $table->foreignId('department_id')
                 ->nullable()
@@ -79,29 +42,17 @@ return new class extends Migration
 
             $table->date('join_date');
 
-            $table->enum('employment_status',[
+            $table->enum('employment_status', [
                 'PKWT',
                 'PKWTT'
             ]);
 
-            /*
-            |--------------------------------------------------------------------------
-            | Account Status
-            |--------------------------------------------------------------------------
-            */
-
-            $table->enum('status',[
+            $table->enum('status', [
                 'pending',
                 'active',
                 'inactive',
                 'resigned'
             ])->default('pending');
-
-            /*
-            |--------------------------------------------------------------------------
-            | Activation
-            |--------------------------------------------------------------------------
-            */
 
             $table->string('activation_token')
                 ->nullable()
