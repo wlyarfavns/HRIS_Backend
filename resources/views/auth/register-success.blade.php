@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,8 +9,14 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        .font-display { font-family: 'Fraunces', serif; }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .font-display {
+            font-family: 'Fraunces', serif;
+        }
+
         .notch {
             position: absolute;
             width: 26px;
@@ -18,12 +25,19 @@
             background: #0d3b2e;
             left: -13px;
         }
+
         @media (max-width: 767px) {
-            .perforation-v { display: none; }
-            .perforation-h { display: block !important; }
+            .perforation-v {
+                display: none;
+            }
+
+            .perforation-h {
+                display: block !important;
+            }
         }
     </style>
 </head>
+
 <body class="bg-[#0d3b2e] min-h-screen flex items-center justify-center p-4">
 
     <div class="w-full max-w-3xl bg-[#fffdf9] rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row relative">
@@ -49,14 +63,14 @@
             </h1>
 
             <p class="text-gray-600 text-[15px] leading-relaxed mb-8 max-w-sm">
-                {{ $company_name ?? 'PT. Nama Perusahaan Anda' }} kini terdaftar di TalentaHR.
+                {{ session('company_name', 'PT. Nama Perusahaan Anda') }} kini terdaftar di TalentaHR.
                 Gunakan kredensial berikut untuk masuk dan mulai mengatur tim Anda.
             </p>
 
             <div class="space-y-4 mb-9">
                 <div class="flex gap-3">
                     <span class="mt-0.5 w-5 h-5 rounded-full border border-gray-300 flex items-center justify-center text-[10px] text-gray-400 shrink-0">1</span>
-                    <p class="text-sm text-gray-700">Cek kotak masuk <span class="font-medium text-gray-900">{{ $email ?? 'admin@perusahaan.com' }}</span> untuk salinan detail akun.</p>
+                    <p class="text-sm text-gray-700">Cek kotak masuk <span class="font-medium text-gray-900">{{ session('email', 'admin@perusahaan.com') }}</span> untuk salinan detail akun.</p>
                 </div>
                 <div class="flex gap-3">
                     <span class="mt-0.5 w-5 h-5 rounded-full border border-gray-300 flex items-center justify-center text-[10px] text-gray-400 shrink-0">2</span>
@@ -68,8 +82,7 @@
                 </div>
             </div>
 
-            <a href="{{ route('login') }}"
-               class="inline-flex items-center justify-center bg-[#0d3b2e] hover:bg-[#0a2f24] text-white font-semibold py-3 px-7 text-sm rounded-lg transition">
+            <a href="{{ route('admin.dashboard') }}" class="inline-flex items-center justify-center bg-[#0d3b2e] hover:bg-[#0a2f24] text-white font-semibold py-3 px-7 text-sm rounded-lg transition">
                 Masuk ke Dashboard
             </a>
 
@@ -93,17 +106,17 @@
             <div>
                 <p class="text-[10px] font-semibold tracking-widest text-gray-400 uppercase mb-1">Perusahaan</p>
                 <p class="text-sm font-semibold text-gray-900 mb-5 leading-snug">
-                    {{ $company_name ?? 'PT. Nama Perusahaan Anda' }}
+                    {{ session('company_name', 'PT. Nama Perusahaan Anda') }}
                 </p>
 
                 <p class="text-[10px] font-semibold tracking-widest text-gray-400 uppercase mb-1">Email admin</p>
                 <p class="text-sm font-medium text-gray-800 mb-5 break-all">
-                    {{ $email ?? 'admin@perusahaan.com' }}
+                    {{ session('email', 'admin@perusahaan.com') }}
                 </p>
 
                 <p class="text-[10px] font-semibold tracking-widest text-gray-400 uppercase mb-1">Terdaftar pada</p>
                 <p class="text-sm font-medium text-gray-800">
-                    {{ $registered_at ?? date('d M Y') }}
+                    {{ session('registered_at', date('d M Y')) }}
                 </p>
             </div>
 
@@ -115,4 +128,5 @@
     </div>
 
 </body>
+
 </html>
