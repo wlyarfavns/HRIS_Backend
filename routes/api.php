@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\Auth\AuthController;
 use App\Http\Controllers\EmployeeContractController;
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\Api\V1\LeaveRequestController;
 
 Route::prefix('/v1')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
@@ -22,5 +23,10 @@ Route::prefix('/v1')->group(function () {
         Route::apiResource('permissions', \App\Http\Controllers\Api\V1\PermissionController::class)->only(['index', 'show']);
         
         Route::post('/attendance/status', [AttendanceController::class, 'checkAttendanceStatus']);
+
+        // Leave Requests (Cuti & Izin)
+        Route::get('/leave-requests', [LeaveRequestController::class, 'index']);
+        Route::post('/leave-requests', [LeaveRequestController::class, 'store']);
+        Route::patch('/leave-requests/{id}/approve', [LeaveRequestController::class, 'approve']);
     });
 });
