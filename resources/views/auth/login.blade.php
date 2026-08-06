@@ -27,14 +27,7 @@
                 </p>
             </div>
 
-            <div class="flex items-center gap-3 mt-8">
-                <div class="flex -space-x-2">
-                    <span class="w-8 h-8 rounded-full bg-slate-300 border-2 border-white"></span>
-                    <span class="w-8 h-8 rounded-full bg-slate-400 border-2 border-white"></span>
-                    <span class="w-8 h-8 rounded-full bg-slate-500 border-2 border-white"></span>
-                </div>
-                <span class="text-sm font-medium text-gray-700">Bergabung dengan 500+ anggota TalentaHR</span>
-            </div>
+            
         </div>
 
         {{-- RIGHT PANEL --}}

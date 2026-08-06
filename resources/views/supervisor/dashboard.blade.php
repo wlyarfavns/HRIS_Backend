@@ -104,15 +104,6 @@
         </header>
 
         <main class="p-8 space-y-6">
-
-            {{-- WELCOME BANNER --}}
-            <div class="bg-[#0d3b2e] rounded-2xl p-8">
-                <h1 class="text-3xl font-bold text-white mb-2">Selamat datang, Andy!</h1>
-                <p class="text-emerald-100 max-w-xl">
-                    Kelola kehadiran, cuti, dan lembur tim kamu di satu tempat.
-                </p>
-            </div>
-
             {{-- TAB NAVIGATION --}}
             <div class="bg-white rounded-2xl shadow-sm">
                 <div class="flex overflow-x-auto border-b border-gray-100">
