@@ -77,7 +77,7 @@
                     </div>
                 </div>
                 <div>
-                    <label class="text-xs font-bold text-on-surface-variant/60 uppercase tracking-wide">Cabang / Departemen</label>
+                    <label class="text-xs font-bold text-on-surface-variant/60 uppercase tracking-wide">Departemen</label>
                     <div class="relative mt-1.5">
                         <select name="department" required
                                 class="appearance-none w-full pl-3.5 pr-9 py-2.5 bg-surface-container rounded-lg text-sm border border-transparent
@@ -85,7 +85,7 @@
                             <option>Sales</option>
                             <option>Finance</option>
                             <option>Front Office</option>
-                            <option>Semua Cabang</option>
+                            <option>Semua Departemen</option>
                         </select>
                         <span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant/50 text-[18px] pointer-events-none">expand_more</span>
                     </div>

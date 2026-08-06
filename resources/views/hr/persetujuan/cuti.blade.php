@@ -2,7 +2,7 @@
 
 @section('title', 'Persetujuan Cuti & Izin')
 @section('page-title', 'Persetujuan Cuti & Izin')
-@section('page-desc', 'Kelola pengajuan cuti, sakit, dan izin karyawan.')
+@section('page-desc', 'Kelola pengajuan cuti, sakit, dan izin karyawan yang sudah disetujui Supervisor.')
 
 @php
     $requests = [
@@ -82,14 +82,29 @@
                             <span class="text-[11px] font-bold px-2.5 py-1 rounded {{ $badge[$r['status']] }}">{{ $r['status'] }}</span>
                         </td>
                         <td class="px-6 py-3.5">
-                            <div class="flex items-center justify-center gap-2">
-                                <button class="w-7 h-7 rounded-full border border-black/10 flex items-center justify-center hover:bg-primary/5 hover:border-primary/40 text-primary transition">
-                                    <span class="material-symbols-outlined text-[16px]">check</span>
-                                </button>
-                                <button class="w-7 h-7 rounded-full border border-black/10 flex items-center justify-center hover:bg-error/5 hover:border-error/40 text-error transition">
-                                    <span class="material-symbols-outlined text-[16px]">close</span>
-                                </button>
-                            </div>
+                            @if ($r['status'] === 'Pending HR')
+                                <div class="flex items-center justify-center gap-2">
+                                    <button type="button" class="w-7 h-7 rounded-full border border-black/10 flex items-center justify-center hover:bg-primary/5 hover:border-primary/40 text-primary transition">
+                                        <span class="material-symbols-outlined text-[16px]">check</span>
+                                    </button>
+                                    <button type="button" class="w-7 h-7 rounded-full border border-black/10 flex items-center justify-center hover:bg-error/5 hover:border-error/40 text-error transition">
+                                        <span class="material-symbols-outlined text-[16px]">close</span>
+                                    </button>
+                                </div>
+                            @elseif ($r['status'] === 'Pending SPV')
+                                <div class="flex items-center justify-center">
+                                    <span title="Menunggu approval Supervisor" class="flex items-center gap-1 text-[11px] font-bold text-on-surface-variant/40">
+                                        <span class="material-symbols-outlined text-[15px]">lock_clock</span>
+                                        Menunggu SPV
+                                    </span>
+                                </div>
+                            @else
+                                <div class="flex items-center justify-center">
+                                    <button type="button" class="p-1.5 rounded-lg text-on-surface-variant/50 hover:text-primary hover:bg-primary/5 transition">
+                                        <span class="material-symbols-outlined text-[18px]">description</span>
+                                    </button>
+                                </div>
+                            @endif
                         </td>
                     </tr>
                 @endforeach

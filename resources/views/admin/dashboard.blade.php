@@ -16,14 +16,14 @@
                 </span>
             </div>
             <p class="text-5xl font-extrabold font-mono-data mt-6 mb-1">1.284</p>
-            <p class="text-white/60 text-xs">Tersebar di 3 cabang aktif</p>
+            <p class="text-white/60 text-xs">Naik 4% dari bulan lalu</p>
         </div>
 
         <div class="col-span-8 card-flat rounded-2xl p-6 grid grid-cols-2 divide-x divide-black/5">
             <div class="pr-5">
-                <p class="text-on-surface-variant/40 text-[10px] font-bold uppercase tracking-widest mb-3">Cabang Aktif</p>
-                <p class="text-3xl font-bold font-mono-data text-primary mb-1">3</p>
-                <a href="{{ route('admin.companies.index') }}" class="text-xs font-bold text-primary/70 hover:text-primary transition">Kelola cabang →</a>
+                <p class="text-on-surface-variant/40 text-[10px] font-bold uppercase tracking-widest mb-3">Departemen Aktif</p>
+                <p class="text-3xl font-bold font-mono-data text-primary mb-1">4</p>
+                <a href="{{ route('admin.org-structure.index') }}" class="text-xs font-bold text-primary/70 hover:text-primary transition">Kelola struktur →</a>
             </div>
             <div class="pl-5">
                 <p class="text-on-surface-variant/40 text-[10px] font-bold uppercase tracking-widest mb-3">Pengguna Sistem</p>
@@ -76,7 +76,7 @@
                     </div>
                     <div class="flex-1 pb-1 border-l border-black/5 pl-4 -ml-1">
                         <p class="font-bold text-on-surface text-sm">Pengguna baru ditambahkan</p>
-                        <p class="text-sm text-on-surface-variant/60 mt-0.5">Dwight Schrute ditambahkan sebagai Supervisor cabang Scranton.</p>
+                        <p class="text-sm text-on-surface-variant/60 mt-0.5">Dwight Schrute ditambahkan sebagai Supervisor tim Sales.</p>
                     </div>
                 </div>
 

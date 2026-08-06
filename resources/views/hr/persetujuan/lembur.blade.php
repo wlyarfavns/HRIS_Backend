@@ -2,14 +2,14 @@
 
 @section('title', 'Persetujuan Lembur (SPL)')
 @section('page-title', 'Persetujuan Lembur (SPL)')
-@section('page-desc', 'Surat Perintah Lembur menunggu persetujuan & kunci sebelum payroll.')
+@section('page-desc', 'Kunci SPL yang sudah disetujui Supervisor sebelum masuk payroll.')
 
 @php
     $requests = [
-        ['name' => 'Eko Prasetyo', 'avatar' => 19, 'hours' => 3, 'project' => 'Migrasi Server', 'status' => 'Approved Spv', 'salary' => 6500000],
-        ['name' => 'Kevin Malone', 'avatar' => 55, 'hours' => 2, 'project' => 'Closing Laporan Bulanan', 'status' => 'Pending Spv', 'salary' => 5200000],
+        ['name' => 'Eko Prasetyo', 'avatar' => 19, 'hours' => 3, 'project' => 'Migrasi Server', 'status' => 'Approved SPV', 'salary' => 6500000],
+        ['name' => 'Kevin Malone', 'avatar' => 55, 'hours' => 2, 'project' => 'Closing Laporan Bulanan', 'status' => 'Pending SPV', 'salary' => 5200000],
     ];
-    $badge = ['Pending Spv' => 'bg-amber-500/10 text-amber-700', 'Approved Spv' => 'bg-primary/10 text-primary', 'Locked' => 'bg-gray-200 text-gray-600'];
+    $badge = ['Pending SPV' => 'bg-amber-500/10 text-amber-700', 'Approved SPV' => 'bg-primary/10 text-primary', 'Locked' => 'bg-gray-200 text-gray-600'];
 @endphp
 
 @section('content')
@@ -32,6 +32,7 @@
     <div class="card-flat rounded-2xl overflow-hidden">
         <div class="px-6 py-4 border-b border-black/5">
             <h2 class="text-base font-bold text-on-surface">Daftar Pengajuan SPL</h2>
+            <p class="text-xs text-on-surface-variant/50 mt-0.5">"Lock SPL" hanya aktif untuk pengajuan yang sudah disetujui Supervisor.</p>
         </div>
         <table class="w-full text-sm">
             <thead>
@@ -61,14 +62,23 @@
                             <span class="text-[11px] font-bold px-2.5 py-1 rounded {{ $badge[$r['status']] }}">{{ $r['status'] }}</span>
                         </td>
                         <td class="px-6 py-3.5">
-                            <div class="flex items-center justify-center gap-2">
-                                <button class="text-[11px] font-bold px-3 py-1.5 rounded-lg border border-black/10 hover:bg-primary/5 hover:border-primary/40 text-primary transition">
-                                    Lock SPL
-                                </button>
-                                <button class="w-7 h-7 rounded-full border border-black/10 flex items-center justify-center hover:bg-error/5 hover:border-error/40 text-error transition">
-                                    <span class="material-symbols-outlined text-[16px]">close</span>
-                                </button>
-                            </div>
+                            @if ($r['status'] === 'Approved SPV')
+                                <div class="flex items-center justify-center gap-2">
+                                    <button type="button" class="text-[11px] font-bold px-3 py-1.5 rounded-lg border border-black/10 hover:bg-primary/5 hover:border-primary/40 text-primary transition">
+                                        Lock SPL
+                                    </button>
+                                    <button type="button" class="w-7 h-7 rounded-full border border-black/10 flex items-center justify-center hover:bg-error/5 hover:border-error/40 text-error transition">
+                                        <span class="material-symbols-outlined text-[16px]">close</span>
+                                    </button>
+                                </div>
+                            @else
+                                <div class="flex items-center justify-center">
+                                    <span title="Menunggu approval Supervisor" class="flex items-center gap-1 text-[11px] font-bold text-on-surface-variant/40">
+                                        <span class="material-symbols-outlined text-[15px]">lock_clock</span>
+                                        Menunggu SPV
+                                    </span>
+                                </div>
+                            @endif
                         </td>
                     </tr>
                 @endforeach

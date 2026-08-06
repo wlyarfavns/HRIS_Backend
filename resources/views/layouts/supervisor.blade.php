@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Dashboard') - TalentaHR</title>
+    <title>@yield('title', 'Dashboard Supervisor') - TalentaHR</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -58,104 +58,44 @@
             box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.02);
             transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
-        .card-flat:hover {
-            border-color: rgba(11, 61, 46, 0.15);
-            box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.03);
-        }
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
-            display: inline-block;
-        }
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 10px; }
-
-        /* Tab sidebar: aktif tetap hijau saat di-hover */
-        .nav-tab.is-active {
-            background-color: rgba(11, 61, 46, 0.08);
-            color: #0B3D2E;
-            font-weight: 600;
-        }
-        .nav-tab.is-active:hover {
-            background-color: rgba(11, 61, 46, 0.16);
-            color: #0B3D2E;
-        }
-        .nav-tab:not(.is-active) {
-            color: rgba(65, 73, 68, 0.8);
-        }
-        .nav-tab:not(.is-active):hover {
-            background-color: rgba(11, 61, 46, 0.06);
-            color: #0B3D2E;
-        }
-        .nav-subtab.is-active {
-            background-color: rgba(11, 61, 46, 0.08);
-            color: #0B3D2E;
-            font-weight: 600;
-        }
-        .nav-subtab.is-active:hover {
-            background-color: rgba(11, 61, 46, 0.16);
-        }
-        .nav-subtab:not(.is-active) {
-            color: rgba(65, 73, 68, 0.7);
-        }
-        .nav-subtab:not(.is-active):hover {
-            background-color: rgba(11, 61, 46, 0.06);
-            color: #0B3D2E;
-        }
+        [x-cloak] { display: none !important; }
+        /* Sidebar Supervisor — identitas terpisah, warna aksen sama (brand) */
+        .nav-tab.is-active { background-color: rgba(11, 61, 46, 0.1); color: #0B3D2E; font-weight: 700; }
+        .nav-tab:hover:not(.is-active) { background-color: rgba(11, 61, 46, 0.05); }
+        .nav-tab:not(.is-active) { color: rgba(65, 73, 68, 0.8); }
+        .nav-subtab.is-active { background-color: rgba(11, 61, 46, 0.1); color: #0B3D2E; font-weight: 700; }
+        .nav-subtab:hover:not(.is-active) { background-color: rgba(11, 61, 46, 0.08); }
+        .nav-subtab.is-active:hover { background-color: rgba(11, 61, 46, 0.16); }
+        .nav-subtab:not(.is-active) { color: rgba(65, 73, 68, 0.7); }
     </style>
 </head>
 <body class="text-on-surface antialiased bg-[#F4F7F5]">
 <div class="flex min-h-screen">
 
-    {{-- SIDEBAR — hanya berisi tab menu --}}
+    {{-- SIDEBAR SUPERVISOR — struktur & menu khusus role Supervisor --}}
     <aside class="w-72 bg-white sidebar-border fixed h-screen flex flex-col">
         <div class="px-8 py-6 border-b border-black/5">
             <h1 class="text-xl font-extrabold text-primary tracking-tight leading-tight">HRIS System</h1>
-            <p class="text-[11px] font-bold text-on-surface-variant/50 uppercase tracking-widest mt-1">Kontrol Perusahaan</p>
+            <p class="text-[11px] font-bold text-on-surface-variant/50 uppercase tracking-widest mt-1">Modul Supervisor</p>
         </div>
 
         <nav class="flex-1 px-4 pt-6 space-y-1 overflow-y-auto pb-8">
 
-            <x-nav-link route="admin.dashboard">
+            <x-nav-link route="supervisor.dashboard">
                 <span class="material-symbols-outlined text-[20px]">dashboard</span>
                 Dashboard
             </x-nav-link>
 
-            <x-nav-group icon="domain" label="Perusahaan"
-                :active="request()->routeIs('admin.companies.*') || request()->routeIs('admin.org-structure.index')">
-                <x-nav-sublink route="admin.companies.index" active="admin.companies.*">Profil Perusahaan</x-nav-sublink>
-                <x-nav-sublink route="admin.org-structure.index">Struktur Organisasi</x-nav-sublink>
+            <x-nav-group icon="fact_check" label="Persetujuan Tim"
+                :active="request()->routeIs('supervisor.approvals.*')">
+                <x-nav-sublink route="supervisor.approvals.leave" badge="2">Cuti &amp; Izin</x-nav-sublink>
+                <x-nav-sublink route="supervisor.approvals.overtime">Lembur (SPL)</x-nav-sublink>
+                <x-nav-sublink route="supervisor.approvals.reimbursement">Reimbursement</x-nav-sublink>
             </x-nav-group>
 
-            <x-nav-link route="admin.users.index" active="admin.users.*">
-                <span class="material-symbols-outlined text-[20px]">group</span>
-                Pengguna
-            </x-nav-link>
-
-            <x-nav-link route="admin.security.index">
-                <span class="material-symbols-outlined text-[20px]">shield</span>
-                Keamanan
-            </x-nav-link>
-
-            <x-nav-group icon="apps" label="Modul"
-                :active="request()->routeIs('admin.modules.*')">
-                <x-nav-sublink route="admin.modules.hr" badge="12">Modul HR</x-nav-sublink>
-                <x-nav-sublink route="admin.modules.finance">Modul Finance</x-nav-sublink>
-            </x-nav-group>
-
-            <x-nav-link route="admin.billing.index">
-                <span class="material-symbols-outlined text-[20px]">receipt_long</span>
-                Langganan
-            </x-nav-link>
-
-            <x-nav-link route="admin.logs.index">
-                <span class="material-symbols-outlined text-[20px]">history</span>
-                Log Aktivitas
-            </x-nav-link>
-
-            <x-nav-link route="admin.integrations.index">
-                <span class="material-symbols-outlined text-[20px]">bolt</span>
-                Integrasi
+            <x-nav-link route="supervisor.attendance.report">
+                <span class="material-symbols-outlined text-[20px]">groups</span>
+                Laporan Kehadiran Tim
             </x-nav-link>
         </nav>
     </aside>
@@ -165,15 +105,15 @@
 
         {{-- TOP BAR --}}
         <header class="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-black/5">
-            <div class="flex items-center justify-between px-8 py-3.5">
-                <div>
+            <div class="flex items-center justify-between px-8 py-3.5 gap-6">
+                <div class="min-w-0">
                     <h1 class="text-lg font-bold text-on-surface">@yield('page-title', 'Dashboard')</h1>
                     @hasSection('page-desc')
                         <p class="text-sm text-on-surface-variant/60">@yield('page-desc')</p>
                     @endif
                 </div>
 
-                <div class="flex items-center gap-4">
+                <div class="flex items-center gap-4 shrink-0">
                     @yield('page-action')
 
                     <button class="relative p-2 text-on-surface-variant/60 hover:text-primary transition-colors">
@@ -187,21 +127,21 @@
                     <div class="relative" x-data="{ open: false }" @click.outside="open = false">
                         <button @click="open = !open" class="flex items-center gap-3 group">
                             <div class="text-right hidden sm:block">
-                                <p class="text-sm font-bold text-on-surface leading-tight">Andi Wijaya</p>
-                                <p class="text-[10px] text-on-surface-variant/60 font-bold uppercase tracking-wide">Super Admin</p>
+                                <p class="text-sm font-bold text-on-surface leading-tight">Andy Bernard</p>
+                                <p class="text-[10px] text-on-surface-variant/60 font-bold uppercase tracking-wide">Supervisor</p>
                             </div>
-                            <img src="https://i.pravatar.cc/40?img=15" alt="Foto profil"
-                                 class="w-9 h-9 rounded-full object-cover ring-2 ring-transparent group-hover:ring-primary/20 transition">
+                            <img src="https://i.pravatar.cc/40?img=51" alt="Foto profil"
+                                class="w-9 h-9 rounded-full object-cover ring-2 ring-transparent group-hover:ring-primary/20 transition">
                             <span class="material-symbols-outlined text-on-surface-variant/50 text-[18px] transition"
-                                  :class="open && 'rotate-180'">expand_more</span>
+                                :class="open && 'rotate-180'">expand_more</span>
                         </button>
 
                         <div x-show="open" x-transition.origin.top.right
-                             class="absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-lg border border-black/5 py-2 z-30"
-                             style="display: none;">
+                            class="absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-lg border border-black/5 py-2 z-30"
+                            style="display: none;">
                             <div class="px-4 py-2 border-b border-black/5">
-                                <p class="text-sm font-bold text-on-surface">Andi Wijaya</p>
-                                <p class="text-xs text-on-surface-variant/60">andi.wijaya@talentahr.co.id</p>
+                                <p class="text-sm font-bold text-on-surface">Andy Bernard</p>
+                                <p class="text-xs text-on-surface-variant/60">andy.bernard@talentahr.co.id</p>
                             </div>
                             <a href="#profil" class="flex items-center gap-2.5 px-4 py-2 text-sm text-on-surface-variant/80 hover:bg-primary/5 hover:text-primary transition">
                                 <span class="material-symbols-outlined text-[18px]">account_circle</span>

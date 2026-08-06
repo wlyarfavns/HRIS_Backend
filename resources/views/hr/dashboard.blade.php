@@ -16,7 +16,7 @@
                 </span>
             </div>
             <p class="text-5xl font-extrabold font-mono-data mt-6 mb-1">1.284</p>
-            <p class="text-white/60 text-xs">Tersebar di 3 cabang aktif</p>
+            <p class="text-white/60 text-xs">Naik 4% dari bulan lalu</p>
         </div>
 
         <div class="col-span-8 card-flat rounded-2xl p-6 grid grid-cols-2 divide-x divide-black/5">

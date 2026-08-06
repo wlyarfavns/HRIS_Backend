@@ -6,7 +6,7 @@
 
 @php
     $stats = [
-        ['label' => 'Total Karyawan', 'value' => '1.284', 'icon' => 'groups', 'note' => 'Aktif di 3 cabang'],
+        ['label' => 'Total Karyawan', 'value' => '1.284', 'icon' => 'groups', 'note' => 'Aktif & terverifikasi'],
         ['label' => 'Kontrak Akan Habis', 'value' => '18', 'icon' => 'event_upcoming', 'note' => 'H-30 dari sekarang'],
         ['label' => 'Karyawan Baru', 'value' => '7', 'icon' => 'person_add', 'note' => '30 hari terakhir'],
         ['label' => 'PKWT / PKWTT', 'value' => '312 / 972', 'icon' => 'assignment', 'note' => 'Rasio tipe kontrak'],
