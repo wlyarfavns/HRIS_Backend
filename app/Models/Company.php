@@ -10,17 +10,10 @@ class Company extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name',
-        'address',
-        'city',
-        'province',
-        'postal_code',
-        'phone',
-        'email',
-        'office_latitude',
-        'office_longitude',
-        'geofence_radius_meters',
-        'is_active',
+        'name', 'address', 'city', 'province', 'postal_code', 
+        'phone', 'email', 'office_latitude', 'office_longitude', 
+        'geofence_radius_meters', 'is_active',
+        'standard_in_time', 'late_tolerance_minutes', 
     ];
 
     public function users()

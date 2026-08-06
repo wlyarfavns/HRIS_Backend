@@ -27,14 +27,7 @@
                 </p>
             </div>
 
-            <div class="flex items-center gap-3 mt-8">
-                <div class="flex -space-x-2">
-                    <span class="w-8 h-8 rounded-full bg-slate-300 border-2 border-white"></span>
-                    <span class="w-8 h-8 rounded-full bg-slate-400 border-2 border-white"></span>
-                    <span class="w-8 h-8 rounded-full bg-slate-500 border-2 border-white"></span>
-                </div>
-                <span class="text-sm font-medium text-gray-700">Bergabung dengan 500+ anggota TalentaHR</span>
-            </div>
+            
         </div>
 
         {{-- RIGHT PANEL --}}
@@ -51,7 +44,7 @@
 
             <p class="text-gray-600 mb-8">Selamat datang kembali. Silakan masukkan kredensial Anda.</p>
 
-            <form method="POST" action="{{ route('login') }}" class="space-y-5">
+            <form method="POST" action="{{ route('login.store') }}" class="space-y-5">
                 @csrf
 
                 {{-- EMAIL --}}
@@ -113,7 +106,7 @@
 
             <div class="text-center text-sm text-gray-600 mt-6">
                 Belum punya akun perusahaan?
-                <a href="" class="text-[#0d3b2e] font-semibold hover:underline">
+                <a href="{{ route('register') }}" class="text-[#0d3b2e] font-semibold hover:underline">
                     Daftar di sini
                 </a>
             </div>
