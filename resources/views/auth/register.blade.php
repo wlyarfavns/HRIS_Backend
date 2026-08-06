@@ -45,7 +45,7 @@
                 Lengkapi data perusahaan Anda untuk membuat akun admin
             </p>
 
-            <form method="POST" action="" class="space-y-3">
+            <form method="POST" action="{{ route('register.store') }}" class="space-y-3">
                 @csrf
 
                 {{-- NAMA PERUSAHAAN --}}
