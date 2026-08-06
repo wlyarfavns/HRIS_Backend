@@ -1,0 +1,80 @@
+{
+    "info": {
+        "name": "HRIS System - Leave API (Haikal's Task)",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "1. Pengajuan Cuti (Task 32: Validasi Min/Max)",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"employee_id\": 1,\n    \"leave_type_id\": 1,\n    \"start_date\": \"2026-08-10\",\n    \"end_date\": \"2026-08-12\",\n    \"total_days\": 3,\n    \"reason\": \"Cuti tahunan untuk liburan keluarga\"\n}"
+                },
+                "url": {
+                    "raw": "http://localhost:8000/api/v1/leave-requests",
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "8000",
+                    "path": [
+                        "api",
+                        "v1",
+                        "leave-requests"
+                    ]
+                }
+            }
+        },
+        {
+            "name": "2. Approval Cuti (Task 31: Potong Kuota)",
+            "request": {
+                "method": "PATCH",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": {
+                    "raw": "http://localhost:8000/api/v1/leave-requests/1/approve",
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "8000",
+                    "path": [
+                        "api",
+                        "v1",
+                        "leave-requests",
+                        "1",
+                        "approve"
+                    ]
+                }
+            }
+        }
+    ]
+}
