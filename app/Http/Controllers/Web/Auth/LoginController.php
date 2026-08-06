@@ -39,7 +39,7 @@ class LoginController extends Controller
                 ]);
             }
 
-            return redirect()->route('dashboard');
+            return redirect()->route('admin.dashboard');
         }
 
         if ($request->expectsJson()) {
@@ -77,5 +77,10 @@ class LoginController extends Controller
         }
 
         return redirect('/');
+    }
+
+    public function create()
+    {
+        return view('auth.login');
     }
 }

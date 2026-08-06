@@ -16,28 +16,28 @@ class RegisterCompanyController extends Controller
     {
         $request->validate([
             'company_name' => 'required|string|max:255',
-            'city' => 'required|string|max:100',
-            'province' => 'required|string|max:100',
-            'postal_code' => 'required|string|max:10',
-            'email' => 'required|email|max:255|unique:users,email',
-            'password' => 'required|string|min:8|confirmed',
+            'city'         => 'required|string|max:100',
+            'province'     => 'required|string|max:100',
+            'postal_code'  => 'required|string|max:10',
+            'email'        => 'required|email|max:255|unique:users,email',
+            'password'     => 'required|string|min:8|confirmed',
         ]);
 
         try {
             DB::beginTransaction();
 
             $company = Company::create([
-                'name' => $request->company_name,
-                'city' => $request->city,
-                'province' => $request->province,
+                'name'        => $request->company_name,
+                'city'        => $request->city,
+                'province'    => $request->province,
                 'postal_code' => $request->postal_code,
             ]);
 
             $user = User::create([
                 'company_id' => $company->id,
-                'name' => $request->company_name,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
+                'name'       => $request->company_name,
+                'email'      => $request->email,
+                'password'   => Hash::make($request->password),
             ]);
 
             $user->assignRole('company');
@@ -53,17 +53,19 @@ class RegisterCompanyController extends Controller
                 return response()->json([
                     'success' => true,
                     'message' => 'Perusahaan berhasil didaftarkan.',
-                    'data' => [
+                    'data'    => [
                         'company' => $company,
-                        'user' => $user,
+                        'user'    => $user,
                     ]
                 ], 201);
             }
 
-            // Jika request dari browser
-            return redirect()
-                ->route('dashboard')
-                ->with('success', 'Perusahaan berhasil didaftarkan.');
+            // Jika request dari browser, redirect ke halaman sukses dengan membawa data session
+            return redirect()->route('register.success')->with([
+                'company_name'  => $request->company_name,
+                'email'         => $request->email,
+                'registered_at' => now()->translatedFormat('d M Y')
+            ]);
 
         } catch (\Exception $e) {
 
@@ -73,7 +75,7 @@ class RegisterCompanyController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'Terjadi kesalahan.',
-                    'error' => $e->getMessage(),
+                    'error'   => $e->getMessage(),
                 ], 500);
             }
 
@@ -83,5 +85,23 @@ class RegisterCompanyController extends Controller
                     'error' => 'Terjadi kesalahan: ' . $e->getMessage(),
                 ]);
         }
+    }
+
+    public function create()
+    {
+        return view('auth.register');
+    }
+
+    /**
+     * Menampilkan halaman registrasi berhasil
+     */
+    public function success()
+    {
+        // Proteksi: Jika tidak ada session 'company_name', kembalikan ke form register
+        if (!session('company_name')) {
+            return redirect()->route('register');
+        }
+
+        return view('auth.register-success');
     }
 }

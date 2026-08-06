@@ -18,7 +18,10 @@ return Application::configure(basePath: dirname(__DIR__))
             '/login',
             '/logout',
             '/users',
-            '/users/*'
+            '/users/*',
+            '/departments',
+            '/positions',
+            '/employees'
         ]);
 
         $middleware->alias([

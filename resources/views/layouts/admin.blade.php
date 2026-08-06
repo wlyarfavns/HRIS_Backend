@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@yield('title', 'Dashboard') - TalentaHR</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-surface-variant": "#414944",
+                        "outline-variant": "#E1E3E4",
+                        "surface-container": "#F8F9FA",
+                        "outline": "#717974",
+                        "on-surface": "#191c1d",
+                        "surface": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "surface-variant": "#f1f3f4",
+                        "secondary": "#0B3D2E",
+                        "primary": "#0B3D2E",
+                        "on-error": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "error": "#ba1a1a",
+                        "brand-gold": "#FFD700",
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.5rem",
+                        lg: "0.75rem",
+                        xl: "1rem",
+                        "2xl": "1.25rem",
+                        "3xl": "1.5rem",
+                        full: "9999px",
+                    },
+                    fontFamily: {
+                        sans: ["Inter", "system-ui", "sans-serif"],
+                    },
+                },
+            },
+        }
+    </script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono-data { font-family: 'IBM Plex Mono', ui-monospace, monospace; }
+        .sidebar-border { border-right: 1px solid rgba(0,0,0,0.06); }
+        .card-flat {
+            background: #ffffff;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.02);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .card-flat:hover {
+            border-color: rgba(11, 61, 46, 0.15);
+            box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.03);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+        }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 10px; }
+
+        /* Tab sidebar: aktif tetap hijau saat di-hover */
+        .nav-tab.is-active {
+            background-color: rgba(11, 61, 46, 0.08);
+            color: #0B3D2E;
+            font-weight: 600;
+        }
+        .nav-tab.is-active:hover {
+            background-color: rgba(11, 61, 46, 0.16);
+            color: #0B3D2E;
+        }
+        .nav-tab:not(.is-active) {
+            color: rgba(65, 73, 68, 0.8);
+        }
+        .nav-tab:not(.is-active):hover {
+            background-color: rgba(11, 61, 46, 0.06);
+            color: #0B3D2E;
+        }
+        .nav-subtab.is-active {
+            background-color: rgba(11, 61, 46, 0.08);
+            color: #0B3D2E;
+            font-weight: 600;
+        }
+        .nav-subtab.is-active:hover {
+            background-color: rgba(11, 61, 46, 0.16);
+        }
+        .nav-subtab:not(.is-active) {
+            color: rgba(65, 73, 68, 0.7);
+        }
+        .nav-subtab:not(.is-active):hover {
+            background-color: rgba(11, 61, 46, 0.06);
+            color: #0B3D2E;
+        }
+    </style>
+</head>
+<body class="text-on-surface antialiased bg-[#F4F7F5]">
+<div class="flex min-h-screen">
+
+    {{-- SIDEBAR — hanya berisi tab menu --}}
+    <aside class="w-72 bg-white sidebar-border fixed h-screen flex flex-col">
+        <div class="px-8 py-6 border-b border-black/5">
+            <h1 class="text-xl font-extrabold text-primary tracking-tight leading-tight">HRIS System</h1>
+            <p class="text-[11px] font-bold text-on-surface-variant/50 uppercase tracking-widest mt-1">Kontrol Perusahaan</p>
+        </div>
+
+        <nav class="flex-1 px-4 pt-6 space-y-1 overflow-y-auto pb-8">
+
+            <x-nav-link route="admin.dashboard">
+                <span class="material-symbols-outlined text-[20px]">dashboard</span>
+                Dashboard
+            </x-nav-link>
+
+            <x-nav-group icon="domain" label="Perusahaan"
+                :active="request()->routeIs('admin.companies.*') || request()->routeIs('admin.org-structure.index')">
+                <x-nav-sublink route="admin.companies.index" active="admin.companies.*">Profil Perusahaan</x-nav-sublink>
+                <x-nav-sublink route="admin.org-structure.index">Struktur Organisasi</x-nav-sublink>
+            </x-nav-group>
+
+            <x-nav-link route="admin.users.index" active="admin.users.*">
+                <span class="material-symbols-outlined text-[20px]">group</span>
+                Pengguna
+            </x-nav-link>
+
+            <x-nav-link route="admin.security.index">
+                <span class="material-symbols-outlined text-[20px]">shield</span>
+                Keamanan
+            </x-nav-link>
+
+            <x-nav-group icon="apps" label="Modul"
+                :active="request()->routeIs('admin.modules.*')">
+                <x-nav-sublink route="admin.modules.hr" badge="12">Modul HR</x-nav-sublink>
+                <x-nav-sublink route="admin.modules.finance">Modul Finance</x-nav-sublink>
+            </x-nav-group>
+
+            <x-nav-link route="admin.billing.index">
+                <span class="material-symbols-outlined text-[20px]">receipt_long</span>
+                Langganan
+            </x-nav-link>
+
+            <x-nav-link route="admin.logs.index">
+                <span class="material-symbols-outlined text-[20px]">history</span>
+                Log Aktivitas
+            </x-nav-link>
+
+            <x-nav-link route="admin.integrations.index">
+                <span class="material-symbols-outlined text-[20px]">bolt</span>
+                Integrasi
+            </x-nav-link>
+        </nav>
+    </aside>
+
+    {{-- MAIN CONTENT --}}
+    <div class="flex-1 ml-72">
+
+        {{-- TOP BAR --}}
+        <header class="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-black/5">
+            <div class="flex items-center justify-between px-8 py-3.5">
+                <div>
+                    <h1 class="text-lg font-bold text-on-surface">@yield('page-title', 'Dashboard')</h1>
+                    @hasSection('page-desc')
+                        <p class="text-sm text-on-surface-variant/60">@yield('page-desc')</p>
+                    @endif
+                </div>
+
+                <div class="flex items-center gap-4">
+                    @yield('page-action')
+
+                    <button class="relative p-2 text-on-surface-variant/60 hover:text-primary transition-colors">
+                        <span class="material-symbols-outlined">notifications</span>
+                        <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-brand-gold rounded-full ring-2 ring-white"></span>
+                    </button>
+
+                    <div class="h-5 w-px bg-black/10"></div>
+
+                    {{-- PROFIL + DROPDOWN --}}
+                    <div class="relative" x-data="{ open: false }" @click.outside="open = false">
+                        <button @click="open = !open" class="flex items-center gap-3 group">
+                            <div class="text-right hidden sm:block">
+                                <p class="text-sm font-bold text-on-surface leading-tight">Andi Wijaya</p>
+                                <p class="text-[10px] text-on-surface-variant/60 font-bold uppercase tracking-wide">Super Admin</p>
+                            </div>
+                            <img src="https://i.pravatar.cc/40?img=15" alt="Foto profil"
+                                 class="w-9 h-9 rounded-full object-cover ring-2 ring-transparent group-hover:ring-primary/20 transition">
+                            <span class="material-symbols-outlined text-on-surface-variant/50 text-[18px] transition"
+                                  :class="open && 'rotate-180'">expand_more</span>
+                        </button>
+
+                        <div x-show="open" x-transition.origin.top.right
+                             class="absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-lg border border-black/5 py-2 z-30"
+                             style="display: none;">
+                            <div class="px-4 py-2 border-b border-black/5">
+                                <p class="text-sm font-bold text-on-surface">Andi Wijaya</p>
+                                <p class="text-xs text-on-surface-variant/60">andi.wijaya@talentahr.co.id</p>
+                            </div>
+                            <a href="#profil" class="flex items-center gap-2.5 px-4 py-2 text-sm text-on-surface-variant/80 hover:bg-primary/5 hover:text-primary transition">
+                                <span class="material-symbols-outlined text-[18px]">account_circle</span>
+                                Profil Saya
+                            </a>
+                            <a href="#pengaturan" class="flex items-center gap-2.5 px-4 py-2 text-sm text-on-surface-variant/80 hover:bg-primary/5 hover:text-primary transition">
+                                <span class="material-symbols-outlined text-[18px]">settings</span>
+                                Pengaturan Akun
+                            </a>
+                            <div class="border-t border-black/5 mt-1 pt-1">
+                                <form method="POST" action="">
+                                    @csrf
+                                    <button type="submit" class="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-error hover:bg-error/5 text-left transition">
+                                        <span class="material-symbols-outlined text-[18px]">logout</span>
+                                        Keluar
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="p-8 space-y-6">
+            @yield('content')
+        </main>
+    </div>
+</div>
+</body>
+</html>

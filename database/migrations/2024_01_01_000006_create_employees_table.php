@@ -10,28 +10,58 @@ return new class extends Migration
     {
         Schema::create('employees', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('company_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete(); // akun login karyawan (untuk Flutter)
-            $table->foreignId('department_id')->nullable()->constrained()->nullOnDelete();
-            $table->foreignId('position_id')->nullable()->constrained()->nullOnDelete();
 
-            $table->string('nip')->comment('Nomor Induk Pegawai, unik per company');
+            $table->foreignId('company_id')
+                ->constrained()
+                ->cascadeOnDelete();
+
+            $table->foreignId('user_id')
+                ->nullable()
+                ->constrained()
+                ->nullOnDelete();
+
+            $table->string('employee_id')->unique();
+
             $table->string('full_name');
-            $table->string('email')->nullable();
+            $table->string('email')->unique();
             $table->string('phone', 20)->nullable();
+            $table->enum('gender', ['L', 'P']);
+            $table->string('birth_place')->nullable();
+            $table->date('birth_date')->nullable();
             $table->text('address')->nullable();
 
-            $table->date('join_date')->nullable();
-            $table->enum('contract_type', ['pkwt', 'pkwtt'])->default('pkwt');
-            $table->date('contract_end_date')->nullable();
+            $table->foreignId('department_id')
+                ->nullable()
+                ->constrained()
+                ->nullOnDelete();
 
-            $table->decimal('basic_salary', 15, 2)->default(0);
-            $table->enum('status', ['active', 'inactive', 'resigned'])->default('active');
+            $table->foreignId('position_id')
+                ->nullable()
+                ->constrained()
+                ->nullOnDelete();
+
+            $table->date('join_date');
+
+            $table->enum('employment_status', [
+                'PKWT',
+                'PKWTT'
+            ]);
+
+            $table->enum('status', [
+                'pending',
+                'active',
+                'inactive',
+                'resigned'
+            ])->default('pending');
+
+            $table->string('activation_token')
+                ->nullable()
+                ->unique();
+
+            $table->timestamp('activation_expired_at')
+                ->nullable();
 
             $table->timestamps();
-
-            // NIP unik per company (bukan unik global, karena tiap company punya penomoran sendiri)
-            $table->unique(['company_id', 'nip']);
         });
     }
 
