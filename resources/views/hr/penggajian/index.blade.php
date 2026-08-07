@@ -22,6 +22,14 @@
         ['label' => 'Approval Finance', 'done' => false],
         ['label' => 'Export Bank Transfer', 'done' => false],
     ];
+<<<<<<< HEAD
+=======
+
+    $components = [
+        ['nip' => 'EMP-00231', 'name' => 'Budi Santoso', 'avatar' => 22, 'basic' => 6500000, 'allowance' => 850000, 'overtime' => 375723, 'deduction' => 325000, 'net' => 7400723],
+        ['nip' => 'EMP-01044', 'name' => 'Siti Aminah', 'avatar' => 44, 'basic' => 5800000, 'allowance' => 700000, 'overtime' => 0, 'deduction' => 290000, 'net' => 6210000],
+    ];
+>>>>>>> 333bd8917d4b1b01b27ac40591b091529131919e
 @endphp
 
 @section('content')
@@ -77,9 +85,14 @@
     <div class="card-flat rounded-2xl overflow-hidden">
         <div class="px-6 py-4 border-b border-black/5 flex items-center justify-between">
             <h2 class="text-base font-bold text-on-surface">Preview Komponen Gaji</h2>
-            <button class="text-xs font-bold text-primary/70 hover:text-primary flex items-center gap-1.5">
-                <span class="material-symbols-outlined text-[16px]">download</span> Export Bank Transfer (CSV)
-            </button>
+            <div class="flex items-center gap-4">
+                <a href="{{ route('hr.payroll.components') }}" class="text-xs font-bold text-primary/70 hover:text-primary flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-[16px]">tune</span> Kelola Komponen
+                </a>
+                <button class="text-xs font-bold text-primary/70 hover:text-primary flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-[16px]">download</span> Export Bank Transfer (CSV)
+                </button>
+            </div>
         </div>
         <table class="w-full text-sm">
             <thead>
@@ -108,7 +121,12 @@
                         <td class="px-6 py-3.5 text-right font-mono-data text-error">-{{ number_format($p->total_deductions, 0, ',', '.') }}</td>
                         <td class="px-6 py-3.5 text-right font-mono-data font-bold text-primary">Rp{{ number_format($p->net_salary, 0, ',', '.') }}</td>
                         <td class="px-6 py-3.5 text-center">
+<<<<<<< HEAD
                             <a href="{{ route('hr.payroll.slip', $p->id) }}" target="_blank" class="p-1.5 rounded-lg text-on-surface-variant/50 hover:text-primary hover:bg-primary/5 transition inline-block">
+=======
+                            <a href="{{ route('hr.payroll.slip', $c['nip']) }}" title="Lihat Slip"
+                               class="inline-flex p-1.5 rounded-lg text-on-surface-variant/50 hover:text-primary hover:bg-primary/5 transition">
+>>>>>>> 333bd8917d4b1b01b27ac40591b091529131919e
                                 <span class="material-symbols-outlined text-[18px]">description</span>
                             </a>
                         </td>

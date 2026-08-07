@@ -6,7 +6,7 @@
 
 @php
     $stats = [
-        ['label' => 'Total Karyawan', 'value' => '1.284', 'icon' => 'groups', 'note' => 'Aktif & terverifikasi'],
+        ['label' => 'Total Karyawan', 'value' => '1.284', 'icon' => 'groups', 'note' => 'Aktif di seluruh perusahaan'],
         ['label' => 'Kontrak Akan Habis', 'value' => '18', 'icon' => 'event_upcoming', 'note' => 'H-30 dari sekarang'],
         ['label' => 'Karyawan Baru', 'value' => '7', 'icon' => 'person_add', 'note' => '30 hari terakhir'],
         ['label' => 'PKWT / PKWTT', 'value' => '312 / 972', 'icon' => 'assignment', 'note' => 'Rasio tipe kontrak'],
@@ -93,10 +93,10 @@
                     <tr class="hover:bg-primary/5 transition">
                         <td class="px-6 py-3.5 font-mono-data text-on-surface-variant/70">{{ $e['nip'] }}</td>
                         <td class="px-6 py-3.5">
-                            <div class="flex items-center gap-3">
+                            <a href="{{ route('hr.employees.show', $e['nip']) }}" class="flex items-center gap-3 group w-fit">
                                 <img src="https://i.pravatar.cc/32?img={{ $e['avatar'] }}" class="w-8 h-8 rounded-full object-cover" alt="{{ $e['name'] }}">
-                                <span class="font-bold text-on-surface">{{ $e['name'] }}</span>
-                            </div>
+                                <span class="font-bold text-on-surface group-hover:text-primary transition">{{ $e['name'] }}</span>
+                            </a>
                         </td>
                         <td class="px-6 py-3.5 text-on-surface-variant/70">
                             {{ $e['dept'] }} <span class="text-on-surface-variant/40">·</span> {{ $e['pos'] }}
@@ -114,6 +114,10 @@
                         </td>
                         <td class="px-6 py-3.5">
                             <div class="flex items-center justify-center gap-1">
+                                <a href="{{ route('hr.employees.show', $e['nip']) }}" title="Lihat Detail"
+                                   class="p-1.5 rounded-lg text-on-surface-variant/50 hover:text-primary hover:bg-primary/10 transition">
+                                    <span class="material-symbols-outlined text-[18px]">visibility</span>
+                                </a>
                                 <a href="{{ route('hr.employees.edit', $e['nip']) }}" title="Edit"
                                    class="p-1.5 rounded-lg text-on-surface-variant/50 hover:text-primary hover:bg-primary/10 transition">
                                     <span class="material-symbols-outlined text-[18px]">edit</span>

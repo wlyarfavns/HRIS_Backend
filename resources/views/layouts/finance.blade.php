@@ -134,6 +134,11 @@
                 <span class="material-symbols-outlined text-[20px]">history</span>
                 Disbursement &amp; Slip Gaji
             </x-nav-link>
+
+            <x-nav-link route="finance.settings.index">
+                <span class="material-symbols-outlined text-[20px]">settings</span>
+                Pengaturan
+            </x-nav-link>
         </nav>
     </aside>
 
