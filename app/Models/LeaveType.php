@@ -17,6 +17,8 @@ class LeaveType extends Model
         'max_days_per_request',
         'allow_carry_forward',
         'max_carry_forward_days',
+        'default_quota',
+        'requires_attachment',
     ];
 
     public function company()
