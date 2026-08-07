@@ -13,6 +13,7 @@ Route::prefix('finance')->name('finance.')->group(function () {
     Route::get('/export-bank', fn () => view('finance.export.index'))->name('export.index');
 
     Route::get('/disbursement', fn () => view('finance.disbursement.index'))->name('disbursement.index');
+    Route::get('/disbursement/{id}/slip', fn ($id) => view('finance.disbursement.slip', ['id' => $id]))->name('disbursement.slip');
 
     Route::get('/pengaturan', fn () => view('finance.pengaturan.index'))->name('settings.index');
 });
