@@ -8,6 +8,7 @@ Route::prefix('hr')->name('hr.')->group(function () {
 
     Route::get('/karyawan', fn () => view('hr.karyawan.index'))->name('employees.index');
     Route::get('/karyawan/onboarding', fn () => view('hr.karyawan.onboarding'))->name('employees.onboarding');
+    Route::get('/karyawan/{id}', fn ($id) => view('hr.karyawan.detail', ['id' => $id]))->name('employees.show');
     Route::get('/karyawan/{id}/edit', fn ($id) => view('hr.karyawan.edit', ['id' => $id]))->name('employees.edit');
     Route::get('/karyawan/{id}/dokumen', fn ($id) => view('hr.karyawan.dokumen', ['id' => $id]))->name('employees.documents');
 
@@ -20,8 +21,9 @@ Route::prefix('hr')->name('hr.')->group(function () {
     Route::get('/persetujuan/reimbursement', fn () => view('hr.persetujuan.reimbursement'))->name('approvals.reimbursement');
 
     Route::get('/penggajian', fn () => view('hr.penggajian.index'))->name('payroll.index');
+    Route::get('/penggajian/komponen-gaji', fn () => view('hr.penggajian.komponen'))->name('payroll.components');
+    Route::get('/penggajian/{id}/slip', fn ($id) => view('hr.penggajian.slip', ['id' => $id]))->name('payroll.slip');
 
-    Route::get('/kinerja', fn () => view('hr.kinerja.index'))->name('performance.index');
     Route::get('/struktur-organisasi', fn () => view('hr.struktur.index'))->name('structure.index');
     Route::get('/pengaturan', fn () => view('hr.pengaturan.index'))->name('settings.index');
 });
