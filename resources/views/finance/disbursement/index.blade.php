@@ -11,9 +11,9 @@
         ['date' => '1 Jul 2026', 'type' => 'Payroll Juni 2026', 'count' => 1276, 'total' => 1185900000, 'status' => 'Selesai'],
     ];
     $accessLogs = [
-        ['name' => 'Jim Halpert', 'avatar' => 12, 'action' => 'Mengunduh slip gaji Juli 2026', 'time' => '2 Agu, 09.12'],
-        ['name' => 'Angela Martin', 'avatar' => 33, 'action' => 'Membuka slip gaji Juli 2026', 'time' => '1 Agu, 16.40'],
-        ['name' => 'Oscar Martinez', 'avatar' => 27, 'action' => 'Mengunduh slip gaji Juni 2026', 'time' => '30 Jul, 11.05'],
+        ['nip' => 'EMP-00812', 'name' => 'Jim Halpert', 'avatar' => 12, 'action' => 'Mengunduh slip gaji Juli 2026', 'time' => '2 Agu, 09.12'],
+        ['nip' => 'EMP-01044', 'name' => 'Angela Martin', 'avatar' => 33, 'action' => 'Membuka slip gaji Juli 2026', 'time' => '1 Agu, 16.40'],
+        ['nip' => 'EMP-00934', 'name' => 'Oscar Martinez', 'avatar' => 27, 'action' => 'Mengunduh slip gaji Juni 2026', 'time' => '30 Jul, 11.05'],
     ];
 @endphp
 
@@ -78,11 +78,11 @@
     <div class="card-flat rounded-2xl p-6">
         <div class="flex items-center justify-between mb-5">
             <h2 class="text-base font-bold text-on-surface">Log Akses Slip Gaji Digital</h2>
-            <span class="text-[11px] font-bold text-on-surface-variant/60 bg-surface-container px-2.5 py-1 rounded">payslip_access_logs</span>
         </div>
         <div class="space-y-4">
             @foreach ($accessLogs as $log)
-                <div class="flex items-center justify-between border-b border-black/5 pb-4 last:border-0 last:pb-0">
+                <a href="{{ route('finance.disbursement.slip', $log['nip']) }}"
+                   class="flex items-center justify-between border-b border-black/5 pb-4 last:border-0 last:pb-0 hover:bg-surface-container/60 -mx-2 px-2 rounded-lg transition">
                     <div class="flex items-center gap-3">
                         <img src="https://i.pravatar.cc/32?img={{ $log['avatar'] }}" class="w-8 h-8 rounded-full" alt="">
                         <div>
@@ -91,7 +91,7 @@
                         </div>
                     </div>
                     <p class="text-xs font-mono-data text-on-surface-variant/40">{{ $log['time'] }}</p>
-                </div>
+                </a>
             @endforeach
         </div>
     </div>

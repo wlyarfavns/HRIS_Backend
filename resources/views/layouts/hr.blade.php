@@ -137,19 +137,20 @@
                 <x-nav-sublink route="hr.approvals.reimbursement">Reimbursement</x-nav-sublink>
             </x-nav-group>
 
-            <x-nav-link route="hr.payroll.index">
-                <span class="material-symbols-outlined text-[20px]">payments</span>
-                Penggajian
-            </x-nav-link>
-
-            <x-nav-link route="hr.performance.index">
-                <span class="material-symbols-outlined text-[20px]">trending_up</span>
-                Kinerja
-            </x-nav-link>
+            <x-nav-group icon="payments" label="Penggajian"
+                :active="request()->routeIs('hr.payroll.*')">
+                <x-nav-sublink route="hr.payroll.index">Proses Payroll</x-nav-sublink>
+                <x-nav-sublink route="hr.payroll.components">Komponen Gaji</x-nav-sublink>
+            </x-nav-group>
 
             <x-nav-link route="hr.structure.index">
                 <span class="material-symbols-outlined text-[20px]">account_tree</span>
                 Struktur Organisasi
+            </x-nav-link>
+
+            <x-nav-link route="hr.settings.index">
+                <span class="material-symbols-outlined text-[20px]">settings</span>
+                Pengaturan
             </x-nav-link>
         </nav>
 

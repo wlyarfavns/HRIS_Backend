@@ -103,7 +103,7 @@
                         <select name="department" required
                                 class="appearance-none w-full pl-3.5 pr-9 py-2.5 bg-surface-container rounded-lg text-sm border border-transparent
                                        hover:border-primary/20 focus:border-primary/40 focus:ring-2 focus:ring-primary/20 focus:bg-white focus:outline-none transition cursor-pointer">
-                            @foreach (['Sales', 'Finance', 'Front Office', 'Semua Departemen'] as $d)
+                            @foreach (['Human Resources', 'Finance & Accounting', 'Engineering', 'Sales & Marketing'] as $d)
                                 <option {{ $user['department'] === $d ? 'selected' : '' }}>{{ $d }}</option>
                             @endforeach
                         </select>

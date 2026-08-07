@@ -16,7 +16,7 @@
                 </span>
             </div>
             <p class="text-5xl font-extrabold font-mono-data mt-6 mb-1">1.284</p>
-            <p class="text-white/60 text-xs">Naik 4% dari bulan lalu</p>
+            <p class="text-white/60 text-xs">Seluruh sistem — PT Talenta Digital Nusantara</p>
         </div>
 
         <div class="col-span-8 card-flat rounded-2xl p-6 grid grid-cols-2 divide-x divide-black/5">
@@ -73,7 +73,7 @@
         <div class="col-span-2 card-flat rounded-2xl p-6">
             <div class="flex items-center justify-between mb-5">
                 <h2 class="text-base font-bold text-on-surface">Persetujuan Tertunda</h2>
-                <a href="{{ route('hr.approvals.leave') }}" class="text-xs font-bold text-primary/60 uppercase tracking-widest hover:text-primary transition">Lihat Semua</a>
+                <a href="" class="text-xs font-bold text-primary/60 uppercase tracking-widest hover:text-primary transition">Lihat Semua</a>
             </div>
             <table class="w-full text-sm">
                 <thead>

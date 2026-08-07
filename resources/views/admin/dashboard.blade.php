@@ -10,20 +10,20 @@
     <div class="grid grid-cols-12 gap-5">
         <div class="col-span-4 rounded-2xl p-6 text-white flex flex-col justify-between" style="background-color:#0B3D2E;">
             <div class="flex items-center justify-between">
-                <p class="text-white/60 text-[10px] font-bold uppercase tracking-widest">Total Karyawan</p>
+                <p class="text-white/60 text-[10px] font-bold uppercase tracking-widest">Total Karyawan Aktif</p>
                 <span class="flex items-center gap-1 text-[10px] font-bold bg-white/10 px-2 py-0.5 rounded">
                     <span class="material-symbols-outlined text-[14px]">trending_up</span> +4%
                 </span>
             </div>
             <p class="text-5xl font-extrabold font-mono-data mt-6 mb-1">1.284</p>
-            <p class="text-white/60 text-xs">Naik 4% dari bulan lalu</p>
+            <p class="text-white/60 text-xs">Seluruh sistem — PT Talenta Digital Nusantara</p>
         </div>
 
         <div class="col-span-8 card-flat rounded-2xl p-6 grid grid-cols-2 divide-x divide-black/5">
             <div class="pr-5">
-                <p class="text-on-surface-variant/40 text-[10px] font-bold uppercase tracking-widest mb-3">Departemen Aktif</p>
+                <p class="text-on-surface-variant/40 text-[10px] font-bold uppercase tracking-widest mb-3">Departemen</p>
                 <p class="text-3xl font-bold font-mono-data text-primary mb-1">4</p>
-                <a href="{{ route('admin.org-structure.index') }}" class="text-xs font-bold text-primary/70 hover:text-primary transition">Kelola struktur →</a>
+                <a href="{{ route('admin.company.index') }}" class="text-xs font-bold text-primary/70 hover:text-primary transition">Kelola profil perusahaan →</a>
             </div>
             <div class="pl-5">
                 <p class="text-on-surface-variant/40 text-[10px] font-bold uppercase tracking-widest mb-3">Pengguna Sistem</p>
@@ -35,7 +35,7 @@
 
     {{-- RINGKASAN MODUL --}}
     <div class="grid grid-cols-3 gap-5">
-        <a href="{{ route('admin.modules.hr') }}" class="card-flat rounded-xl p-5 block" style="border-left: 3px solid #FFD700;">
+        <a href="" class="card-flat rounded-xl p-5 block" style="border-left: 3px solid #FFD700;">
             <div class="flex items-center justify-between mb-2">
                 <p class="font-bold text-on-surface text-sm">Modul HR</p>
                 <span class="text-[11px] font-mono-data text-primary bg-primary/5 px-2 py-0.5 rounded">12 pending</span>
@@ -43,7 +43,7 @@
             <p class="text-sm text-on-surface-variant/60">Pengajuan cuti, onboarding, dan kinerja karyawan.</p>
         </a>
 
-        <a href="{{ route('admin.modules.finance') }}" class="card-flat rounded-xl p-5 block" style="border-left: 3px solid #0B3D2E;">
+        <a href="" class="card-flat rounded-xl p-5 block" style="border-left: 3px solid #0B3D2E;">
             <div class="flex items-center justify-between mb-2">
                 <p class="font-bold text-on-surface text-sm">Modul Finance</p>
                 <span class="text-[11px] font-mono-data text-primary bg-primary/5 px-2 py-0.5 rounded">Lancar</span>
@@ -95,8 +95,8 @@
                         <p class="text-[11px] font-mono-data text-on-surface-variant/40">Kmrn</p>
                     </div>
                     <div class="flex-1 pb-1 border-l border-black/5 pl-4 -ml-1">
-                        <p class="font-bold text-on-surface text-sm">Tagihan langganan lunas</p>
-                        <p class="text-sm text-on-surface-variant/60 mt-0.5">Pembayaran paket Business bulan November telah diverifikasi.</p>
+                        <p class="font-bold text-on-surface text-sm">Modul Finance diperbarui</p>
+                        <p class="text-sm text-on-surface-variant/60 mt-0.5">Fitur "Verifikasi Reimbursement oleh Finance" diaktifkan.</p>
                     </div>
                 </div>
             </div>

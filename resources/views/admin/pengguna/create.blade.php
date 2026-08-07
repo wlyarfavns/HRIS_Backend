@@ -82,10 +82,10 @@
                         <select name="department" required
                                 class="appearance-none w-full pl-3.5 pr-9 py-2.5 bg-surface-container rounded-lg text-sm border border-transparent
                                        hover:border-primary/20 focus:border-primary/40 focus:ring-2 focus:ring-primary/20 focus:bg-white focus:outline-none transition cursor-pointer">
-                            <option>Sales</option>
-                            <option>Finance</option>
-                            <option>Front Office</option>
-                            <option>Semua Departemen</option>
+                            <option>Human Resources</option>
+                            <option>Finance & Accounting</option>
+                            <option>Engineering</option>
+                            <option>Sales & Marketing</option>
                         </select>
                         <span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant/50 text-[18px] pointer-events-none">expand_more</span>
                     </div>

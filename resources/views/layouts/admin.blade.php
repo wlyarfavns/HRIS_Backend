@@ -121,41 +121,19 @@
                 Dashboard
             </x-nav-link>
 
-            <x-nav-group icon="domain" label="Perusahaan"
-                :active="request()->routeIs('admin.companies.*') || request()->routeIs('admin.org-structure.index')">
-                <x-nav-sublink route="admin.companies.index" active="admin.companies.*">Profil Perusahaan</x-nav-sublink>
-                <x-nav-sublink route="admin.org-structure.index">Struktur Organisasi</x-nav-sublink>
-            </x-nav-group>
+            <x-nav-link route="admin.company.index" active="admin.company.*">
+                <span class="material-symbols-outlined text-[20px]">domain</span>
+                Profil Perusahaan
+            </x-nav-link>
 
             <x-nav-link route="admin.users.index" active="admin.users.*">
                 <span class="material-symbols-outlined text-[20px]">group</span>
                 Pengguna
             </x-nav-link>
 
-            <x-nav-link route="admin.security.index">
-                <span class="material-symbols-outlined text-[20px]">shield</span>
-                Keamanan
-            </x-nav-link>
-
-            <x-nav-group icon="apps" label="Modul"
-                :active="request()->routeIs('admin.modules.*')">
-                <x-nav-sublink route="admin.modules.hr" badge="12">Modul HR</x-nav-sublink>
-                <x-nav-sublink route="admin.modules.finance">Modul Finance</x-nav-sublink>
-            </x-nav-group>
-
-            <x-nav-link route="admin.billing.index">
-                <span class="material-symbols-outlined text-[20px]">receipt_long</span>
-                Langganan
-            </x-nav-link>
-
             <x-nav-link route="admin.logs.index">
                 <span class="material-symbols-outlined text-[20px]">history</span>
                 Log Aktivitas
-            </x-nav-link>
-
-            <x-nav-link route="admin.integrations.index">
-                <span class="material-symbols-outlined text-[20px]">bolt</span>
-                Integrasi
             </x-nav-link>
         </nav>
     </aside>

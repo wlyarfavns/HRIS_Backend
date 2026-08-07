@@ -21,8 +21,8 @@
     ];
 
     $components = [
-        ['name' => 'Budi Santoso', 'avatar' => 22, 'basic' => 6500000, 'allowance' => 850000, 'overtime' => 375723, 'deduction' => 325000, 'net' => 7400723],
-        ['name' => 'Siti Aminah', 'avatar' => 44, 'basic' => 5800000, 'allowance' => 700000, 'overtime' => 0, 'deduction' => 290000, 'net' => 6210000],
+        ['nip' => 'EMP-00231', 'name' => 'Budi Santoso', 'avatar' => 22, 'basic' => 6500000, 'allowance' => 850000, 'overtime' => 375723, 'deduction' => 325000, 'net' => 7400723],
+        ['nip' => 'EMP-01044', 'name' => 'Siti Aminah', 'avatar' => 44, 'basic' => 5800000, 'allowance' => 700000, 'overtime' => 0, 'deduction' => 290000, 'net' => 6210000],
     ];
 @endphp
 
@@ -73,9 +73,14 @@
     <div class="card-flat rounded-2xl overflow-hidden">
         <div class="px-6 py-4 border-b border-black/5 flex items-center justify-between">
             <h2 class="text-base font-bold text-on-surface">Preview Komponen Gaji</h2>
-            <button class="text-xs font-bold text-primary/70 hover:text-primary flex items-center gap-1.5">
-                <span class="material-symbols-outlined text-[16px]">download</span> Export Bank Transfer (CSV)
-            </button>
+            <div class="flex items-center gap-4">
+                <a href="{{ route('hr.payroll.components') }}" class="text-xs font-bold text-primary/70 hover:text-primary flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-[16px]">tune</span> Kelola Komponen
+                </a>
+                <button class="text-xs font-bold text-primary/70 hover:text-primary flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-[16px]">download</span> Export Bank Transfer (CSV)
+                </button>
+            </div>
         </div>
         <table class="w-full text-sm">
             <thead>
@@ -104,9 +109,10 @@
                         <td class="px-6 py-3.5 text-right font-mono-data text-error">-{{ number_format($c['deduction'], 0, ',', '.') }}</td>
                         <td class="px-6 py-3.5 text-right font-mono-data font-bold text-primary">Rp{{ number_format($c['net'], 0, ',', '.') }}</td>
                         <td class="px-6 py-3.5 text-center">
-                            <button class="p-1.5 rounded-lg text-on-surface-variant/50 hover:text-primary hover:bg-primary/5 transition">
+                            <a href="{{ route('hr.payroll.slip', $c['nip']) }}" title="Lihat Slip"
+                               class="inline-flex p-1.5 rounded-lg text-on-surface-variant/50 hover:text-primary hover:bg-primary/5 transition">
                                 <span class="material-symbols-outlined text-[18px]">description</span>
-                            </button>
+                            </a>
                         </td>
                     </tr>
                 @endforeach
