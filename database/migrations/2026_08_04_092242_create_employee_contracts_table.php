@@ -18,7 +18,7 @@ return new class extends Migration
             $table->date('end_date')->nullable();
             $table->decimal('basic_salary',15,2)->default(0);
             $table->string('document_file')->nullable();
-            $table->string('status')->default('Active'); // Combined enum values
+            $table->string('status')->default('Active'); 
             $table->text('notes')->nullable();
             $table->foreignId('created_by')->nullable()->constrained('users')->cascadeOnDelete();
             $table->timestamps();

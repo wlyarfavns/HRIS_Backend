@@ -12,19 +12,16 @@ use Carbon\Carbon;
 
 class EmployeeActivationController extends Controller
 {
-    /**
-     * Memproses aktivasi akun karyawan dari Postman atau Form Web
-     */
+    
     public function activate(Request $request)
     {
-        // 1. Validasi Input
+        
         $request->validate([
             'token'    => 'required|string',
             'password' => 'required|string|min:8|confirmed',
         ]);
 
-        // 2. Cari karyawan berdasarkan token
-        $employee = Employee::where('activation_token', $request->token)->first();
+$employee = Employee::where('activation_token', $request->token)->first();
 
         if (!$employee) {
             return response()->json([
@@ -33,8 +30,7 @@ class EmployeeActivationController extends Controller
             ], 400);
         }
 
-        // 3. Cek apakah token sudah kedaluwarsa
-        if ($employee->activation_expired_at && Carbon::now()->greaterThan($employee->activation_expired_at)) {
+if ($employee->activation_expired_at && Carbon::now()->greaterThan($employee->activation_expired_at)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Token aktivasi sudah kedaluwarsa. Silakan minta HR untuk mengirim ulang undangan.'
@@ -44,19 +40,16 @@ class EmployeeActivationController extends Controller
         try {
             DB::beginTransaction();
 
-            // 4. Buat Akun User untuk Login
-            $user = User::create([
+$user = User::create([
                 'company_id' => $employee->company_id, 
                 'name'       => $employee->full_name,
                 'email'      => $employee->email,
                 'password'   => Hash::make($request->password),
             ]);
 
-            // 5. Berikan Hak Akses (Role) Karyawan
-            $user->assignRole('employee');
+$user->assignRole('employee');
 
-            // 6. Update Data Karyawan (Tandai Aktif & Hapus Token)
-            $employee->update([
+$employee->update([
                 'user_id'               => $user->id,
                 'status'                => 'active',
                 'activation_token'      => null,

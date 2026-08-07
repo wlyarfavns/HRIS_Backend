@@ -63,7 +63,7 @@
                 <p class="text-xs text-on-surface-variant/50 mt-0.5">Identitas resmi perusahaan yang terdaftar di sistem</p>
             </div>
 
-            <a href="{{ route('admin.companies.edit') }}"
+            <a href="{{ route('admin.companies.edit', 1) }}"
                class="bg-primary hover:brightness-110 text-white text-xs font-bold px-4 py-2.5 rounded-lg
                       flex items-center gap-1.5 whitespace-nowrap transition">
                 <span class="material-symbols-outlined text-[16px]">edit</span>

@@ -19,8 +19,9 @@ Route::prefix('hr')->name('hr.')->group(function () {
     Route::get('/persetujuan/lembur', fn () => view('hr.persetujuan.lembur'))->name('approvals.overtime');
     Route::get('/persetujuan/reimbursement', fn () => view('hr.persetujuan.reimbursement'))->name('approvals.reimbursement');
 
-    Route::get('/penggajian', fn () => view('hr.penggajian.index'))->name('payroll.index');
-
+    Route::get('/penggajian', [\App\Http\Controllers\Web\HR\PayrollController::class, 'index'])->name('payroll.index');
+    Route::post('/penggajian/run', [\App\Http\Controllers\Web\HR\PayrollController::class, 'runPayroll'])->name('payroll.run');
+    Route::get('/penggajian/{id}/slip', [\App\Http\Controllers\Web\HR\PayrollController::class, 'slip'])->name('payroll.slip');
     Route::get('/kinerja', fn () => view('hr.kinerja.index'))->name('performance.index');
     Route::get('/struktur-organisasi', fn () => view('hr.struktur.index'))->name('structure.index');
     Route::get('/pengaturan', fn () => view('hr.pengaturan.index'))->name('settings.index');

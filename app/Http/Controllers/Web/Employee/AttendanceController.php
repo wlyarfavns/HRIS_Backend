@@ -20,22 +20,19 @@ class AttendanceController extends Controller
         ]);
 
         $employee = $request->user()->employee;
-        
-        // Tarik data Company beserta aturan absensinya
-        $company = $employee->company;
+
+$company = $employee->company;
 
         $isMockLocation = filter_var($request->is_mock_location, FILTER_VALIDATE_BOOLEAN);
 
-        // 1. CEK FAKE GPS
-        if ($isMockLocation) {
+if ($isMockLocation) {
             return response()->json([
                 'success' => false,
                 'message' => 'Fake GPS terdeteksi. Sistem menolak absensi Anda.'
             ], 403);
         }
 
-        // 2. CEK WAKTU BERDASARKAN ATURAN COMPANY
-        $standardStartTime = Carbon::createFromTimeString($company->standard_in_time); 
+$standardStartTime = Carbon::createFromTimeString($company->standard_in_time); 
         $maxTolerableTime = $standardStartTime->copy()->addMinutes($company->late_tolerance_minutes);
         $currentTime = Carbon::now();
 
@@ -46,8 +43,7 @@ class AttendanceController extends Controller
             ], 403);
         }
 
-        // 3. KALKULASI JARAK (HAVERSINE)
-        $distance = $this->calculateHaversineDistance(
+$distance = $this->calculateHaversineDistance(
             $company->office_latitude,
             $company->office_longitude,
             $request->latitude,
@@ -61,13 +57,11 @@ class AttendanceController extends Controller
             ], 403);
         }
 
-        // 4. CEK ABSEN GANDA HARI INI
-        if (Attendance::where('employee_id', $employee->id)->where('date', now()->toDateString())->exists()) {
+if (Attendance::where('employee_id', $employee->id)->where('date', now()->toDateString())->exists()) {
             return response()->json(['success' => false, 'message' => 'Anda sudah absen hari ini.'], 400);
         }
 
-        // 5. SIMPAN DATA
-        $photoPath = $request->file('photo')->store('attendances', 'public');
+$photoPath = $request->file('photo')->store('attendances', 'public');
 
         $attendance = Attendance::create([
             'company_id'         => $company->id,

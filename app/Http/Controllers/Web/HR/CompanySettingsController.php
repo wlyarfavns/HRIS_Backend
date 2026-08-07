@@ -7,20 +7,18 @@ use Illuminate\Http\Request;
 
 class CompanySettingsController extends Controller
 {
-    /**
-     * HR Mengupdate Aturan Absensi & Lokasi Kantor
-     */
+    
     public function updateAttendanceRules(Request $request)
     {
         $request->validate([
             'office_latitude'        => 'required|numeric',
             'office_longitude'       => 'required|numeric',
             'geofence_radius_meters' => 'required|numeric|min:10',
-            'standard_in_time'       => 'required|date_format:H:i', // Format harus JJ:MM
+            'standard_in_time'       => 'required|date_format:H:i', 
             'late_tolerance_minutes' => 'required|integer|min:0',
         ]);
 
-        $company = $request->user()->company; // Pastikan user HR punya relasi ke company
+        $company = $request->user()->company; 
         
         $company->update([
             'office_latitude'        => $request->office_latitude,

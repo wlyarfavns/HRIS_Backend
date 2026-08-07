@@ -44,12 +44,10 @@ class RegisterCompanyController extends Controller
 
             DB::commit();
 
-            // Login user menggunakan session (Web)
-            Auth::login($user);
+Auth::login($user);
             $request->session()->regenerate();
 
-            // Jika request dari API/Postman
-            if ($request->expectsJson()) {
+if ($request->expectsJson()) {
                 return response()->json([
                     'success' => true,
                     'message' => 'Perusahaan berhasil didaftarkan.',
@@ -60,8 +58,7 @@ class RegisterCompanyController extends Controller
                 ], 201);
             }
 
-            // Jika request dari browser, redirect ke halaman sukses dengan membawa data session
-            return redirect()->route('register.success')->with([
+return redirect()->route('register.success')->with([
                 'company_name'  => $request->company_name,
                 'email'         => $request->email,
                 'registered_at' => now()->translatedFormat('d M Y')
@@ -92,12 +89,9 @@ class RegisterCompanyController extends Controller
         return view('auth.register');
     }
 
-    /**
-     * Menampilkan halaman registrasi berhasil
-     */
-    public function success()
+public function success()
     {
-        // Proteksi: Jika tidak ada session 'company_name', kembalikan ke form register
+        
         if (!session('company_name')) {
             return redirect()->route('register');
         }

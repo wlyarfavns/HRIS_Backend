@@ -10,9 +10,7 @@ use App\Models\LeaveBalance;
 
 class LeaveRequestController extends Controller
 {
-    /**
-     * Submit a new leave request (Task 32: Validasi Min/Max)
-     */
+    
     public function store(StoreLeaveRequest $request)
     {
         $validated = $request->validated();
@@ -33,10 +31,7 @@ class LeaveRequestController extends Controller
         ], 201);
     }
 
-    /**
-     * Approve a leave request (Task 31: Kalkulasi Potong Kuota)
-     */
-    public function approve($id)
+public function approve($id)
     {
         $leaveRequest = LeaveRequest::findOrFail($id);
 
@@ -45,9 +40,8 @@ class LeaveRequestController extends Controller
         }
 
         $leaveType = $leaveRequest->leaveType;
-        
-        // Calculate and deduct quota if quota based
-        if ($leaveType->is_quota_based) {
+
+if ($leaveType->is_quota_based) {
             $year = date('Y', strtotime($leaveRequest->start_date));
             $balance = LeaveBalance::where('employee_id', $leaveRequest->employee_id)
                 ->where('leave_type_id', $leaveRequest->leave_type_id)
@@ -64,8 +58,7 @@ class LeaveRequestController extends Controller
                 return response()->json(['message' => 'Insufficient leave quota.'], 400);
             }
 
-            // Deduct quota
-            $balance->used_quota += $leaveRequest->total_days;
+$balance->used_quota += $leaveRequest->total_days;
             $balance->save();
         }
 
@@ -78,10 +71,7 @@ class LeaveRequestController extends Controller
         ]);
     }
 
-    /**
-     * Get all leave balances and requests (for testing/checking)
-     */
-    public function index()
+public function index()
     {
         $balances = LeaveBalance::with('leaveType')->get();
         $requests = LeaveRequest::with('leaveType')->get();

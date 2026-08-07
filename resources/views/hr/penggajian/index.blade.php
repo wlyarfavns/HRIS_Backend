@@ -5,41 +5,45 @@
 @section('page-desc', 'Proses payroll periode berjalan: rekap absensi → kalkulasi → approval → disbursement.')
 
 @section('page-action')
-    <button class="bg-primary text-white text-xs font-bold px-4 py-2.5 rounded-lg flex items-center gap-1.5 hover:brightness-110 transition">
-        <span class="material-symbols-outlined text-[16px]">bolt</span>
-        Jalankan Payroll
-    </button>
+    <form action="{{ route('hr.payroll.run') }}" method="POST">
+        @csrf
+        <button type="submit" class="bg-primary text-white text-xs font-bold px-4 py-2.5 rounded-lg flex items-center gap-1.5 hover:brightness-110 transition cursor-pointer">
+            <span class="material-symbols-outlined text-[16px]">bolt</span>
+            Jalankan Payroll
+        </button>
+    </form>
 @endsection
 
 @php
     $steps = [
         ['label' => 'Cut-off Rekap Absensi', 'done' => true],
-        ['label' => 'Engine Payroll (PPh21 & BPJS)', 'done' => true],
+        ['label' => 'Engine Payroll', 'done' => true],
         ['label' => 'Approval HR', 'done' => true],
         ['label' => 'Approval Finance', 'done' => false],
         ['label' => 'Export Bank Transfer', 'done' => false],
     ];
-
-    $components = [
-        ['name' => 'Budi Santoso', 'avatar' => 22, 'basic' => 6500000, 'allowance' => 850000, 'overtime' => 375723, 'deduction' => 325000, 'net' => 7400723],
-        ['name' => 'Siti Aminah', 'avatar' => 44, 'basic' => 5800000, 'allowance' => 700000, 'overtime' => 0, 'deduction' => 290000, 'net' => 6210000],
-    ];
 @endphp
 
 @section('content')
+    @if (session('success'))
+        <div class="mb-6 p-4 rounded-xl bg-green-50 border border-green-200 flex items-center gap-3">
+            <span class="material-symbols-outlined text-green-600">check_circle</span>
+            <p class="text-sm font-bold text-green-800">{{ session('success') }}</p>
+        </div>
+    @endif
 
     <div class="grid grid-cols-4 gap-5">
         <div class="col-span-2 card-flat rounded-2xl p-6" style="background-color:#0B3D2E;">
             <p class="text-white/60 text-[10px] font-bold uppercase tracking-widest">Periode Berjalan</p>
-            <p class="text-2xl font-extrabold text-white mt-2">1 - 31 Agustus 2026</p>
+            <p class="text-2xl font-extrabold text-white mt-2">1 - 31 Juli 2026</p>
             <p class="text-white/70 text-sm mt-1">Status: <span class="font-bold text-brand-gold">Menunggu Approval Finance</span></p>
         </div>
         <div class="card-flat rounded-2xl p-5">
-            <p class="text-2xl font-extrabold font-mono-data text-on-surface">1.284</p>
+            <p class="text-2xl font-extrabold font-mono-data text-on-surface">{{ $totalKaryawan }}</p>
             <p class="text-xs font-bold text-on-surface-variant/50 uppercase tracking-wide mt-1">Karyawan Diproses</p>
         </div>
         <div class="card-flat rounded-2xl p-5">
-            <p class="text-2xl font-extrabold font-mono-data text-on-surface">Rp9,8 M</p>
+            <p class="text-2xl font-extrabold font-mono-data text-on-surface">{{ $totalGajiBersihFormatted }}</p>
             <p class="text-xs font-bold text-on-surface-variant/50 uppercase tracking-wide mt-1">Total Gaji Bersih</p>
         </div>
     </div>
@@ -90,26 +94,32 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-black/5">
-                @foreach ($components as $c)
+                @forelse ($payrolls as $p)
                     <tr class="hover:bg-surface-container/60">
                         <td class="px-6 py-3.5">
                             <div class="flex items-center gap-2.5">
-                                <img src="https://i.pravatar.cc/28?img={{ $c['avatar'] }}" class="w-7 h-7 rounded-full" alt="">
-                                <span class="font-bold text-on-surface text-xs">{{ $c['name'] }}</span>
+                                <img src="https://i.pravatar.cc/28?u={{ $p->employee->email }}" class="w-7 h-7 rounded-full" alt="">
+                                <span class="font-bold text-on-surface text-xs">{{ $p->employee->full_name }}</span>
                             </div>
                         </td>
-                        <td class="px-6 py-3.5 text-right font-mono-data text-on-surface-variant/70">{{ number_format($c['basic'], 0, ',', '.') }}</td>
-                        <td class="px-6 py-3.5 text-right font-mono-data text-on-surface-variant/70">{{ number_format($c['allowance'], 0, ',', '.') }}</td>
-                        <td class="px-6 py-3.5 text-right font-mono-data text-on-surface-variant/70">{{ number_format($c['overtime'], 0, ',', '.') }}</td>
-                        <td class="px-6 py-3.5 text-right font-mono-data text-error">-{{ number_format($c['deduction'], 0, ',', '.') }}</td>
-                        <td class="px-6 py-3.5 text-right font-mono-data font-bold text-primary">Rp{{ number_format($c['net'], 0, ',', '.') }}</td>
+                        <td class="px-6 py-3.5 text-right font-mono-data text-on-surface-variant/70">{{ number_format($p->basic_salary, 0, ',', '.') }}</td>
+                        <td class="px-6 py-3.5 text-right font-mono-data text-on-surface-variant/70">{{ number_format($p->total_allowances, 0, ',', '.') }}</td>
+                        <td class="px-6 py-3.5 text-right font-mono-data text-on-surface-variant/70">0</td>
+                        <td class="px-6 py-3.5 text-right font-mono-data text-error">-{{ number_format($p->total_deductions, 0, ',', '.') }}</td>
+                        <td class="px-6 py-3.5 text-right font-mono-data font-bold text-primary">Rp{{ number_format($p->net_salary, 0, ',', '.') }}</td>
                         <td class="px-6 py-3.5 text-center">
-                            <button class="p-1.5 rounded-lg text-on-surface-variant/50 hover:text-primary hover:bg-primary/5 transition">
+                            <a href="{{ route('hr.payroll.slip', $p->id) }}" target="_blank" class="p-1.5 rounded-lg text-on-surface-variant/50 hover:text-primary hover:bg-primary/5 transition inline-block">
                                 <span class="material-symbols-outlined text-[18px]">description</span>
-                            </button>
+                            </a>
                         </td>
                     </tr>
-                @endforeach
+                @empty
+                    <tr>
+                        <td colspan="7" class="px-6 py-8 text-center text-on-surface-variant/50">
+                            Belum ada data payroll untuk periode ini. Silakan klik "Jalankan Payroll".
+                        </td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
     </div>

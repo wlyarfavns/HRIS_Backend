@@ -10,10 +10,7 @@ use Illuminate\Support\Facades\Hash;
 
 class UserManagementController extends Controller
 {
-    /**
-     * Menampilkan seluruh akun HR, Supervisor, dan Finance
-     * milik company yang sedang login.
-     */
+    
     public function index(Request $request)
     {
         $users = User::where('company_id', $request->user()->company_id)
@@ -26,10 +23,7 @@ class UserManagementController extends Controller
         ]);
     }
 
-    /**
-     * Company membuat akun HR / Supervisor / Finance.
-     */
-    public function store(Request $request)
+public function store(Request $request)
     {
         $request->validate([
             'name'     => 'required|string|max:255',
@@ -73,10 +67,7 @@ class UserManagementController extends Controller
         }
     }
 
-    /**
-     * Company mengubah data HR / Supervisor / Finance.
-     */
-    public function update(Request $request, User $user)
+public function update(Request $request, User $user)
     {
         if ($user->company_id != $request->user()->company_id) {
             return response()->json([
@@ -109,10 +100,7 @@ class UserManagementController extends Controller
         ]);
     }
 
-    /**
-     * Company menghapus akun HR / Supervisor / Finance.
-     */
-    public function destroy(Request $request, User $user)
+public function destroy(Request $request, User $user)
     {
         if ($user->company_id != $request->user()->company_id) {
             return response()->json([

@@ -10,8 +10,7 @@ return new class extends Migration {
         Schema::create('companies', function (Blueprint $table) {
             $table->id();
 
-            // Identitas & Kontak
-            $table->string('name');
+$table->string('name');
             $table->string('subdomain')->unique();
             $table->text('address')->nullable();
             $table->string('city')->nullable();
@@ -20,8 +19,7 @@ return new class extends Migration {
             $table->string('phone', 20)->nullable();
             $table->string('email')->nullable();
 
-            // Pengaturan Lokasi Absensi Default
-            $table->decimal('office_latitude', 10, 7)->nullable();
+$table->decimal('office_latitude', 10, 7)->nullable();
             $table->decimal('office_longitude', 10, 7)->nullable();
             $table->unsignedInteger('geofence_radius_meters')->default(100);
 

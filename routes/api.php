@@ -24,9 +24,13 @@ Route::prefix('/v1')->group(function () {
         
         Route::post('/attendance/status', [AttendanceController::class, 'checkAttendanceStatus']);
 
-        // Leave Requests (Cuti & Izin)
         Route::get('/leave-requests', [LeaveRequestController::class, 'index']);
         Route::post('/leave-requests', [LeaveRequestController::class, 'store']);
         Route::patch('/leave-requests/{id}/approve', [LeaveRequestController::class, 'approve']);
+        
+        // Payroll & Salary Components (Tasks 40, 41, 42)
+        Route::apiResource('salary-components', \App\Http\Controllers\Api\SalaryComponentController::class);
+        Route::post('/payroll/cutoff-attendance', [\App\Http\Controllers\Api\PayrollApiController::class, 'generateCutoff']);
+        Route::post('/payroll/calculate', [\App\Http\Controllers\Api\PayrollApiController::class, 'calculateSalary']);
     });
 });

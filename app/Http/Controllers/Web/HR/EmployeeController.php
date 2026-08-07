@@ -10,9 +10,7 @@ use Carbon\Carbon;
 
 class EmployeeController extends Controller
 {
-    /**
-     * Menampilkan seluruh karyawan di company tersebut.
-     */
+    
     public function index(Request $request)
     {
         $employees = Employee::with(['department', 'position'])
@@ -25,10 +23,7 @@ class EmployeeController extends Controller
         ]);
     }
 
-    /**
-     * HR Mendaftarkan Karyawan Baru (Pre-Onboarding).
-     */
-    public function store(Request $request)
+public function store(Request $request)
     {
         $request->validate([
             'full_name' => 'required|string|max:255',
@@ -41,15 +36,12 @@ class EmployeeController extends Controller
             'department_id' => 'required|exists:departments,id',
             'position_id' => 'required|exists:positions,id',
             'join_date' => 'required|date',
-            'employment_status' => 'required|in:PKWT,PKWTT', // DIPERBAIKI
+            'employment_status' => 'required|in:PKWT,PKWTT', 
         ]);
 
         $companyId = $request->user()->company_id;
 
-        // ---------------------------------------------------------
-        // LOGIKA GENERATE NIP 18 DIGIT
-        // ---------------------------------------------------------
-        $birthDate = Carbon::parse($request->birth_date)->format('Ymd');
+$birthDate = Carbon::parse($request->birth_date)->format('Ymd');
         $joinDate = Carbon::parse($request->join_date)->format('Ym');
         $genderCode = $request->gender === 'L' ? '1' : '2';
 
@@ -60,11 +52,11 @@ class EmployeeController extends Controller
             ->first();
 
         if ($lastEmployee) {
-            // Ambil 3 digit terakhir dari NIP sebelumnya, jadikan integer, lalu tambah 1
+            
             $lastSequence = (int) substr($lastEmployee->employee_id, -3);
             $newSequence = $lastSequence + 1;
         } else {
-            // Jika belum ada, mulai dari 1
+            
             $newSequence = 1;
         }
 
@@ -97,10 +89,7 @@ class EmployeeController extends Controller
         ], 201);
     }
 
-    /**
-     * Menampilkan detail satu karyawan.
-     */
-    public function show(Request $request, Employee $employee)
+public function show(Request $request, Employee $employee)
     {
         if ($employee->company_id !== $request->user()->company_id) {
             return response()->json(['success' => false, 'message' => 'Unauthorized.'], 403);
@@ -112,10 +101,7 @@ class EmployeeController extends Controller
         ]);
     }
 
-    /**
-     * HR mengubah data administratif karyawan.
-     */
-    public function update(Request $request, Employee $employee)
+public function update(Request $request, Employee $employee)
     {
         if ($employee->company_id !== $request->user()->company_id) {
             return response()->json(['success' => false, 'message' => 'Unauthorized.'], 403);
@@ -131,8 +117,8 @@ class EmployeeController extends Controller
             'department_id' => 'required|exists:departments,id',
             'position_id' => 'required|exists:positions,id',
             'join_date' => 'required|date',
-            'employment_status' => 'required|in:PKWT,PKWTT', // DIPERBAIKI
-            'status' => 'required|in:pending,active,inactive,resigned', // DIPERBAIKI
+            'employment_status' => 'required|in:PKWT,PKWTT', 
+            'status' => 'required|in:pending,active,inactive,resigned', 
         ]);
 
         $employee->update($request->only([
@@ -156,10 +142,7 @@ class EmployeeController extends Controller
         ]);
     }
 
-    /**
-     * HR menghapus data Karyawan.
-     */
-    public function destroy(Request $request, Employee $employee)
+public function destroy(Request $request, Employee $employee)
     {
         if ($employee->company_id !== $request->user()->company_id) {
             return response()->json(['success' => false, 'message' => 'Unauthorized.'], 403);
