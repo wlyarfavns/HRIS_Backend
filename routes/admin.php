@@ -26,5 +26,5 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     Route::get('/langganan', fn () => view('admin.langganan.index'))->name('billing.index');
     Route::get('/log-aktivitas', fn () => view('admin.log-aktivitas.index'))->name('logs.index');
-    Route::get('/integrasi', fn () => view('admin.integrasi.index'))->name('integrations.index');
+    Route::get('/profil', fn () => view('admin.profile'))->name('profile');
 });
