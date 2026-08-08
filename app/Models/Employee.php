@@ -21,6 +21,8 @@ class Employee extends Model
         'phone',
 
         'gender',
+        
+        'agama',
 
         'birth_place',
 
@@ -48,6 +50,7 @@ class Employee extends Model
 
         'bank_account_holder',
     ];
+    
 
     protected $casts = [
 
