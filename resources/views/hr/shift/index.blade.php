@@ -5,7 +5,7 @@
 @section('page-desc', 'Jadwal fleksibel, shift malam, dan toleransi keterlambatan.')
 
 @section('page-action')
-    <button class="bg-primary text-white text-xs font-bold px-4 py-2.5 rounded-lg flex items-center gap-1.5 hover:brightness-110 transition">
+    <button x-data @click="$dispatch('open-bulk-modal')" class="bg-primary text-white text-xs font-bold px-4 py-2.5 rounded-lg flex items-center gap-1.5 hover:brightness-110 transition">
         <span class="material-symbols-outlined text-[16px]">group_add</span>
         Bulk Assign Shift
     </button>
@@ -30,6 +30,13 @@
 @endphp
 
 @section('content')
+
+    @if (session('success'))
+        <div class="mb-6 p-4 rounded-xl bg-green-50 border border-green-200 flex items-center gap-3">
+            <span class="material-symbols-outlined text-green-600">check_circle</span>
+            <p class="text-sm font-bold text-green-800">{{ session('success') }}</p>
+        </div>
+    @endif
 
     <div class="grid grid-cols-4 gap-5">
         @foreach ($shiftTypes as $t)
@@ -115,6 +122,50 @@
                 <span class="font-mono-data font-bold text-primary text-lg w-16 text-right">100 m</span>
             </div>
             <p class="text-xs text-on-surface-variant/40 mt-2">Karyawan hanya bisa clock-in di dalam radius ini dari titik kantor.</p>
+        </div>
+    </div>
+
+    {{-- MODAL BULK ASSIGN SHIFT --}}
+    <div x-data="{ open: false }" @open-bulk-modal.window="open = true" x-show="open" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" style="display: none;" x-transition>
+        <div @click.away="open = false" class="bg-surface rounded-2xl w-full max-w-md p-6 shadow-xl">
+            <h3 class="text-lg font-bold text-on-surface mb-4">Bulk Assign Shift</h3>
+            <form action="{{ route('hr.shift.dummy-bulk-assign') }}" method="POST">
+                @csrf
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-xs font-bold text-on-surface-variant/60 uppercase">Departemen / Karyawan</label>
+                        <select required class="w-full mt-1.5 px-3 py-2 bg-surface-container rounded-lg border border-transparent focus:border-primary/40 focus:ring-2 focus:ring-primary/20 outline-none transition text-sm">
+                            <option value="all">Semua Karyawan</option>
+                            <option value="hr">Human Resources</option>
+                            <option value="eng">Engineering</option>
+                            <option value="sales">Sales & Marketing</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-on-surface-variant/60 uppercase">Jenis Shift</label>
+                        <select required class="w-full mt-1.5 px-3 py-2 bg-surface-container rounded-lg border border-transparent focus:border-primary/40 focus:ring-2 focus:ring-primary/20 outline-none transition text-sm">
+                            <option value="pagi">Shift Pagi (08:00 - 17:00)</option>
+                            <option value="siang">Shift Siang (13:00 - 22:00)</option>
+                            <option value="malam">Shift Malam (22:00 - 07:00)</option>
+                            <option value="libur">Libur</option>
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-xs font-bold text-on-surface-variant/60 uppercase">Dari Tanggal</label>
+                            <input type="date" required class="w-full mt-1.5 px-3 py-2 bg-surface-container rounded-lg border border-transparent focus:border-primary/40 focus:ring-2 focus:ring-primary/20 outline-none transition text-sm">
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-on-surface-variant/60 uppercase">Sampai Tanggal</label>
+                            <input type="date" required class="w-full mt-1.5 px-3 py-2 bg-surface-container rounded-lg border border-transparent focus:border-primary/40 focus:ring-2 focus:ring-primary/20 outline-none transition text-sm">
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end gap-3">
+                    <button type="button" @click="open = false" class="px-4 py-2 text-sm font-bold text-on-surface-variant/70 hover:bg-surface-container rounded-lg transition">Batal</button>
+                    <button type="submit" class="bg-primary text-white px-4 py-2 text-sm font-bold rounded-lg hover:brightness-110 transition">Terapkan Shift</button>
+                </div>
+            </form>
         </div>
     </div>
 

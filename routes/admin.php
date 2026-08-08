@@ -8,13 +8,16 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     Route::get('/perusahaan', fn () => view('admin.perusahaan.manajemen-perusahaan'))->name('companies.index');
     Route::get('/perusahaan/tambah', fn () => view('admin.perusahaan.create'))->name('companies.create');
+    Route::post('/perusahaan', fn () => redirect()->route('admin.companies.index')->with('success', 'Profil perusahaan berhasil disimpan!'))->name('companies.update');
     Route::get('/perusahaan/{id}/edit', fn ($id) => view('admin.perusahaan.edit', ['id' => $id]))->name('companies.edit');
     
     Route::get('/struktur-organisasi', fn () => view('admin.perusahaan.struktur-organisasi'))->name('org-structure.index');
 
     Route::get('/pengguna', fn () => view('admin.pengguna.index'))->name('users.index');
+    Route::post('/pengguna', [\App\Http\Controllers\Web\UserManagementController::class, 'storeWeb'])->name('users.store');
     Route::get('/pengguna/tambah', fn () => view('admin.pengguna.create'))->name('users.create');
     Route::get('/pengguna/{id}/edit', fn ($id) => view('admin.pengguna.edit', ['id' => $id]))->name('users.edit');
+    Route::put('/pengguna/{id}', [\App\Http\Controllers\Web\UserManagementController::class, 'updateWeb'])->name('users.updateWeb');
 
     Route::get('/keamanan', fn () => view('admin.keamanan.index'))->name('security.index');
 

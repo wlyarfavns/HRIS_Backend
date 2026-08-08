@@ -41,7 +41,7 @@
         @endforeach
     </div>
 
-    <form method="POST" action="{{ route('admin.company.index') }}" class="space-y-6">
+    <form method="POST" action="{{ route('admin.companies.update') }}" class="space-y-6">
         @csrf
         @method('PUT')
 

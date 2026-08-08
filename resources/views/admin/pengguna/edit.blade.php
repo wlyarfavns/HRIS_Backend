@@ -40,7 +40,7 @@
         </span>
     </div>
 
-    <form method="POST" action="{{ route('admin.users.index') }}" class="space-y-6">
+    <form method="POST" action="{{ route('admin.users.updateWeb', $user['id']) }}" class="space-y-6">
         @csrf
         @method('PUT')
 
