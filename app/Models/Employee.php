@@ -41,6 +41,12 @@ class Employee extends Model
         'activation_token',
 
         'activation_expired_at',
+
+        'bank_name',
+
+        'bank_account_number',
+
+        'bank_account_holder',
     ];
 
     protected $casts = [

@@ -9,6 +9,10 @@ class Payroll extends Model
 {
     use HasFactory;
 
+    public const STATUS_DRAFT = 'draft';
+    public const STATUS_APPROVED_HR = 'approved_hr';
+    public const STATUS_APPROVED_FINANCE = 'approved_finance';
+
     protected $guarded = ['id'];
 
     protected $casts = [
