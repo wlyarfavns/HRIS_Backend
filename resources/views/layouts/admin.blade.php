@@ -4,49 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Dashboard') - TalentaHR</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
-
-    <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "on-surface-variant": "#414944",
-                        "outline-variant": "#E1E3E4",
-                        "surface-container": "#F8F9FA",
-                        "outline": "#717974",
-                        "on-surface": "#191c1d",
-                        "surface": "#ffffff",
-                        "on-primary": "#ffffff",
-                        "on-secondary": "#ffffff",
-                        "surface-variant": "#f1f3f4",
-                        "secondary": "#0B3D2E",
-                        "primary": "#0B3D2E",
-                        "on-error": "#ffffff",
-                        "error-container": "#ffdad6",
-                        "error": "#ba1a1a",
-                        "brand-gold": "#FFD700",
-                    },
-                    borderRadius: {
-                        DEFAULT: "0.5rem",
-                        lg: "0.75rem",
-                        xl: "1rem",
-                        "2xl": "1.25rem",
-                        "3xl": "1.5rem",
-                        full: "9999px",
-                    },
-                    fontFamily: {
-                        sans: ["Inter", "system-ui", "sans-serif"],
-                    },
-                },
-            },
-        }
-    </script>
 
     <style>
         body { font-family: 'Inter', sans-serif; }
