@@ -21,6 +21,8 @@ class Employee extends Model
         'phone',
 
         'gender',
+        
+        'agama',
 
         'birth_place',
 
@@ -42,6 +44,7 @@ class Employee extends Model
 
         'activation_expired_at',
     ];
+    
 
     protected $casts = [
 
