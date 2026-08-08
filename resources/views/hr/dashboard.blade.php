@@ -5,6 +5,12 @@
 @section('page-desc', 'Ringkasan kondisi tim dan pengajuan hari ini.')
 
 @section('content')
+    @if (session('success'))
+        <div class="mb-6 p-4 rounded-xl bg-green-50 border border-green-200 flex items-center gap-3">
+            <span class="material-symbols-outlined text-green-600">check_circle</span>
+            <p class="text-sm font-bold text-green-800">{{ session('success') }}</p>
+        </div>
+    @endif
 
     {{-- STAT ROW --}}
     <div class="grid grid-cols-12 gap-5">
@@ -96,12 +102,19 @@
                         <td class="text-on-surface-variant/70 font-mono-data">24–28 Okt</td>
                         <td>
                             <div class="flex gap-2">
-                                <button class="w-7 h-7 rounded-full border border-black/10 flex items-center justify-center hover:bg-primary/5 hover:border-primary/40 text-primary transition">
-                                    <span class="material-symbols-outlined text-[16px]">check</span>
-                                </button>
-                                <button class="w-7 h-7 rounded-full border border-black/10 flex items-center justify-center hover:bg-error/5 hover:border-error/40 text-error transition">
-                                    <span class="material-symbols-outlined text-[16px]">close</span>
-                                </button>
+                                <form action="{{ route('hr.approvals.dummy-approve') }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="w-7 h-7 rounded-full border border-black/10 flex items-center justify-center hover:bg-primary/5 hover:border-primary/40 text-primary transition" title="Setujui">
+                                        <span class="material-symbols-outlined text-[16px]">check</span>
+                                    </button>
+                                </form>
+                                <form action="{{ route('hr.approvals.dummy-reject') }}" method="POST">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="w-7 h-7 rounded-full border border-black/10 flex items-center justify-center hover:bg-error/5 hover:border-error/40 text-error transition" title="Tolak">
+                                        <span class="material-symbols-outlined text-[16px]">close</span>
+                                    </button>
+                                </form>
                             </div>
                         </td>
                     </tr>
@@ -116,12 +129,19 @@
                         <td class="text-on-surface-variant/70 font-mono-data">21 Okt</td>
                         <td>
                             <div class="flex gap-2">
-                                <button class="w-7 h-7 rounded-full border border-black/10 flex items-center justify-center hover:bg-primary/5 hover:border-primary/40 text-primary transition">
-                                    <span class="material-symbols-outlined text-[16px]">check</span>
-                                </button>
-                                <button class="w-7 h-7 rounded-full border border-black/10 flex items-center justify-center hover:bg-error/5 hover:border-error/40 text-error transition">
-                                    <span class="material-symbols-outlined text-[16px]">close</span>
-                                </button>
+                                <form action="{{ route('hr.approvals.dummy-approve') }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="w-7 h-7 rounded-full border border-black/10 flex items-center justify-center hover:bg-primary/5 hover:border-primary/40 text-primary transition" title="Setujui">
+                                        <span class="material-symbols-outlined text-[16px]">check</span>
+                                    </button>
+                                </form>
+                                <form action="{{ route('hr.approvals.dummy-reject') }}" method="POST">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="w-7 h-7 rounded-full border border-black/10 flex items-center justify-center hover:bg-error/5 hover:border-error/40 text-error transition" title="Tolak">
+                                        <span class="material-symbols-outlined text-[16px]">close</span>
+                                    </button>
+                                </form>
                             </div>
                         </td>
                     </tr>

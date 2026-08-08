@@ -14,7 +14,7 @@
         Kembali ke Daftar Karyawan
     </a>
 
-    <form method="POST" action="{{ route('hr.employees.index') }}" enctype="multipart/form-data" class="space-y-6">
+    <form method="POST" action="{{ route('hr.employees.storeWeb') }}" enctype="multipart/form-data" class="space-y-6">
         @csrf
 
         {{-- DATA PRIBADI --}}

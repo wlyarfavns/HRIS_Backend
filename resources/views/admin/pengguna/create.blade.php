@@ -14,7 +14,7 @@
         Kembali ke Daftar Pengguna
     </a>
 
-    <form method="POST" action="{{ route('admin.users.index') }}" class="space-y-6">
+    <form method="POST" action="{{ route('admin.users.store') }}" class="space-y-6">
         @csrf
 
         {{-- DATA AKUN --}}

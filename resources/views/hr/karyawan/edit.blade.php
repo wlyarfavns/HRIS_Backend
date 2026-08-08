@@ -46,7 +46,7 @@
         </span>
     </div>
 
-    <form method="POST" action="{{ route('hr.employees.index') }}" enctype="multipart/form-data" class="space-y-6">
+    <form method="POST" action="{{ route('hr.employees.updateWeb', $employee['nip']) }}" enctype="multipart/form-data" class="space-y-6">
         @csrf
         @method('PUT')
 

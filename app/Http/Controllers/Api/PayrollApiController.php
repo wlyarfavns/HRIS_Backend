@@ -15,9 +15,6 @@ class PayrollApiController extends Controller
         $this->payrollService = $payrollService;
     }
 
-    /**
-     * Endpoint to automatically generate attendance cut-off summary.
-     */
     public function generateCutoff(Request $request)
     {
         $validated = $request->validate([
@@ -38,9 +35,6 @@ class PayrollApiController extends Controller
         ], 200);
     }
 
-    /**
-     * Endpoint to calculate net salary.
-     */
     public function calculateSalary(Request $request)
     {
         $validated = $request->validate([
@@ -61,9 +55,6 @@ class PayrollApiController extends Controller
         ], 200);
     }
 
-    /**
-     * Endpoint to approve payroll by HR.
-     */
     public function approveHr(Request $request, $id)
     {
         $payroll = Payroll::findOrFail($id);
@@ -84,9 +75,6 @@ class PayrollApiController extends Controller
         ], 200);
     }
 
-    /**
-     * Endpoint to approve payroll by Finance.
-     */
     public function approveFinance(Request $request, $id)
     {
         $payroll = Payroll::findOrFail($id);
@@ -107,9 +95,6 @@ class PayrollApiController extends Controller
         ], 200);
     }
 
-    /**
-     * Export Bank Transfer CSV.
-     */
     public function exportBankCsv(Request $request)
     {
         $validated = $request->validate([
@@ -153,9 +138,6 @@ class PayrollApiController extends Controller
         ]);
     }
 
-    /**
-     * Generate PDF Payslip.
-     */
     public function generateSlip($id)
     {
         $payroll = Payroll::with(['employee', 'company'])->findOrFail($id);

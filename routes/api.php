@@ -28,19 +28,15 @@ Route::prefix('/v1')->group(function () {
         Route::post('/leave-requests', [LeaveRequestController::class, 'store']);
         Route::patch('/leave-requests/{id}/approve', [LeaveRequestController::class, 'approve']);
         
-        // Payroll & Salary Components (Tasks 40, 41, 42)
         Route::apiResource('salary-components', \App\Http\Controllers\Api\SalaryComponentController::class);
         Route::post('/payroll/cutoff-attendance', [\App\Http\Controllers\Api\PayrollApiController::class, 'generateCutoff']);
         Route::post('/payroll/calculate', [\App\Http\Controllers\Api\PayrollApiController::class, 'calculateSalary']);
 
-        // Payroll Approval (Task 47)
         Route::post('/payroll/{id}/approve-hr', [\App\Http\Controllers\Api\PayrollApiController::class, 'approveHr']);
         Route::post('/payroll/{id}/approve-finance', [\App\Http\Controllers\Api\PayrollApiController::class, 'approveFinance']);
 
-        // Bank CSV Formatter (Task 48)
         Route::post('/payroll/export-bank-csv', [\App\Http\Controllers\Api\PayrollApiController::class, 'exportBankCsv']);
 
-        // PDF Slip Generator (Task 50)
         Route::get('/payroll/{id}/slip', [\App\Http\Controllers\Api\PayrollApiController::class, 'generateSlip']);
     });
 });
