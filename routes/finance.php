@@ -16,4 +16,5 @@ Route::prefix('finance')->name('finance.')->group(function () {
     Route::get('/disbursement/{id}/slip', fn ($id) => view('finance.disbursement.slip', ['id' => $id]))->name('disbursement.slip');
 
     Route::get('/pengaturan', fn () => view('finance.pengaturan.index'))->name('settings.index');
+    Route::get('/profil', fn () => view('finance.profile'))->name('profile');
 });

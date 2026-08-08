@@ -15,4 +15,5 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/pengguna/{id}/edit', fn ($id) => view('admin.pengguna.edit', ['id' => $id]))->name('users.edit');
 
     Route::get('/log-aktivitas', fn () => view('admin.log-aktivitas.index'))->name('logs.index');
+    Route::get('/profil', fn () => view('admin.profile'))->name('profile');
 });

@@ -26,4 +26,5 @@ Route::prefix('hr')->name('hr.')->group(function () {
 
     Route::get('/struktur-organisasi', fn () => view('hr.struktur.index'))->name('structure.index');
     Route::get('/pengaturan', fn () => view('hr.pengaturan.index'))->name('settings.index');
+    Route::get('/profil', fn () => view('hr.profile'))->name('profile');
 });

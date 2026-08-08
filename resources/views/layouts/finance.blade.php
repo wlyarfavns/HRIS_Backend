@@ -71,6 +71,63 @@
         ::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 10px; }
 
         /* Sidebar Finance — identitas terpisah dari Super Admin & HR, warna aksen tetap sama (brand) agar konsisten */
+        /* Dashboard Entrance Animations & Styled Visual Widgets */
+        @keyframes dashboardFadeInUp {
+            0% {
+                opacity: 0;
+                transform: translateY(20px) scale(0.98);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        @keyframes gaugeRotate {
+            0% { transform: rotate(-90deg); }
+            100% { transform: rotate(var(--gauge-deg, 45deg)); }
+        }
+        @keyframes barGrowHorizontal {
+            0% { width: 0%; }
+        }
+        @keyframes barGrowVertical {
+            0% { height: 0%; }
+        }
+        @keyframes strokeDraw {
+            0% { stroke-dashoffset: 600; }
+            100% { stroke-dashoffset: 0; }
+        }
+
+        .animate-dash-card {
+            opacity: 0;
+            animation: dashboardFadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .dash-delay-1 { animation-delay: 0.06s; }
+        .dash-delay-2 { animation-delay: 0.12s; }
+        .dash-delay-3 { animation-delay: 0.18s; }
+        .dash-delay-4 { animation-delay: 0.24s; }
+        .dash-delay-5 { animation-delay: 0.30s; }
+        .dash-delay-6 { animation-delay: 0.36s; }
+
+        .animate-bar-grow {
+            animation: barGrowHorizontal 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .animate-bar-vertical {
+            animation: barGrowVertical 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .animate-gauge-needle {
+            transform-origin: 50px 50px;
+            animation: gaugeRotate 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        .animate-line-draw {
+            stroke-dasharray: 600;
+            stroke-dashoffset: 600;
+            animation: strokeDraw 1.5s ease-out forwards;
+        }
+
         .nav-tab.is-active {
             background-color: rgba(11, 61, 46, 0.08);
             color: #0B3D2E;
@@ -134,11 +191,6 @@
                 <span class="material-symbols-outlined text-[20px]">history</span>
                 Disbursement &amp; Slip Gaji
             </x-nav-link>
-
-            <x-nav-link route="finance.settings.index">
-                <span class="material-symbols-outlined text-[20px]">settings</span>
-                Pengaturan
-            </x-nav-link>
         </nav>
     </aside>
 
@@ -185,13 +237,9 @@
                                 <p class="text-sm font-bold text-on-surface">Rina Kartika</p>
                                 <p class="text-xs text-on-surface-variant/60">rina.kartika@talentahr.co.id</p>
                             </div>
-                            <a href="#profil" class="flex items-center gap-2.5 px-4 py-2 text-sm text-on-surface-variant/80 hover:bg-primary/5 hover:text-primary transition">
+                            <a href="{{ route('finance.profile') }}" class="flex items-center gap-2.5 px-4 py-2 text-sm text-on-surface-variant/80 hover:bg-primary/5 hover:text-primary transition">
                                 <span class="material-symbols-outlined text-[18px]">account_circle</span>
                                 Profil Saya
-                            </a>
-                            <a href="{{ route('finance.settings.index') }}" class="flex items-center gap-2.5 px-4 py-2 text-sm text-on-surface-variant/80 hover:bg-primary/5 hover:text-primary transition">
-                                <span class="material-symbols-outlined text-[18px]">settings</span>
-                                Pengaturan Akun
                             </a>
                             <div class="border-t border-black/5 mt-1 pt-1">
                                 <form method="POST" action="">

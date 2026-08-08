@@ -11,4 +11,5 @@ Route::prefix('supervisor')->name('supervisor.')->group(function () {
     Route::get('/persetujuan/reimbursement', fn () => view('supervisor.persetujuan.reimbursement'))->name('approvals.reimbursement');
 
     Route::get('/laporan-kehadiran', fn () => view('supervisor.laporan.index'))->name('attendance.report');
+    Route::get('/profil', fn () => view('supervisor.profile'))->name('profile');
 });
