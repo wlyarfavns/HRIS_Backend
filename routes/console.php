@@ -9,3 +9,6 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('attendance:recap-daily')->dailyAt('23:59');
+
+// Task 33: Schedule Auto Carry-forward Cuti setiap awal tahun
+Schedule::command('leave:carry-forward')->yearly();

@@ -11,36 +11,16 @@ return new class extends Migration
         Schema::create('employee_contracts', function (Blueprint $table) {
 
             $table->id();
-
-            $table->foreignId('employee_id')
-                ->constrained()
-                ->cascadeOnDelete();
-
-            $table->string('contract_number')->unique();
-
-            $table->enum('contract_type',[
-                'PKWT',
-                'PKWTT'
-            ]);
-
+            $table->foreignId('employee_id')->constrained()->cascadeOnDelete();
+            $table->string('contract_number')->nullable()->unique();
+            $table->enum('contract_type', ['PKWT', 'PKWTT']);
             $table->date('start_date');
-
             $table->date('end_date')->nullable();
-
             $table->decimal('basic_salary',15,2)->default(0);
-
-            $table->enum('status',[
-                'active',
-                'expired',
-                'terminated'
-            ])->default('active');
-
+            $table->string('document_file')->nullable();
+            $table->string('status')->default('Active'); 
             $table->text('notes')->nullable();
-
-            $table->foreignId('created_by')
-                ->constrained('users')
-                ->cascadeOnDelete();
-
+            $table->foreignId('created_by')->nullable()->constrained('users')->cascadeOnDelete();
             $table->timestamps();
         });
     }

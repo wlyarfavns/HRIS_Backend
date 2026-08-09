@@ -4,49 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Dashboard HR') - TalentaHR</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
-
-    <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "on-surface-variant": "#414944",
-                        "outline-variant": "#E1E3E4",
-                        "surface-container": "#F8F9FA",
-                        "outline": "#717974",
-                        "on-surface": "#191c1d",
-                        "surface": "#ffffff",
-                        "on-primary": "#ffffff",
-                        "on-secondary": "#ffffff",
-                        "surface-variant": "#f1f3f4",
-                        "secondary": "#0B3D2E",
-                        "primary": "#0B3D2E",
-                        "on-error": "#ffffff",
-                        "error-container": "#ffdad6",
-                        "error": "#ba1a1a",
-                        "brand-gold": "#FFD700",
-                    },
-                    borderRadius: {
-                        DEFAULT: "0.5rem",
-                        lg: "0.75rem",
-                        xl: "1rem",
-                        "2xl": "1.25rem",
-                        "3xl": "1.5rem",
-                        full: "9999px",
-                    },
-                    fontFamily: {
-                        sans: ["Inter", "system-ui", "sans-serif"],
-                    },
-                },
-            },
-        }
-    </script>
 
     <style>
         body { font-family: 'Inter', sans-serif; }
@@ -70,7 +32,43 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 10px; }
 
-        /* Sidebar HR — identitas terpisah dari Super Admin, warna aksen sama (brand) */
+        /* Dashboard Entrance Animations & Styled Visual Widgets */
+        @keyframes dashboardFadeInUp {
+            0% { opacity: 0; transform: translateY(20px) scale(0.98); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes gaugeRotate {
+            0% { transform: rotate(-90deg); }
+            100% { transform: rotate(var(--gauge-deg, 45deg)); }
+        }
+        @keyframes barGrowHorizontal {
+            0% { width: 0%; }
+        }
+        @keyframes barGrowVertical {
+            0% { height: 0%; }
+        }
+        @keyframes strokeDraw {
+            0% { stroke-dashoffset: 600; }
+            100% { stroke-dashoffset: 0; }
+        }
+
+        .animate-dash-card {
+            opacity: 0;
+            animation: dashboardFadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .dash-delay-1 { animation-delay: 0.06s; }
+        .dash-delay-2 { animation-delay: 0.12s; }
+        .dash-delay-3 { animation-delay: 0.18s; }
+        .dash-delay-4 { animation-delay: 0.24s; }
+        .dash-delay-5 { animation-delay: 0.30s; }
+        .dash-delay-6 { animation-delay: 0.36s; }
+
+        .animate-bar-grow { animation: barGrowHorizontal 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-bar-vertical { animation: barGrowVertical 1s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-gauge-needle { transform-origin: 50px 50px; animation: gaugeRotate 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+        .animate-line-draw { stroke-dasharray: 600; stroke-dashoffset: 600; animation: strokeDraw 1.5s ease-out forwards; }
+
         .nav-tab.is-active {
             background-color: rgba(11, 61, 46, 0.08);
             color: #0B3D2E;
@@ -101,7 +99,7 @@
 <body class="text-on-surface antialiased bg-[#F4F7F5]">
 <div class="flex min-h-screen">
 
-    {{-- SIDEBAR HR — struktur & menu khusus role HR --}}
+    {{-- SIDEBAR HR --}}
     <aside class="w-72 bg-white sidebar-border fixed h-screen flex flex-col">
         <div class="px-8 py-6 border-b border-black/5">
             <h1 class="text-xl font-extrabold text-primary tracking-tight leading-tight">HRIS System</h1>
@@ -109,7 +107,6 @@
         </div>
 
         <nav class="flex-1 px-4 pt-6 space-y-1 overflow-y-auto pb-8">
-
             <x-nav-link route="hr.dashboard">
                 <span class="material-symbols-outlined text-[20px]">dashboard</span>
                 Dashboard
@@ -130,29 +127,22 @@
                 Presensi &amp; Absensi
             </x-nav-link>
 
-            <x-nav-group icon="fact_check" label="Persetujuan"
-                :active="request()->routeIs('hr.approvals.*')">
+            <x-nav-group icon="fact_check" label="Persetujuan" :active="request()->routeIs('hr.approvals.*')">
                 <x-nav-sublink route="hr.approvals.leave" badge="5">Cuti &amp; Izin</x-nav-sublink>
                 <x-nav-sublink route="hr.approvals.overtime">Lembur (SPL)</x-nav-sublink>
                 <x-nav-sublink route="hr.approvals.reimbursement">Reimbursement</x-nav-sublink>
             </x-nav-group>
 
-            <x-nav-link route="hr.payroll.index">
-                <span class="material-symbols-outlined text-[20px]">payments</span>
-                Penggajian
-            </x-nav-link>
-
-            <x-nav-link route="hr.performance.index">
-                <span class="material-symbols-outlined text-[20px]">trending_up</span>
-                Kinerja
-            </x-nav-link>
+            <x-nav-group icon="payments" label="Penggajian" :active="request()->routeIs('hr.payroll.*')">
+                <x-nav-sublink route="hr.payroll.index">Proses Payroll</x-nav-sublink>
+                <x-nav-sublink route="hr.payroll.components">Komponen Gaji</x-nav-sublink>
+            </x-nav-group>
 
             <x-nav-link route="hr.structure.index">
                 <span class="material-symbols-outlined text-[20px]">account_tree</span>
                 Struktur Organisasi
             </x-nav-link>
         </nav>
-
     </aside>
 
     {{-- MAIN CONTENT --}}
@@ -178,14 +168,28 @@
 
                     <div class="h-5 w-px bg-black/10"></div>
 
+                    {{-- AMBIL DATA PENGGUNA YANG SEDANG LOGIN --}}
+                    @php
+                        $user = auth()->user();
+                        $roleDbName = $user && $user->roles->first() ? $user->roles->first()->name : 'employee';
+                        $displayRoleMap = [
+                            'company'    => 'Super Admin',
+                            'hr'         => 'HR Admin',
+                            'finance'    => 'Finance',
+                            'supervisor' => 'Supervisor',
+                            'employee'   => 'Pegawai'
+                        ];
+                        $roleLabel = $displayRoleMap[$roleDbName] ?? 'Pegawai';
+                    @endphp
+
                     {{-- PROFIL + DROPDOWN --}}
                     <div class="relative" x-data="{ open: false }" @click.outside="open = false">
                         <button @click="open = !open" class="flex items-center gap-3 group">
                             <div class="text-right hidden sm:block">
-                                <p class="text-sm font-bold text-on-surface leading-tight">Sarah Johnson</p>
-                                <p class="text-[10px] text-on-surface-variant/60 font-bold uppercase tracking-wide">HR Admin</p>
+                                <p class="text-sm font-bold text-on-surface leading-tight">{{ $user->name }}</p>
+                                <p class="text-[10px] text-on-surface-variant/60 font-bold uppercase tracking-wide">{{ $roleLabel }}</p>
                             </div>
-                            <img src="https://i.pravatar.cc/40?img=47" alt="Foto profil"
+                            <img src="https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&background=random" alt="Foto profil"
                                 class="w-9 h-9 rounded-full object-cover ring-2 ring-transparent group-hover:ring-primary/20 transition">
                             <span class="material-symbols-outlined text-on-surface-variant/50 text-[18px] transition"
                                 :class="open && 'rotate-180'">expand_more</span>
@@ -195,19 +199,17 @@
                             class="absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-lg border border-black/5 py-2 z-30"
                             style="display: none;">
                             <div class="px-4 py-2 border-b border-black/5">
-                                <p class="text-sm font-bold text-on-surface">Sarah Johnson</p>
-                                <p class="text-xs text-on-surface-variant/60">sarah.johnson@talentahr.co.id</p>
+                                <p class="text-sm font-bold text-on-surface">{{ $user->name }}</p>
+                                <p class="text-xs text-on-surface-variant/60">{{ $user->email }}</p>
                             </div>
-                            <a href="#profil" class="flex items-center gap-2.5 px-4 py-2 text-sm text-on-surface-variant/80 hover:bg-primary/5 hover:text-primary transition">
+                            {{-- Ganti hr.profile menjadi rute profil universal --}}
+                            <a href="{{ route('hr.profile') }}" class="flex items-center gap-2.5 px-4 py-2 text-sm text-on-surface-variant/80 hover:bg-primary/5 hover:text-primary transition">
                                 <span class="material-symbols-outlined text-[18px]">account_circle</span>
                                 Profil Saya
                             </a>
-                            <a href="#pengaturan" class="flex items-center gap-2.5 px-4 py-2 text-sm text-on-surface-variant/80 hover:bg-primary/5 hover:text-primary transition">
-                                <span class="material-symbols-outlined text-[18px]">settings</span>
-                                Pengaturan Akun
-                            </a>
                             <div class="border-t border-black/5 mt-1 pt-1">
-                                <form method="POST" action="">
+                                {{-- Arahkan action ke rute logout --}}
+                                <form method="POST" action="{{ route('logout') }}">
                                     @csrf
                                     <button type="submit" class="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-error hover:bg-error/5 text-left transition">
                                         <span class="material-symbols-outlined text-[18px]">logout</span>

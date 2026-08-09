@@ -8,9 +8,7 @@ use Illuminate\Http\Request;
 
 class PositionController extends Controller
 {
-    /**
-     * Menampilkan daftar Position milik company yang sedang login.
-     */
+    
     public function index(Request $request)
     {
         $positions = Position::with('department')
@@ -23,10 +21,7 @@ class PositionController extends Controller
         ]);
     }
 
-    /**
-     * HR membuat Position baru.
-     */
-    public function store(Request $request)
+public function store(Request $request)
     {
         $request->validate([
             'department_id' => 'required|exists:departments,id',
@@ -50,12 +45,9 @@ class PositionController extends Controller
         ], 201);
     }
 
-    /**
-     * Menampilkan detail satu Position.
-     */
-    public function show(Request $request, Position $position)
+public function show(Request $request, Position $position)
     {
-        // Pastikan position ini milik company user yang sedang login
+        
         if ($position->company_id !== $request->user()->company_id) {
             return response()->json([
                 'success' => false,
@@ -69,10 +61,7 @@ class PositionController extends Controller
         ]);
     }
 
-    /**
-     * HR mengubah data Position.
-     */
-    public function update(Request $request, Position $position)
+public function update(Request $request, Position $position)
     {
         if ($position->company_id !== $request->user()->company_id) {
             return response()->json(['success' => false, 'message' => 'Unauthorized.'], 403);
@@ -94,18 +83,13 @@ class PositionController extends Controller
         ]);
     }
 
-    /**
-     * HR menghapus data Position.
-     */
-    public function destroy(Request $request, Position $position)
+public function destroy(Request $request, Position $position)
     {
         if ($position->company_id !== $request->user()->company_id) {
             return response()->json(['success' => false, 'message' => 'Unauthorized.'], 403);
         }
 
-        // Opsional: Anda bisa menambahkan pengecekan jika position masih dipakai oleh employee, tolak hapus.
-
-        $position->delete();
+$position->delete();
 
         return response()->json([
             'success' => true,
