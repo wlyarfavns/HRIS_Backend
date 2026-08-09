@@ -32,17 +32,9 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 10px; }
 
-        /* Tab sidebar: aktif tetap hijau saat di-hover */
-        /* Dashboard Entrance Animations & Styled Visual Widgets */
         @keyframes dashboardFadeInUp {
-            0% {
-                opacity: 0;
-                transform: translateY(20px) scale(0.98);
-            }
-            100% {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
+            0% { opacity: 0; transform: translateY(20px) scale(0.98); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
         }
         @keyframes gaugeRotate {
             0% { transform: rotate(-90deg); }
@@ -71,24 +63,10 @@
         .dash-delay-5 { animation-delay: 0.30s; }
         .dash-delay-6 { animation-delay: 0.36s; }
 
-        .animate-bar-grow {
-            animation: barGrowHorizontal 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        .animate-bar-vertical {
-            animation: barGrowVertical 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        .animate-gauge-needle {
-            transform-origin: 50px 50px;
-            animation: gaugeRotate 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-        }
-
-        .animate-line-draw {
-            stroke-dasharray: 600;
-            stroke-dashoffset: 600;
-            animation: strokeDraw 1.5s ease-out forwards;
-        }
+        .animate-bar-grow { animation: barGrowHorizontal 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-bar-vertical { animation: barGrowVertical 1s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-gauge-needle { transform-origin: 50px 50px; animation: gaugeRotate 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+        .animate-line-draw { stroke-dasharray: 600; stroke-dashoffset: 600; animation: strokeDraw 1.5s ease-out forwards; }
 
         .nav-tab.is-active {
             background-color: rgba(11, 61, 46, 0.08);
@@ -99,25 +77,8 @@
             background-color: rgba(11, 61, 46, 0.16);
             color: #0B3D2E;
         }
-        .nav-tab:not(.is-active) {
-            color: rgba(65, 73, 68, 0.8);
-        }
+        .nav-tab:not(.is-active) { color: rgba(65, 73, 68, 0.8); }
         .nav-tab:not(.is-active):hover {
-            background-color: rgba(11, 61, 46, 0.06);
-            color: #0B3D2E;
-        }
-        .nav-subtab.is-active {
-            background-color: rgba(11, 61, 46, 0.08);
-            color: #0B3D2E;
-            font-weight: 600;
-        }
-        .nav-subtab.is-active:hover {
-            background-color: rgba(11, 61, 46, 0.16);
-        }
-        .nav-subtab:not(.is-active) {
-            color: rgba(65, 73, 68, 0.7);
-        }
-        .nav-subtab:not(.is-active):hover {
             background-color: rgba(11, 61, 46, 0.06);
             color: #0B3D2E;
         }
@@ -126,7 +87,7 @@
 <body class="text-on-surface antialiased bg-[#F4F7F5]">
 <div class="flex min-h-screen">
 
-    {{-- SIDEBAR — hanya berisi tab menu --}}
+    {{-- SIDEBAR --}}
     <aside class="w-72 bg-white sidebar-border fixed h-screen flex flex-col">
         <div class="px-8 py-6 border-b border-black/5">
             <h1 class="text-xl font-extrabold text-primary tracking-tight leading-tight">HRIS System</h1>
@@ -134,7 +95,6 @@
         </div>
 
         <nav class="flex-1 px-4 pt-6 space-y-1 overflow-y-auto pb-8">
-
             <x-nav-link route="admin.dashboard">
                 <span class="material-symbols-outlined text-[20px]">dashboard</span>
                 Dashboard
@@ -180,14 +140,28 @@
 
                     <div class="h-5 w-px bg-black/10"></div>
 
+                    {{-- AMBIL DATA PENGGUNA YANG SEDANG LOGIN --}}
+                    @php
+                        $user = auth()->user();
+                        $roleDbName = $user && $user->roles->first() ? $user->roles->first()->name : 'employee';
+                        $displayRoleMap = [
+                            'company'    => 'Super Admin',
+                            'hr'         => 'HR Admin',
+                            'finance'    => 'Finance',
+                            'supervisor' => 'Supervisor',
+                            'employee'   => 'Pegawai'
+                        ];
+                        $roleLabel = $displayRoleMap[$roleDbName] ?? 'Pegawai';
+                    @endphp
+
                     {{-- PROFIL + DROPDOWN --}}
                     <div class="relative" x-data="{ open: false }" @click.outside="open = false">
                         <button @click="open = !open" class="flex items-center gap-3 group">
                             <div class="text-right hidden sm:block">
-                                <p class="text-sm font-bold text-on-surface leading-tight">Andi Wijaya</p>
-                                <p class="text-[10px] text-on-surface-variant/60 font-bold uppercase tracking-wide">Super Admin</p>
+                                <p class="text-sm font-bold text-on-surface leading-tight">{{ $user->name }}</p>
+                                <p class="text-[10px] text-on-surface-variant/60 font-bold uppercase tracking-wide">{{ $roleLabel }}</p>
                             </div>
-                            <img src="https://i.pravatar.cc/40?img=15" alt="Foto profil"
+                            <img src="https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&background=random" alt="Foto profil"
                                  class="w-9 h-9 rounded-full object-cover ring-2 ring-transparent group-hover:ring-primary/20 transition">
                             <span class="material-symbols-outlined text-on-surface-variant/50 text-[18px] transition"
                                   :class="open && 'rotate-180'">expand_more</span>
@@ -197,15 +171,16 @@
                              class="absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-lg border border-black/5 py-2 z-30"
                              style="display: none;">
                             <div class="px-4 py-2 border-b border-black/5">
-                                <p class="text-sm font-bold text-on-surface">Andi Wijaya</p>
-                                <p class="text-xs text-on-surface-variant/60">andi.wijaya@talentahr.co.id</p>
+                                <p class="text-sm font-bold text-on-surface">{{ $user->name }}</p>
+                                <p class="text-xs text-on-surface-variant/60">{{ $user->email }}</p>
                             </div>
                             <a href="{{ route('admin.profile') }}" class="flex items-center gap-2.5 px-4 py-2 text-sm text-on-surface-variant/80 hover:bg-primary/5 hover:text-primary transition">
                                 <span class="material-symbols-outlined text-[18px]">account_circle</span>
                                 Profil Saya
                             </a>
                             <div class="border-t border-black/5 mt-1 pt-1">
-                                <form method="POST" action="">
+                                {{-- PERBAIKAN RUTE LOGOUT --}}
+                                <form method="POST" action="{{ route('logout') }}">
                                     @csrf
                                     <button type="submit" class="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-error hover:bg-error/5 text-left transition">
                                         <span class="material-symbols-outlined text-[18px]">logout</span>

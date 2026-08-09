@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Mobile\Employee;
 
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
+use App\Models\LeaveRequest;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Storage;
 
 class AttendanceController extends Controller
 {
@@ -22,10 +22,21 @@ class AttendanceController extends Controller
             ->where('date', $today)
             ->first();
 
+        // Kalau tidak ada absen, cek apakah hari ini sedang izin/sakit/cuti
+        $leave = null;
+        if (!$attendance) {
+            $leave = LeaveRequest::with('leaveType')
+                ->where('employee_id', $employee->id)
+                ->coveringDate($today)
+                ->where('status', 'approved')
+                ->first();
+        }
+
         return response()->json([
             'success' => true,
             'message' => 'Status absensi hari ini.',
-            'data' => $attendance 
+            'data' => $attendance,
+            'leave' => $leave,
         ]);
     }
 
@@ -89,7 +100,7 @@ class AttendanceController extends Controller
             'latitude_out' => $request->latitude,
             'longitude_out' => $request->longitude,
             'distance_out_meters' => round($distance, 2),
-            'is_mock_location_out' => $isMockLocation, 
+            'is_mock_location_out' => $isMockLocation,
         ]);
 
         return response()->json([
@@ -135,6 +146,11 @@ class AttendanceController extends Controller
             ], 403);
         }
 
+        // 2b. TENTUKAN STATUS & MENIT KETERLAMBATAN (dibandingkan jam standar, bukan batas toleransi)
+        $isLate = $currentTime->greaterThan($standardStartTime);
+        $status = $isLate ? Attendance::STATUS_LATE : Attendance::STATUS_PRESENT;
+        $lateMinutes = $isLate ? $standardStartTime->diffInMinutes($currentTime) : 0;
+
         // 3. KALKULASI JARAK (HAVERSINE)
         $distance = $this->calculateHaversineDistance(
             $company->office_latitude,
@@ -168,12 +184,55 @@ class AttendanceController extends Controller
             'longitude_in' => $request->longitude,
             'distance_in_meters' => round($distance, 2),
             'is_mock_location' => $isMockLocation,
+            'status' => $status,
+            'late_minutes' => $lateMinutes,
         ]);
 
         return response()->json([
             'success' => true,
             'message' => 'Absensi berhasil dicatat.',
             'data' => $attendance
+        ], 201);
+    }
+
+    /**
+     * Karyawan mengajukan izin / sakit / cuti (dengan lampiran opsional, mis. surat dokter)
+     */
+    public function submitLeave(Request $request)
+    {
+        $request->validate([
+            'leave_type_id' => 'required|exists:leave_types,id',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+            'reason' => 'nullable|string|max:500',
+            'attachment' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+        ]);
+
+        $employee = $request->user()->employee;
+
+        $attachmentPath = null;
+        if ($request->hasFile('attachment')) {
+            $attachmentPath = $request->file('attachment')->store('leave-attachments', 'public');
+        }
+
+        $startDate = Carbon::parse($request->start_date);
+        $endDate = Carbon::parse($request->end_date);
+
+        $leave = LeaveRequest::create([
+            'employee_id' => $employee->id,
+            'leave_type_id' => $request->leave_type_id,
+            'start_date' => $startDate,
+            'end_date' => $endDate,
+            'total_days' => $startDate->diffInDays($endDate) + 1,
+            'reason' => $request->reason,
+            'attachment' => $attachmentPath,
+            'status' => 'pending',
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Pengajuan izin/sakit berhasil dikirim, menunggu persetujuan HR.',
+            'data' => $leave,
         ], 201);
     }
 
@@ -197,12 +256,10 @@ class AttendanceController extends Controller
     public function summary(Request $request)
     {
         $employee = $request->user()->employee;
-        
-        // Ambil awal dan akhir minggu ini menggunakan Carbon
+
         $startOfWeek = Carbon::now()->startOfWeek()->toDateString();
         $endOfWeek = Carbon::now()->endOfWeek()->toDateString();
 
-        // Tarik data absen dalam rentang waktu tersebut
         $attendances = Attendance::where('employee_id', $employee->id)
             ->whereBetween('date', [$startOfWeek, $endOfWeek])
             ->get();
@@ -228,7 +285,7 @@ class AttendanceController extends Controller
         $history = Attendance::where('employee_id', $employee->id)
             ->orderBy('date', 'desc')
             ->limit(10)
-            ->get(['date', 'time_in', 'time_out', 'status']); 
+            ->get(['date', 'time_in', 'time_out', 'status']);
 
         return response()->json([
             'success' => true,

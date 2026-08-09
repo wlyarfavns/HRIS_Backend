@@ -7,58 +7,39 @@ use Illuminate\Database\Eloquent\Model;
 class Employee extends Model
 {
     protected $fillable = [
-
         'company_id',
-
         'user_id',
-
         'employee_id',
-
         'full_name',
-
+        'nik',
         'email',
-
         'phone',
-
+        'npwp',
+        'bpjs_number',
         'gender',
-        
         'agama',
-
         'birth_place',
-
         'birth_date',
-
         'address',
-
         'department_id',
-
         'position_id',
-
         'join_date',
-
         'employment_status',
-
+        'basic_salary',
+        'ktp_file_path',
         'status',
-
-        'activation_token',
-
-        'activation_expired_at',
-
         'bank_name',
-
         'bank_account_number',
-
         'bank_account_holder',
     ];
-    
+
 
     protected $casts = [
 
-        'birth_date'=>'date',
+        'birth_date' => 'date',
 
-        'join_date'=>'date',
+        'join_date' => 'date',
 
-        'activation_expired_at'=>'datetime',
     ];
 
     public function company()
@@ -89,6 +70,16 @@ class Employee extends Model
     public function activeContract()
     {
         return $this->hasOne(EmployeeContract::class)
-            ->where('status','active');
+            ->where('status', 'Active');
+    }
+
+    public function leaveRequests()
+    {
+        return $this->hasMany(LeaveRequest::class);
+    }
+
+    public function payrolls()
+    {
+        return $this->hasMany(Payroll::class);
     }
 }

@@ -1,79 +1,91 @@
 @extends('layouts.hr')
+    @php
+        /** @var \App\Models\Employee $employee */
+        /** @var \Illuminate\Support\Collection $contracts */
+        /** @var \Illuminate\Support\Collection $recentActivity */
+        /** @var int $leaveBalance */
+        /** @var int $leaveQuota */
+        /** @var array<string,bool> $documents */
+    @endphp
 
-@section('title', 'Detail Karyawan')
+@section('title', 'Detail Karyawan — ' . $employee->full_name)
 @section('page-title', 'Detail Karyawan')
 @section('page-desc', 'Profil lengkap, riwayat kontrak, dan ringkasan kepegawaian.')
-
-@php
-    // Dummy data — nantinya diganti hasil query berdasarkan $id dari route
-    $employee = [
-        'nip' => $id ?? 'EMP-00812',
-        'full_name' => 'Jim Halpert',
-        'nik' => '3374012345670003',
-        'email' => 'jim.halpert@talentahr.co.id',
-        'phone' => '081234567890',
-        'department' => 'Sales',
-        'position' => 'Sales Executive',
-        'job_grade' => 'JG-1 · Staff',
-        'join_date' => '18 Agu 2024',
-        'contract_type' => 'PKWT',
-        'basic_salary' => 6500000,
-        'status' => 'Aktif',
-        'avatar' => 12,
-        'leave_balance' => 6,
-        'leave_quota' => 12,
-    ];
-
-    $contracts = [
-        ['type' => 'PKWT — Kontrak I', 'range' => '18 Agu 2024 – 17 Agu 2025', 'status' => 'Selesai'],
-        ['type' => 'PKWT — Kontrak II (Perpanjangan)', 'range' => '18 Agu 2025 – 17 Sep 2026', 'status' => 'Berjalan'],
-    ];
-
-    $recentActivity = [
-        ['label' => 'Cuti Tahunan disetujui', 'time' => '3 Agu 2026', 'icon' => 'event_available'],
-        ['label' => 'Slip gaji Juli 2026 diunduh', 'time' => '2 Agu 2026', 'icon' => 'description'],
-        ['label' => 'Lembur (SPL) 3 jam disetujui', 'time' => '29 Jul 2026', 'icon' => 'schedule'],
-    ];
-@endphp
 
 @section('content')
 
     {{-- LINK KEMBALI --}}
-    <a href="{{ route('hr.employees.index') }}"
-       class="inline-flex items-center gap-1.5 text-xs font-bold text-on-surface-variant/60
-              hover:text-primary transition -mt-2 mb-1">
+    <a href="{{ route('hr.employees.index') }}" class="inline-flex items-center gap-1.5 text-xs font-bold text-on-surface-variant/60
+                   hover:text-primary transition -mt-2 mb-1">
         <span class="material-symbols-outlined text-[16px]">arrow_back</span>
         Kembali ke Daftar Karyawan
     </a>
 
-    {{-- HEADER PROFIL --}}
-    <div class="card-flat rounded-2xl p-6 flex items-center gap-5">
-        <img src="https://i.pravatar.cc/72?img={{ $employee['avatar'] }}" class="w-[72px] h-[72px] rounded-full object-cover" alt="{{ $employee['full_name'] }}">
-        <div class="flex-1">
-            <div class="flex items-center gap-2.5">
-                <p class="text-lg font-bold text-on-surface">{{ $employee['full_name'] }}</p>
-                <span class="text-[11px] font-bold px-2.5 py-1 rounded {{ $employee['contract_type'] === 'PKWTT' ? 'bg-primary/10 text-primary' : 'bg-amber-500/10 text-amber-700' }}">
-                    {{ $employee['contract_type'] }}
-                </span>
-                <span class="text-[11px] font-bold px-2.5 py-1 rounded bg-primary/10 text-primary">{{ $employee['status'] }}</span>
-            </div>
-            <p class="text-sm text-on-surface-variant/60 mt-1">{{ $employee['position'] }} · {{ $employee['department'] }}</p>
-            <p class="text-xs text-on-surface-variant/40 font-mono-data mt-1">{{ $employee['nip'] }} · Bergabung {{ $employee['join_date'] }}</p>
+    {{-- FLASH SUCCESS --}}
+    @if (session('success'))
+        <div class="rounded-xl bg-green-50 border border-green-200 text-green-800 text-sm p-3.5 mb-4 flex items-center gap-2">
+            <span class="material-symbols-outlined text-[18px]">check_circle</span>
+            {{ session('success') }}
         </div>
-        <div class="flex items-center gap-2">
-            <a href="{{ route('hr.employees.documents', $employee['nip']) }}"
-               class="border border-black/10 text-on-surface-variant/70 text-xs font-bold px-4 py-2.5 rounded-lg flex items-center gap-1.5 hover:bg-surface-container transition">
+    @endif
+
+    {{-- ── HEADER PROFIL ──────────────────────────────────────────────────── --}}
+    <div class="card-flat rounded-2xl p-6 flex items-center gap-5 mb-5">
+
+        {{-- Avatar inisial (tidak pakai gambar eksternal) --}}
+        <div class="w-[72px] h-[72px] rounded-full bg-primary/10 text-primary
+                        flex items-center justify-center text-2xl font-extrabold shrink-0 uppercase">
+            {{ substr($employee->full_name, 0, 1) }}
+        </div>
+
+        <div class="flex-1 min-w-0">
+            <div class="flex flex-wrap items-center gap-2.5">
+                <p class="text-lg font-bold text-on-surface">{{ $employee->full_name }}</p>
+
+                {{-- Badge tipe kontrak --}}
+                <span class="text-[11px] font-bold px-2.5 py-1 rounded
+                        {{ $employee->employment_status === 'PKWTT'
+        ? 'bg-primary/10 text-primary'
+        : 'bg-amber-500/10 text-amber-700' }}">
+                    {{ $employee->employment_status }}
+                </span>
+
+                {{-- Badge status --}}
+                <span class="text-[11px] font-bold px-2.5 py-1 rounded
+                        {{ $employee->status === 'active'
+        ? 'bg-green-500/10 text-green-700'
+        : 'bg-red-500/10 text-red-700' }}">
+                    {{ $employee->status === 'active' ? 'Aktif' : ucfirst($employee->status) }}
+                </span>
+            </div>
+
+            <p class="text-sm text-on-surface-variant/60 mt-1">
+                {{ $employee->position->name ?? '-' }}
+                &bull;
+                {{ $employee->department->name ?? '-' }}
+            </p>
+            <p class="text-xs text-on-surface-variant/40 font-mono-data mt-1">
+                {{ $employee->employee_id }}
+                &bull;
+                Bergabung {{ \Carbon\Carbon::parse($employee->join_date)->translatedFormat('d M Y') }}
+            </p>
+        </div>
+
+        <div class="flex items-center gap-2 shrink-0">
+            <a href="{{ route('hr.employees.documents', $employee->employee_id) }}" class="border border-black/10 text-on-surface-variant/70 text-xs font-bold px-4 py-2.5
+                           rounded-lg flex items-center gap-1.5 hover:bg-surface-container transition cursor-pointer">
                 <span class="material-symbols-outlined text-[16px]">folder_open</span>
                 Dokumen
             </a>
-            <a href="{{ route('hr.employees.edit', $employee['nip']) }}"
-               class="bg-primary hover:brightness-110 text-white text-xs font-bold px-4 py-2.5 rounded-lg flex items-center gap-1.5 transition">
+            <a href="{{ route('hr.employees.edit', $employee->employee_id) }}" class="bg-primary hover:brightness-110 text-white text-xs font-bold px-4 py-2.5
+                           rounded-lg flex items-center gap-1.5 transition cursor-pointer">
                 <span class="material-symbols-outlined text-[16px]">edit</span>
                 Edit Data
             </a>
         </div>
     </div>
 
+    {{-- ── GRID UTAMA ──────────────────────────────────────────────────────── --}}
     <div class="grid grid-cols-3 gap-5">
 
         {{-- KOLOM KIRI: DATA UTAMA --}}
@@ -83,22 +95,58 @@
             <div class="card-flat rounded-2xl p-6">
                 <h2 class="text-base font-bold text-on-surface mb-5">Data Pribadi</h2>
                 <div class="grid grid-cols-2 gap-5">
+
                     <div>
                         <p class="text-[11px] font-bold text-on-surface-variant/40 uppercase tracking-wide">NIK (KTP)</p>
-                        <p class="text-sm font-semibold text-on-surface font-mono-data mt-1">{{ $employee['nik'] }}</p>
+                        <p class="text-sm font-semibold text-on-surface font-mono-data mt-1">
+                            {{ $employee->nik ?? '—' }}
+                        </p>
                     </div>
+
                     <div>
                         <p class="text-[11px] font-bold text-on-surface-variant/40 uppercase tracking-wide">Email</p>
-                        <p class="text-sm font-semibold text-on-surface mt-1">{{ $employee['email'] }}</p>
+                        <p class="text-sm font-semibold text-on-surface mt-1 break-all">
+                            {{-- Sembunyikan email dummy @internal.local --}}
+                            @if (str_ends_with($employee->email ?? '', '@internal.local'))
+                                <span class="text-on-surface-variant/40 italic text-xs">Belum diaktivasi</span>
+                            @else
+                                {{ $employee->email ?? '—' }}
+                            @endif
+                        </p>
                     </div>
+
                     <div>
                         <p class="text-[11px] font-bold text-on-surface-variant/40 uppercase tracking-wide">No. Telepon</p>
-                        <p class="text-sm font-semibold text-on-surface font-mono-data mt-1">{{ $employee['phone'] }}</p>
+                        <p class="text-sm font-semibold text-on-surface font-mono-data mt-1">
+                            {{ $employee->phone ?? '—' }}
+                        </p>
                     </div>
+
                     <div>
-                        <p class="text-[11px] font-bold text-on-surface-variant/40 uppercase tracking-wide">Job Grade</p>
-                        <p class="text-sm font-semibold text-on-surface mt-1">{{ $employee['job_grade'] }}</p>
+                        <p class="text-[11px] font-bold text-on-surface-variant/40 uppercase tracking-wide">Posisi / Grade
+                        </p>
+                        <p class="text-sm font-semibold text-on-surface mt-1">
+                            {{ $employee->position->name ?? '—' }}
+                            @if ($employee->position->grade ?? null)
+                                <span class="text-on-surface-variant/50">· {{ $employee->position->grade }}</span>
+                            @endif
+                        </p>
                     </div>
+
+                    <div>
+                        <p class="text-[11px] font-bold text-on-surface-variant/40 uppercase tracking-wide">NPWP</p>
+                        <p class="text-sm font-semibold text-on-surface font-mono-data mt-1">
+                            {{ $employee->npwp ?? '—' }}
+                        </p>
+                    </div>
+
+                    <div>
+                        <p class="text-[11px] font-bold text-on-surface-variant/40 uppercase tracking-wide">No. BPJS</p>
+                        <p class="text-sm font-semibold text-on-surface font-mono-data mt-1">
+                            {{ $employee->bpjs_number ?? '—' }}
+                        </p>
+                    </div>
+
                 </div>
             </div>
 
@@ -107,74 +155,162 @@
                 <div class="px-6 py-4 border-b border-black/5">
                     <h2 class="text-base font-bold text-on-surface">Riwayat Masa Berlaku Kontrak</h2>
                 </div>
-                <div class="divide-y divide-black/5">
-                    @foreach ($contracts as $c)
-                        <div class="px-6 py-4 flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <span class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0
-                                             {{ $c['status'] === 'Berjalan' ? 'bg-primary/10 text-primary' : 'bg-surface-container text-on-surface-variant/40' }}">
-                                    <span class="material-symbols-outlined text-[18px]">assignment</span>
-                                </span>
-                                <div>
-                                    <p class="text-sm font-bold text-on-surface">{{ $c['type'] }}</p>
-                                    <p class="text-xs text-on-surface-variant/50 font-mono-data mt-0.5">{{ $c['range'] }}</p>
+
+                @if ($contracts->isEmpty())
+                    <div class="px-6 py-8 text-center text-sm text-on-surface-variant/50">
+                        <span
+                            class="material-symbols-outlined text-[32px] block mb-2 text-on-surface-variant/20">assignment_late</span>
+                        Belum ada riwayat kontrak tercatat.
+                    </div>
+                @else
+                    <div class="divide-y divide-black/5">
+                        @foreach ($contracts as $c)
+                                <div class="px-6 py-4 flex items-center justify-between">
+                                    <div class="flex items-center gap-3">
+                                        <span class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0
+                                                        {{ $c['status'] === 'Berjalan'
+                            ? 'bg-primary/10 text-primary'
+                            : 'bg-surface-container text-on-surface-variant/40' }}">
+                                            <span class="material-symbols-outlined text-[18px]">assignment</span>
+                                        </span>
+                                        <div>
+                                            <p class="text-sm font-bold text-on-surface">{{ $c['type'] }}</p>
+                                            <p class="text-xs text-on-surface-variant/50 font-mono-data mt-0.5">{{ $c['range'] }}</p>
+                                        </div>
+                                    </div>
+                                    <span class="text-[11px] font-bold px-2.5 py-1 rounded
+                                                    {{ $c['status'] === 'Berjalan'
+                            ? 'bg-primary/10 text-primary'
+                            : 'bg-surface-container text-on-surface-variant/50' }}">
+                                        {{ $c['status'] }}
+                                    </span>
                                 </div>
-                            </div>
-                            <span class="text-[11px] font-bold px-2.5 py-1 rounded {{ $c['status'] === 'Berjalan' ? 'bg-primary/10 text-primary' : 'bg-surface-container text-on-surface-variant/50' }}">
-                                {{ $c['status'] }}
-                            </span>
-                        </div>
-                    @endforeach
-                </div>
+                        @endforeach
+                    </div>
+                @endif
             </div>
 
             {{-- AKTIVITAS TERBARU --}}
             <div class="card-flat rounded-2xl p-6">
                 <h2 class="text-base font-bold text-on-surface mb-5">Aktivitas Terbaru</h2>
-                <div class="space-y-4">
-                    @foreach ($recentActivity as $a)
-                        <div class="flex items-center gap-3">
-                            <span class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                                <span class="material-symbols-outlined text-[16px]">{{ $a['icon'] }}</span>
-                            </span>
-                            <p class="text-sm text-on-surface-variant/80 flex-1">{{ $a['label'] }}</p>
-                            <p class="text-xs text-on-surface-variant/40 font-mono-data">{{ $a['time'] }}</p>
-                        </div>
-                    @endforeach
-                </div>
+
+                @if ($recentActivity->isEmpty())
+                    <p class="text-sm text-on-surface-variant/50 italic">Belum ada aktivitas tercatat.</p>
+                @else
+                    <div class="space-y-4">
+                        @foreach ($recentActivity as $a)
+                            <div class="flex items-center gap-3">
+                                <span class="w-8 h-8 rounded-lg bg-primary/10 text-primary
+                                                         flex items-center justify-center shrink-0">
+                                    <span class="material-symbols-outlined text-[16px]">{{ $a['icon'] }}</span>
+                                </span>
+                                <p class="text-sm text-on-surface-variant/80 flex-1">{{ $a['label'] }}</p>
+                                <p class="text-xs text-on-surface-variant/40 font-mono-data whitespace-nowrap">
+                                    {{ $a['time'] }}
+                                </p>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
             </div>
+
         </div>
 
         {{-- KOLOM KANAN: RINGKASAN --}}
         <div class="space-y-5">
+
+            {{-- SISA CUTI --}}
             <div class="card-flat rounded-2xl p-6">
-                <p class="text-[11px] font-bold text-on-surface-variant/50 uppercase tracking-wide mb-3">Sisa Kuota Cuti</p>
-                <p class="text-3xl font-extrabold font-mono-data text-primary">{{ $employee['leave_balance'] }} <span class="text-sm font-bold text-on-surface-variant/40">/ {{ $employee['leave_quota'] }} hari</span></p>
+                <p class="text-[11px] font-bold text-on-surface-variant/50 uppercase tracking-wide mb-3">
+                    Sisa Kuota Cuti {{ now()->year }}
+                </p>
+                <p class="text-3xl font-extrabold font-mono-data text-primary">
+                    {{ $leaveBalance }}
+                    <span class="text-sm font-bold text-on-surface-variant/40">/ {{ $leaveQuota }} hari</span>
+                </p>
                 <div class="w-full h-1.5 rounded-full bg-surface-container mt-3 overflow-hidden">
-                    <div class="h-full bg-primary rounded-full" style="width: {{ round($employee['leave_balance'] / $employee['leave_quota'] * 100) }}%"></div>
+                    <div class="h-full bg-primary rounded-full transition-all"
+                        style="width: {{ $leaveQuota > 0 ? round($leaveBalance / $leaveQuota * 100) : 0 }}%">
+                    </div>
                 </div>
+                <p class="text-[11px] text-on-surface-variant/40 mt-2">
+                    Terpakai: {{ $leaveQuota - $leaveBalance }} hari
+                </p>
             </div>
 
+            {{-- GAJI POKOK --}}
             <div class="card-flat rounded-2xl p-6">
-                <p class="text-[11px] font-bold text-on-surface-variant/50 uppercase tracking-wide mb-3">Gaji Pokok</p>
-                <p class="text-2xl font-extrabold font-mono-data text-on-surface">Rp{{ number_format($employee['basic_salary'], 0, ',', '.') }}</p>
-                <a href="{{ route('hr.payroll.slip', $employee['nip']) }}" class="text-xs font-bold text-primary/70 hover:text-primary transition mt-2 inline-block">Lihat slip gaji terakhir →</a>
+                <p class="text-[11px] font-bold text-on-surface-variant/50 uppercase tracking-wide mb-3">
+                    Gaji Pokok
+                </p>
+                <p class="text-2xl font-extrabold font-mono-data text-on-surface">
+                    Rp{{ number_format($employee->basic_salary ?? 0, 0, ',', '.') }}
+                </p>
+                <a href="{{ route('hr.payroll.slip', $employee->employee_id) }}"
+                    class="text-xs font-bold text-primary/70 hover:text-primary transition mt-2 inline-block">
+                    Lihat slip gaji terakhir →
+                </a>
             </div>
 
+            {{-- DOKUMEN TERUNGGAH --}}
             <div class="card-flat rounded-2xl p-6">
-                <p class="text-[11px] font-bold text-on-surface-variant/50 uppercase tracking-wide mb-3">Dokumen Terunggah</p>
+                <p class="text-[11px] font-bold text-on-surface-variant/50 uppercase tracking-wide mb-3">
+                    Dokumen Terunggah
+                </p>
                 <div class="space-y-2.5">
-                    @foreach (['Scan KTP' => true, 'Scan NPWP' => true, 'Kartu BPJS' => false] as $doc => $done)
+                    @foreach ($documents as $doc => $done)
                         <div class="flex items-center justify-between text-sm">
                             <span class="text-on-surface-variant/70">{{ $doc }}</span>
-                            <span class="material-symbols-outlined text-[18px] {{ $done ? 'text-primary' : 'text-on-surface-variant/25' }}">
+                            <span class="material-symbols-outlined text-[18px]
+                                        {{ $done ? 'text-primary' : 'text-on-surface-variant/25' }}">
                                 {{ $done ? 'check_circle' : 'radio_button_unchecked' }}
                             </span>
                         </div>
                     @endforeach
                 </div>
-                <a href="{{ route('hr.employees.documents', $employee['nip']) }}" class="text-xs font-bold text-primary/70 hover:text-primary transition mt-3 inline-block">Kelola dokumen →</a>
+                <a href="{{ route('hr.employees.documents', $employee->employee_id) }}"
+                    class="text-xs font-bold text-primary/70 hover:text-primary transition mt-3 inline-block">
+                    Kelola dokumen →
+                </a>
             </div>
+
+            {{-- INFO NIP / AKUN --}}
+            <div class="card-flat rounded-2xl p-6">
+                <p class="text-[11px] font-bold text-on-surface-variant/50 uppercase tracking-wide mb-3">
+                    Info Akun Karyawan
+                </p>
+                <div class="space-y-3">
+                    <div>
+                        <p class="text-[10px] text-on-surface-variant/40 uppercase font-bold tracking-wide mb-0.5">
+                            NIP (Username)
+                        </p>
+                        <p class="font-mono-data font-extrabold text-primary text-base">
+                            {{ $employee->employee_id }}
+                        </p>
+                    </div>
+                    <div class="pt-2 border-t border-black/5">
+                        <p class="text-[10px] text-on-surface-variant/40 uppercase font-bold tracking-wide mb-0.5">
+                            Status Aktivasi
+                        </p>
+                        @php
+                            $isActivated = $employee->email && !str_ends_with($employee->email, '@internal.local');
+                        @endphp
+                        <span class="text-[11px] font-bold px-2.5 py-1 rounded inline-flex items-center gap-1
+                                {{ $isActivated ? 'bg-green-500/10 text-green-700' : 'bg-amber-500/10 text-amber-700' }}">
+                            <span class="material-symbols-outlined text-[13px]">
+                                {{ $isActivated ? 'verified' : 'pending' }}
+                            </span>
+                            {{ $isActivated ? 'Sudah Aktivasi' : 'Belum Aktivasi' }}
+                        </span>
+                        @if (!$isActivated)
+                            <p class="text-[10px] text-on-surface-variant/40 mt-1.5">
+                                Karyawan belum mengisi email &amp; password baru di aplikasi mobile.
+                            </p>
+                        @endif
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
