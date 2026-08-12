@@ -53,9 +53,6 @@ class EmployeeController extends Controller
                 $q->where('employee_id', $id)->orWhere('id', $id);
             })
             ->firstOrFail();
-
-        // Kuota & sisa cuti — diambil dari leave_balances (bukan hardcode)
-        // Digabung dari semua jenis cuti yang is_quota_based, tahun berjalan.
         $currentYear = now()->year;
 
         $leaveBalances = LeaveBalance::where('employee_id', $employee->id)
@@ -135,7 +132,12 @@ class EmployeeController extends Controller
         $departments = Department::where('company_id', $companyId)->get();
         $positions = Position::where('company_id', $companyId)->get();
 
-        return view('hr.karyawan.edit', compact('employee', 'departments', 'positions'));
+        $supervisors = User::where('company_id', $companyId)
+            ->role('supervisor')
+            ->orderBy('name')
+            ->get();
+
+        return view('hr.karyawan.edit', compact('employee', 'departments', 'positions', 'supervisors'));
     }
     public function update(Request $request, Employee $employee)
     {
@@ -248,6 +250,10 @@ class EmployeeController extends Controller
 
         $departments = Department::where('company_id', $companyId)->get();
         $positions = Position::where('company_id', $companyId)->get();
+        $supervisors = User::where('company_id', $companyId)
+            ->role('supervisor')
+            ->orderBy('name')
+            ->get();
 
         $joinYearMonth = Carbon::now()->format('Ym');
         $lastEmployee = Employee::where('company_id', $companyId)
@@ -256,16 +262,10 @@ class EmployeeController extends Controller
         $newSequence = $lastEmployee ? ((int) substr($lastEmployee->employee_id, -3)) + 1 : 1;
         $predictedNip = $joinYearMonth . str_pad($newSequence, 3, '0', STR_PAD_LEFT);
 
-        return view('hr.karyawan.onboarding', compact('departments', 'positions', 'predictedNip'));
+        return view('hr.karyawan.onboarding', compact('departments', 'positions', 'predictedNip', 'supervisors'));
     }
 
-    /**
-     * SATU-SATUNYA jalur pembuatan karyawan baru.
-     * Sekaligus membuat:
-     *   1. Row `users`  -> NIP sebagai username, password AWAL = NIP (wajib diganti saat aktivasi mobile)
-     *   2. Row `employees` -> data kepegawaian, status langsung 'active'
-     *   3. Row `employee_contracts` (jika bukan PKWTT)
-     */
+
     public function storeWeb(Request $request)
     {
         $companyId = $request->user()->company_id;
@@ -283,6 +283,10 @@ class EmployeeController extends Controller
             'position_id' => [
                 'required',
                 Rule::exists('positions', 'id')->where('company_id', $companyId),
+            ],
+            'supervisor_id' => [
+                'nullable',
+                Rule::exists('users', 'id')->where('company_id', $companyId),
             ],
             'join_date' => 'required|date',
             'contract_type' => 'required|in:PKWT,PKWTT,Probation,Internship',
@@ -326,6 +330,7 @@ class EmployeeController extends Controller
             $employee = Employee::create([
                 'company_id' => $companyId,
                 'user_id' => $user->id,
+                'supervisor_id' => $request->supervisor_id,
                 'employee_id' => $nip,
                 'full_name' => $request->full_name,
                 'nik' => $request->nik,
@@ -339,9 +344,6 @@ class EmployeeController extends Controller
                 'position_id' => $request->position_id,
                 'join_date' => $request->join_date,
                 'employment_status' => $request->contract_type,
-                // Status langsung 'active' -> karyawan sudah bisa login pakai NIP+NIP
-                // sejak hari pertama, lalu diarahkan ke alur Aktivasi Akun (isi email+OTP)
-                // pada login pertamanya (lihat AuthController@login: needs_activation).
                 'status' => 'active',
             ]);
 
@@ -379,7 +381,11 @@ class EmployeeController extends Controller
 
         $request->validate([
             'full_name' => 'required|string|max:255',
-            'phone' => 'nullable|string|max:20',
+            'nik' => 'required|string|max:16',
+            'email' => 'required|email|max:255',
+            'phone' => 'required|string|max:20',
+            'npwp' => 'nullable|string|max:25',
+            'bpjs_number' => 'nullable|string|max:20',
             'department_id' => [
                 'required',
                 Rule::exists('departments', 'id')->where('company_id', $companyId),
@@ -388,14 +394,38 @@ class EmployeeController extends Controller
                 'required',
                 Rule::exists('positions', 'id')->where('company_id', $companyId),
             ],
+            'supervisor_id' => [
+                'nullable',
+                Rule::exists('users', 'id')->where('company_id', $companyId),
+            ],
+            'join_date' => 'required|date',
+            'employment_status' => 'required|in:PKWT,PKWTT,Probation,Internship',
+            'basic_salary' => 'required|numeric|min:0',
+            'status' => 'required|in:pending,active,inactive,resigned',
+            'ktp_file' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
         ]);
 
-        $employee->update($request->only([
+        $data = $request->only([
             'full_name',
+            'nik',
+            'email',
             'phone',
+            'npwp',
+            'bpjs_number',
             'department_id',
             'position_id',
-        ]));
+            'supervisor_id',
+            'join_date',
+            'employment_status',
+            'basic_salary',
+            'status',
+        ]);
+
+        if ($request->hasFile('ktp_file')) {
+            $data['ktp_file_path'] = $request->file('ktp_file')->store('documents/ktp', 'public');
+        }
+
+        $employee->update($data);
 
         return redirect()->route('hr.employees.index')->with('success', 'Perubahan data karyawan berhasil disimpan!');
     }

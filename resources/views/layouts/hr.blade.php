@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Dashboard HR') - TalentaHR</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -94,6 +95,35 @@
             background-color: rgba(11, 61, 46, 0.06);
             color: #0B3D2E;
         }
+
+        /*
+         * GLOBAL CURSOR FIX
+         * Browser tidak selalu otomatis pakai cursor "pointer" untuk <button>,
+         * elemen ber-role, atau elemen Alpine yang cuma pakai @click tanpa href.
+         * Aturan ini berlaku ke SEMUA halaman yang extends layout ini.
+         */
+        button:not(:disabled),
+        [type="button"]:not(:disabled),
+        [type="submit"]:not(:disabled),
+        [type="reset"]:not(:disabled),
+        a[href],
+        select,
+        label[for],
+        input[type="checkbox"],
+        input[type="radio"],
+        input[type="range"],
+        input[type="date"],
+        input[type="month"],
+        [role="button"],
+        [x-on\:click],
+        [\@click] {
+            cursor: pointer;
+        }
+        button:disabled,
+        [type="button"]:disabled,
+        [type="submit"]:disabled {
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body class="text-on-surface antialiased bg-[#F4F7F5]">
@@ -161,7 +191,7 @@
                 <div class="flex items-center gap-4 shrink-0">
                     @yield('page-action')
 
-                    <button class="relative p-2 text-on-surface-variant/60 hover:text-primary transition-colors">
+                    <button class="relative p-2 text-on-surface-variant/60 hover:text-primary transition-colors cursor-pointer">
                         <span class="material-symbols-outlined">notifications</span>
                         <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-brand-gold rounded-full ring-2 ring-white"></span>
                     </button>
@@ -184,7 +214,7 @@
 
                     {{-- PROFIL + DROPDOWN --}}
                     <div class="relative" x-data="{ open: false }" @click.outside="open = false">
-                        <button @click="open = !open" class="flex items-center gap-3 group">
+                        <button @click="open = !open" class="flex items-center gap-3 group cursor-pointer">
                             <div class="text-right hidden sm:block">
                                 <p class="text-sm font-bold text-on-surface leading-tight">{{ $user->name }}</p>
                                 <p class="text-[10px] text-on-surface-variant/60 font-bold uppercase tracking-wide">{{ $roleLabel }}</p>
@@ -203,7 +233,7 @@
                                 <p class="text-xs text-on-surface-variant/60">{{ $user->email }}</p>
                             </div>
                             {{-- Ganti hr.profile menjadi rute profil universal --}}
-                            <a href="{{ route('hr.profile') }}" class="flex items-center gap-2.5 px-4 py-2 text-sm text-on-surface-variant/80 hover:bg-primary/5 hover:text-primary transition">
+                            <a href="{{ route('hr.profile') }}" class="flex items-center gap-2.5 px-4 py-2 text-sm text-on-surface-variant/80 hover:bg-primary/5 hover:text-primary transition cursor-pointer">
                                 <span class="material-symbols-outlined text-[18px]">account_circle</span>
                                 Profil Saya
                             </a>
@@ -211,7 +241,7 @@
                                 {{-- Arahkan action ke rute logout --}}
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
-                                    <button type="submit" class="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-error hover:bg-error/5 text-left transition">
+                                    <button type="submit" class="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-error hover:bg-error/5 text-left transition cursor-pointer">
                                         <span class="material-symbols-outlined text-[18px]">logout</span>
                                         Keluar
                                     </button>
@@ -228,5 +258,6 @@
         </main>
     </div>
 </div>
+@stack('scripts')
 </body>
 </html>

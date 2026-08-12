@@ -4,38 +4,13 @@
 @section('page-title', 'Persetujuan Reimbursement Tim')
 @section('page-desc', 'Verifikasi klaim pengeluaran anggota tim Anda sebelum diteruskan ke HR & Finance.')
 
-@php
-    $stats = [
-        ['label' => 'Klaim Pending Review', 'value' => '1 Pengajuan', 'icon' => 'receipt_long', 'color' => 'text-amber-700'],
-        ['label' => 'Total Nominal Pending', 'value' => 'Rp350.000', 'icon' => 'payments', 'color' => 'text-primary'],
-        ['label' => 'Klaim Tim Bulan Ini', 'value' => '8 Pengajuan', 'icon' => 'fact_check', 'color' => 'text-purple-700'],
-        ['label' => 'Tingkat Validitas Struk', 'value' => '100% Lolos', 'icon' => 'verified', 'color' => 'text-primary'],
-    ];
-
-    $pending = [
-        [
-            'nip' => 'EMP-01044', 'name' => 'Siti Aminah', 'avatar' => 44, 'dept' => 'Sales Staff',
-            'category' => 'Bensin & Parkir Client', 'amount' => 350000, 'date' => '05 Agu 2026',
-            'receipt' => 'struk_bensin_pertamina_0508.pdf', 'notes' => 'Kunjungan meeting prospek ERP ke PT Bank Mega Kuningan',
-        ],
-    ];
-
-    $history = [
-        ['nip' => 'EMP-00567', 'name' => 'Toby Flenderson', 'avatar' => 61, 'category' => 'Alat Tulis Kantor', 'amount' => 275000, 'status' => 'Pending HR', 'decided' => 'Disetujui Anda, 4 Agu'],
-        ['nip' => 'EMP-00933', 'name' => 'Oscar Martinez', 'avatar' => 27, 'category' => 'Makan Lembur Tim', 'amount' => 120000, 'status' => 'Approved', 'decided' => 'Disetujui Anda, 2 Agu'],
-    ];
-
-    $badge = [
-        'Pending HR' => 'bg-amber-50 text-amber-800 border border-amber-200',
-        'Pending Finance' => 'bg-sky-50 text-sky-800 border border-sky-200',
-        'Approved' => 'bg-emerald-50 text-emerald-800 border border-emerald-200',
-    ];
-@endphp
-
 @section('content')
 <div x-data="{
     showReceiptModal: false,
     selectedClaim: null,
+    rejecting: false,
+    rejectReason: '',
+    processing: false,
     toast: { show: false, message: '', type: 'success' },
     triggerToast(msg, type='success') {
         this.toast.message = msg;
@@ -45,7 +20,42 @@
     },
     openReceipt(c) {
         this.selectedClaim = c;
+        this.rejecting = false;
+        this.rejectReason = '';
         this.showReceiptModal = true;
+    },
+    async submitAction(action) {
+        if (action === 'reject' && !this.rejecting) {
+            this.rejecting = true;
+            return;
+        }
+        if (action === 'reject' && !this.rejectReason.trim()) {
+            this.triggerToast('Alasan penolakan wajib diisi', 'error');
+            return;
+        }
+
+        this.processing = true;
+        try {
+            const res = await fetch(`/supervisor/persetujuan/reimbursement/${this.selectedClaim.id}/action`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({ action, rejection_reason: this.rejectReason }),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.message || 'Gagal memproses klaim');
+
+            this.showReceiptModal = false;
+            this.triggerToast(data.message, action === 'approve' ? 'success' : 'error');
+            setTimeout(() => window.location.reload(), 1200);
+        } catch (e) {
+            this.triggerToast(e.message, 'error');
+        } finally {
+            this.processing = false;
+        }
     }
 }">
 
@@ -69,7 +79,7 @@
                 <h2 class="text-base font-bold text-on-surface">Klaim Pengeluaran Menunggu Verifikasi Anda</h2>
                 <p class="text-xs text-on-surface-variant/60 mt-0.5">Klaim yang disetujui akan diteruskan ke HR Operations dan Finance untuk pencairan dana.</p>
             </div>
-            <span class="text-[11px] font-bold px-3 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200">1 Menunggu Review</span>
+            <span class="text-[11px] font-bold px-3 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200">{{ $pending->count() }} Menunggu Review</span>
         </div>
 
         <div class="overflow-x-auto">
@@ -84,40 +94,47 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-black/5 text-xs">
-                    @foreach ($pending as $c)
+                    @forelse ($pending as $c)
                         <tr class="hover:bg-primary/5 transition">
                             <td class="px-6 py-3.5">
                                 <div class="flex items-center gap-3">
-                                    <img src="https://i.pravatar.cc/36?img={{ $c['avatar'] }}" class="w-9 h-9 rounded-full object-cover shrink-0 border border-black/10" alt="{{ $c['name'] }}">
+                                    <img src="https://ui-avatars.com/api/?background=E9F3EF&color=0B3D2E&name={{ urlencode($c->employee->full_name ?? '-') }}"
+                                         class="w-9 h-9 rounded-full object-cover shrink-0 border border-black/10" alt="{{ $c->employee->full_name ?? '-' }}">
                                     <div>
-                                        <p class="font-bold text-on-surface text-xs leading-tight">{{ $c['name'] }}</p>
-                                        <p class="text-[10px] font-mono text-on-surface-variant/50 mt-0.5">{{ $c['nip'] }} · {{ $c['dept'] }}</p>
+                                        <p class="font-bold text-on-surface text-xs leading-tight">{{ $c->employee->full_name ?? '-' }}</p>
+                                        <p class="text-[10px] font-mono text-on-surface-variant/50 mt-0.5">
+                                            {{ $c->employee->employee_id ?? '-' }} · {{ $c->employee->department->name ?? '-' }}
+                                        </p>
                                     </div>
                                 </div>
                             </td>
                             <td class="px-4 py-3.5">
-                                <p class="text-xs font-bold text-on-surface">{{ $c['category'] }}</p>
-                                <p class="text-[11px] text-on-surface-variant/60 line-clamp-1 mt-0.5">{{ $c['notes'] }}</p>
+                                <p class="text-xs font-bold text-on-surface">{{ $c->category }}</p>
+                                <p class="text-[11px] text-on-surface-variant/60 line-clamp-1 mt-0.5">{{ $c->description }}</p>
                             </td>
                             <td class="px-4 py-3.5 text-right font-mono font-extrabold text-xs text-primary">
-                                Rp{{ number_format($c['amount'], 0, ',', '.') }}
+                                Rp{{ number_format($c->amount, 0, ',', '.') }}
                             </td>
                             <td class="px-4 py-3.5">
-                                <button type="button" @click="openReceipt({{ json_encode($c) }})"
+                                <button type="button" @click="openReceipt(@js($c))"
                                         class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-black/10 bg-surface-variant/10 hover:bg-primary/10 hover:border-primary/30 text-xs font-semibold text-primary transition whitespace-nowrap">
                                     <span class="material-symbols-outlined text-[16px]">receipt_long</span>
                                     Lihat Struk
                                 </button>
                             </td>
                             <td class="px-6 py-3.5 text-center">
-                                <button type="button" @click="openReceipt({{ json_encode($c) }})"
+                                <button type="button" @click="openReceipt(@js($c))"
                                         class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-primary hover:bg-primary-dark text-white text-xs font-bold transition shadow-xs whitespace-nowrap">
                                     <span class="material-symbols-outlined text-[16px]">verified</span>
                                     Setujui &amp; Teruskan
                                 </button>
                             </td>
                         </tr>
-                    @endforeach
+                    @empty
+                        <tr>
+                            <td colspan="5" class="px-6 py-8 text-center text-on-surface-variant/50">Belum ada klaim yang menunggu review.</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
@@ -140,25 +157,33 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-black/5 text-xs">
-                    @foreach ($history as $c)
+                    @forelse ($history as $c)
                         <tr class="hover:bg-primary/5 transition">
                             <td class="px-6 py-3.5">
                                 <div class="flex items-center gap-3">
-                                    <img src="https://i.pravatar.cc/32?img={{ $c['avatar'] }}" class="w-7 h-7 rounded-full object-cover shrink-0 border border-black/10" alt="">
-                                    <span class="font-bold text-on-surface text-xs">{{ $c['name'] }}</span>
+                                    <img src="https://ui-avatars.com/api/?background=E9F3EF&color=0B3D2E&name={{ urlencode($c->employee->full_name ?? '-') }}"
+                                         class="w-7 h-7 rounded-full object-cover shrink-0 border border-black/10" alt="">
+                                    <span class="font-bold text-on-surface text-xs">{{ $c->employee->full_name ?? '-' }}</span>
                                 </div>
                             </td>
-                            <td class="px-4 py-3.5 text-xs font-semibold text-on-surface">{{ $c['category'] }}</td>
-                            <td class="px-4 py-3.5 text-right font-mono font-extrabold text-primary text-xs">Rp{{ number_format($c['amount'], 0, ',', '.') }}</td>
-                            <td class="px-4 py-3.5 text-xs text-on-surface-variant/80 font-medium">{{ $c['decided'] }}</td>
+                            <td class="px-4 py-3.5 text-xs font-semibold text-on-surface">{{ $c->category }}</td>
+                            <td class="px-4 py-3.5 text-right font-mono font-extrabold text-primary text-xs">Rp{{ number_format($c->amount, 0, ',', '.') }}</td>
+                            <td class="px-4 py-3.5 text-xs text-on-surface-variant/80 font-medium">
+                                {{ $c->status === 'rejected' ? 'Ditolak' : 'Disetujui' }} Anda, {{ $c->spv_approved_at?->translatedFormat('d M') ?? '-' }}
+                            </td>
                             <td class="px-4 py-3.5">
-                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap {{ $badge[$c['status']] }}">
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap
+                                    {{ $c->status === 'rejected' ? 'bg-rose-50 text-rose-800 border border-rose-200' : ($c->status === 'approved' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-amber-50 text-amber-800 border border-amber-200') }}">
                                     <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
-                                    {{ $c['status'] }}
+                                    {{ $c->status_label }}
                                 </span>
                             </td>
                         </tr>
-                    @endforeach
+                    @empty
+                        <tr>
+                            <td colspan="5" class="px-6 py-8 text-center text-on-surface-variant/50">Belum ada riwayat.</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
@@ -176,7 +201,7 @@
                     </div>
                     <div>
                         <h3 class="text-base font-bold text-on-surface">Persetujuan Klaim Tim</h3>
-                        <p class="text-xs text-on-surface-variant/60" x-text="selectedClaim ? selectedClaim.name + ' · ' + selectedClaim.category : ''"></p>
+                        <p class="text-xs text-on-surface-variant/60" x-text="selectedClaim ? selectedClaim.employee.full_name + ' · ' + selectedClaim.category : ''"></p>
                     </div>
                 </div>
                 <button type="button" @click="showReceiptModal = false" class="text-on-surface-variant/40 hover:text-on-surface">
@@ -192,35 +217,45 @@
                            x-text="selectedClaim ? 'Rp' + Number(selectedClaim.amount).toLocaleString('id-ID') : ''"></p>
                     </div>
                     <span class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-200"
-                          x-text="selectedClaim ? selectedClaim.date : ''"></span>
+                          x-text="selectedClaim ? selectedClaim.claim_date : ''"></span>
                 </div>
 
                 <div class="border border-dashed border-black/20 rounded-xl p-4 bg-white flex flex-col items-center justify-center gap-2 text-center">
                     <span class="material-symbols-outlined text-[36px] text-primary/60">receipt_long</span>
                     <div>
-                        <p class="font-bold text-on-surface" x-text="selectedClaim ? selectedClaim.receipt : ''"></p>
-                        <p class="text-[11px] text-on-surface-variant/60 mt-0.5">File bukti tersimpan di S3 Cloud Storage</p>
+                        <p class="font-bold text-on-surface" x-text="selectedClaim ? (selectedClaim.receipt_path ? selectedClaim.receipt_path.split('/').pop() : 'Tidak ada berkas') : ''"></p>
+                        <p class="text-[11px] text-on-surface-variant/60 mt-0.5">Format file PDF/JPG terenkripsi &amp; terverifikasi digital</p>
                     </div>
-                    <button type="button" class="mt-1 text-xs font-bold text-primary hover:underline">Unduh Berkas Asli (PDF)</button>
+                    <a :href="selectedClaim ? selectedClaim.receipt_url : '#'" target="_blank"
+                       x-show="selectedClaim && selectedClaim.receipt_url"
+                       class="mt-1 text-xs font-bold text-primary hover:underline">Unduh Berkas Asli</a>
                 </div>
 
                 <div>
                     <label class="font-bold text-on-surface-variant/60 uppercase text-[10px] block mb-1">Keterangan Pengeluaran</label>
-                    <p class="p-3 rounded-xl border border-black/5 bg-surface-variant/10 text-on-surface leading-relaxed" x-text="selectedClaim ? selectedClaim.notes : ''"></p>
+                    <p class="p-3 rounded-xl border border-black/5 bg-surface-variant/10 text-on-surface leading-relaxed" x-text="selectedClaim ? selectedClaim.description : ''"></p>
+                </div>
+
+                {{-- FORM ALASAN PENOLAKAN --}}
+                <div x-show="rejecting" x-cloak>
+                    <label class="font-bold text-rose-700 uppercase text-[10px] block mb-1">Alasan Penolakan</label>
+                    <textarea x-model="rejectReason" rows="2"
+                              class="w-full p-3 rounded-xl border border-rose-200 bg-rose-50 text-on-surface text-xs focus:outline-none focus:ring-2 focus:ring-rose-200"
+                              placeholder="Jelaskan alasan penolakan klaim ini..."></textarea>
                 </div>
             </div>
 
             <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-black/5">
-                <button type="button" @click="showReceiptModal = false"
+                <button type="button" @click="showReceiptModal = false" :disabled="processing"
                         class="px-4 py-2 rounded-xl border border-black/10 text-xs font-bold text-on-surface-variant/70 hover:bg-black/5 transition">
                     Batal
                 </button>
-                <button type="button" @click="showReceiptModal = false; triggerToast('Klaim tim ditolak', 'error')"
-                        class="px-4 py-2 rounded-xl border border-rose-200 text-rose-700 bg-rose-50 hover:bg-rose-100 text-xs font-semibold transition">
-                    Tolak Klaim
+                <button type="button" @click="submitAction('reject')" :disabled="processing"
+                        class="px-4 py-2 rounded-xl border border-rose-200 text-rose-700 bg-rose-50 hover:bg-rose-100 text-xs font-semibold transition disabled:opacity-50">
+                    <span x-text="rejecting ? 'Kirim Penolakan' : 'Tolak Klaim'"></span>
                 </button>
-                <button type="button" @click="showReceiptModal = false; triggerToast('Klaim tim berhasil disetujui & diteruskan ke HR Operations!')"
-                        class="px-5 py-2 rounded-xl bg-primary text-white text-xs font-bold hover:bg-primary-dark shadow-sm flex items-center gap-1.5 transition">
+                <button type="button" @click="submitAction('approve')" :disabled="processing" x-show="!rejecting"
+                        class="px-5 py-2 rounded-xl bg-primary text-white text-xs font-bold hover:bg-primary-dark shadow-sm flex items-center gap-1.5 transition disabled:opacity-50">
                     <span class="material-symbols-outlined text-[16px]">check</span>
                     Setujui &amp; Teruskan ke HR
                 </button>
@@ -228,7 +263,7 @@
         </div>
     </div>
 
-    <!-- TOAST NOTIFICATION (THEME-MATCHED DEEP EMERALD) -->
+    <!-- TOAST NOTIFICATION -->
     <div x-show="toast.show" x-transition:enter="transition ease-out duration-300"
          x-transition:enter-start="opacity-0 translate-y-4 scale-95"
          x-transition:enter-end="opacity-100 translate-y-0 scale-100"

@@ -4,83 +4,22 @@
 @section('page-title', 'Shift & Roster Kerja')
 @section('page-desc', 'Manajemen kalender roster, bulk assign shift, pengajuan tukar shift, dan geofencing office.')
 
-@php
-    $shiftTypes = [
-        ['code' => 'P', 'name' => 'Shift Pagi', 'time' => '08:00 - 17:00', 'color' => '#059669', 'bg' => 'bg-emerald-600', 'count' => 112, 'desc' => 'Jam operasional standar kantor & sales'],
-        ['code' => 'S', 'name' => 'Shift Siang', 'time' => '13:00 - 22:00', 'color' => '#d97706', 'bg' => 'bg-amber-600', 'count' => 24, 'desc' => 'Dukungan operasional & customer service'],
-        ['code' => 'M', 'name' => 'Shift Malam', 'time' => '22:00 - 07:00 (+1)', 'color' => '#7c3aed', 'bg' => 'bg-purple-600', 'count' => 8, 'desc' => 'Cross-day shift logistik & IT monitoring'],
-        ['code' => 'L', 'name' => 'Libur (Off)', 'time' => 'Off Duty', 'color' => '#64748b', 'bg' => 'bg-slate-500', 'count' => 6, 'desc' => 'Hari istirahat mingguan / roster off'],
-    ];
-
-    $roster = [
-        ['nip' => 'EMP-00231', 'name' => 'Michael Scott', 'dept' => 'Sales', 'pos' => 'Regional Manager', 'avatar' => 14, 'days' => ['P','P','P','P','P','L','L']],
-        ['nip' => 'EMP-00567', 'name' => 'Pam Beesly', 'dept' => 'Front Office', 'pos' => 'Receptionist', 'avatar' => 47, 'days' => ['P','P','S','S','P','L','L']],
-        ['nip' => 'EMP-00812', 'name' => 'Jim Halpert', 'dept' => 'Sales', 'pos' => 'Sales Executive', 'avatar' => 12, 'days' => ['S','S','S','P','P','L','L']],
-        ['nip' => 'EMP-00933', 'name' => 'Dwight Schrute', 'dept' => 'Sales', 'pos' => 'Assistant Manager', 'avatar' => 51, 'days' => ['M','M','M','L','P','P','L']],
-        ['nip' => 'EMP-01044', 'name' => 'Angela Martin', 'dept' => 'Finance', 'pos' => 'Accounting Staff', 'avatar' => 33, 'days' => ['P','P','P','P','P','L','L']],
-        ['nip' => 'EMP-01120', 'name' => 'Kevin Malone', 'dept' => 'Finance', 'pos' => 'Junior Accountant', 'avatar' => 55, 'days' => ['P','P','P','P','P','L','L']],
-    ];
-
-    $mapBadge = [
-        'P' => 'bg-emerald-100 text-emerald-800 border border-emerald-300',
-        'S' => 'bg-amber-100 text-amber-800 border border-amber-300',
-        'M' => 'bg-purple-100 text-purple-800 border border-purple-300',
-        'L' => 'bg-slate-100 text-slate-600 border border-slate-300'
-    ];
-
-    $mapName = [
-        'P' => 'Shift Pagi (08:00 – 17:00)',
-        'S' => 'Shift Siang (13:00 – 22:00)',
-        'M' => 'Shift Malam (22:00 – 07:00 H+1)',
-        'L' => 'Libur / Off Duty'
-    ];
-
-    $labels = [
-        ['day' => 'Senin', 'date' => '21 Okt'],
-        ['day' => 'Selasa', 'date' => '22 Okt'],
-        ['day' => 'Rabu', 'date' => '23 Okt'],
-        ['day' => 'Kamis', 'date' => '24 Okt'],
-        ['day' => 'Jumat', 'date' => '25 Okt'],
-        ['day' => 'Sabtu', 'date' => '26 Okt'],
-        ['day' => 'Minggu', 'date' => '27 Okt'],
-    ];
-
-    $swapRequests = [
-        [
-            'id' => 'SWP-101',
-            'from' => 'Jim Halpert', 'from_avatar' => 12, 'from_shift' => 'Shift Siang (24 Okt)',
-            'to' => 'Dwight Schrute', 'to_avatar' => 51, 'to_shift' => 'Shift Malam (24 Okt)',
-            'reason' => 'Keperluan keluarga mendesak',
-            'peer_approved' => true,
-            'status' => 'Pending SPV',
-            'created' => 'Hari ini, 08:30',
-        ],
-        [
-            'id' => 'SWP-102',
-            'from' => 'Pam Beesly', 'from_avatar' => 47, 'from_shift' => 'Shift Pagi (26 Okt)',
-            'to' => 'Angela Martin', 'to_avatar' => 33, 'to_shift' => 'Libur (26 Okt)',
-            'reason' => 'Tukar shift piket akhir pekan',
-            'peer_approved' => true,
-            'status' => 'Approved',
-            'created' => 'Kemarin, 14:15',
-        ],
-    ];
-@endphp
+{{--
+    Dikirim dari App\Http\Controllers\Web\HR\ShiftController@index:
+    $shiftTypes, $roster, $mapBadge, $mapName, $labels, $swapRequests,
+    $pendingSpvCount, $weekStart, $weekEnd, $departments
+--}}
 
 @section('content')
 <div x-data="{
     showBulkModal: false,
-    showAddShiftModal: false,
     selectedDept: 'Semua',
-    selectedShift: 'P',
+    selectedShift: {{ $shiftTypes[0]['id'] ?? 'null' }},
     searchQuery: '',
-    radiusMeter: 100,
-    toleranceMin: 15,
-    crossDayActive: true,
     selectAll: false,
-    selectedEmployees: ['EMP-00231', 'EMP-00567'],
-    
-    // Quick toast alert
+    selectedEmployees: [],
+    allEmployeeIds: {{ $roster->pluck('id')->toJson() }},
+
     toast: { show: false, message: '', type: 'success' },
     triggerToast(msg, type='success') {
         this.toast.message = msg;
@@ -91,13 +30,40 @@
 
     toggleSelectAll() {
         this.selectAll = !this.selectAll;
-        this.selectedEmployees = this.selectAll ? ['EMP-00231', 'EMP-00567', 'EMP-00812', 'EMP-00933', 'EMP-01044', 'EMP-01120'] : [];
+        this.selectedEmployees = this.selectAll ? [...this.allEmployeeIds] : [];
+    },
+
+    async assignShift(employeeId, shiftTypeId, date) {
+        try {
+            const res = await fetch('{{ route('hr.shift.update-cell') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({ employee_id: employeeId, shift_type_id: shiftTypeId, date: date }),
+            });
+            if (!res.ok) throw new Error('Gagal menyimpan');
+            this.triggerToast('Shift berhasil diubah!');
+            setTimeout(() => window.location.reload(), 600);
+        } catch (e) {
+            this.triggerToast('Gagal mengubah shift, coba lagi.', 'error');
+        }
     }
 }" class="space-y-6">
 
+    @if (session('success'))
+        <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)"
+             class="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2">
+            <span class="material-symbols-outlined text-[18px]">check_circle</span>
+            {{ session('success') }}
+        </div>
+    @endif
+
     <!-- MASTER SHIFT CARDS HEADER ROW -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        @foreach ($shiftTypes as $t)
+        @forelse ($shiftTypes as $t)
             <div class="bg-white rounded-2xl p-5 border border-black/5 shadow-sm hover:shadow-md transition space-y-2 relative overflow-hidden">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2">
@@ -109,59 +75,82 @@
                 <p class="text-xs font-mono font-bold text-primary">{{ $t['time'] }}</p>
                 <p class="text-[11px] text-on-surface-variant/60 line-clamp-1">{{ $t['desc'] }}</p>
             </div>
-        @endforeach
+        @empty
+            <div class="col-span-4 p-6 rounded-2xl border border-dashed border-black/10 text-center text-xs text-on-surface-variant/50">
+                Belum ada jenis shift. Tambahkan dulu di Pengaturan &rarr; Jenis Shift.
+            </div>
+        @endforelse
     </div>
 
     <!-- MAIN ROSTER CALENDAR & TOOLBAR -->
     <div class="bg-white rounded-2xl border border-black/5 shadow-sm overflow-hidden">
         <!-- Toolbar Header -->
-        <div class="p-6 border-b border-black/5 flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-                <div class="flex items-center gap-2.5">
-                    <h2 class="text-lg font-bold text-on-surface">Kalender Roster Kerja Tim</h2>
-                    <span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">Periode Aktif</span>
+        <div class="p-6 border-b border-black/5 space-y-4">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center gap-2.5">
+                        <h2 class="text-lg font-bold text-on-surface">Kalender Roster Kerja Tim</h2>
+                        <span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">Periode Aktif</span>
+                    </div>
+                    <p class="text-xs text-on-surface-variant/60 mt-0.5">
+                        {{ $weekStart->translatedFormat('d') }} – {{ $weekEnd->translatedFormat('d F Y') }} · Mengatur rotasi shift mingguan &amp; toleransi absensi
+                    </p>
                 </div>
-                <p class="text-xs text-on-surface-variant/60 mt-0.5">21 – 27 Oktober 2026 · Mengatur rotasi shift mingguan & toleransi absensi</p>
+
+                {{-- Tombol utama dipisah dari filter, selalu di kanan & full-visible --}}
+                <button type="button" @click="showBulkModal = true"
+                        class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl
+                               bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800
+                               text-white font-semibold text-xs transition shadow-sm shadow-emerald-600/20
+                               shrink-0 whitespace-nowrap">
+                    <span class="material-symbols-outlined text-[16px]">group_add</span>
+                    Bulk Assign Shift
+                </button>
             </div>
 
-            <!-- Action Toolbar & Filters -->
+            {{-- Baris filter terpisah supaya tidak berebut tempat dengan tombol aksi utama --}}
             <div class="flex items-center gap-3 flex-wrap">
-                <!-- Search Input -->
                 <div class="relative">
                     <input type="text" x-model="searchQuery" placeholder="Cari karyawan / NIP..." class="pl-9 pr-3 py-2 text-xs border border-black/10 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary w-44">
                     <span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant/50 text-[16px]">search</span>
                 </div>
 
-                <!-- Dept Filter -->
-                <div class="relative">
-                    <select x-model="selectedDept" class="text-xs border border-black/10 rounded-xl pl-3 pr-8 py-2 bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary cursor-pointer font-medium">
-                        <option value="Semua">Semua Departemen</option>
-                        <option value="Sales">Sales &amp; Marketing</option>
-                        <option value="Front Office">Front Office</option>
-                        <option value="Finance">Finance &amp; Accounting</option>
-                    </select>
-                </div>
+                <select x-model="selectedDept" class="text-xs border border-black/10 rounded-xl pl-3 pr-8 py-2 bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary cursor-pointer font-medium">
+                    <option value="Semua">Semua Departemen</option>
+                    @foreach ($departments as $dept)
+                        <option value="{{ $dept }}">{{ $dept }}</option>
+                    @endforeach
+                </select>
 
-                <!-- Week Navigation -->
                 <div class="flex items-center border border-black/10 rounded-xl p-0.5 bg-surface-variant/10">
-                    <button class="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-white text-on-surface-variant/70 transition">
+                    <a href="{{ route('hr.shift.index', ['week_start' => $weekStart->copy()->subWeek()->toDateString()]) }}"
+                       class="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-white text-on-surface-variant/70 transition">
                         <span class="material-symbols-outlined text-[18px]">chevron_left</span>
-                    </button>
-                    <span class="text-xs font-bold px-2 text-on-surface">Minggu Ini</span>
-                    <button class="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-white text-on-surface-variant/70 transition">
+                    </a>
+                    <span class="text-xs font-bold px-2 text-on-surface">{{ $weekStart->translatedFormat('d M') }} - {{ $weekEnd->translatedFormat('d M') }}</span>
+                    <a href="{{ route('hr.shift.index', ['week_start' => $weekStart->copy()->addWeek()->toDateString()]) }}"
+                       class="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-white text-on-surface-variant/70 transition">
                         <span class="material-symbols-outlined text-[18px]">chevron_right</span>
-                    </button>
+                    </a>
                 </div>
 
-                <!-- Bulk Assign Button -->
-                <button type="button" @click="showBulkModal = true" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary hover:bg-primary-dark text-white font-semibold text-xs transition shadow-sm">
-                    <span class="material-symbols-outlined text-[16px]">group_add</span>
-                    Bulk Assign Shift
+                {{-- Lompat langsung ke bulan & tahun tertentu --}}
+                <div class="relative">
+                    <input type="month" value="{{ $weekStart->format('Y-m') }}"
+                           onchange="if(this.value){ window.location.href = '{{ route('hr.shift.index') }}?week_start=' + this.value + '-01'; }"
+                           class="text-xs font-bold border border-black/10 rounded-xl pl-9 pr-3 py-2 bg-white
+                                  hover:border-primary/40 focus:ring-2 focus:ring-primary/20 focus:border-primary cursor-pointer">
+                    <span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant/50 text-[16px] pointer-events-none">calendar_month</span>
+                </div>
+
+                <button type="button" onclick="window.location.href = '{{ route('hr.shift.index') }}'"
+                        class="text-[11px] font-bold text-primary hover:underline px-1">
+                    Minggu Ini
                 </button>
             </div>
         </div>
 
-        <!-- ROSTER TABLE (CRISP, STRUCTURED, NON-BLURRY) -->
+        <!-- ROSTER TABLE -->
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
@@ -177,43 +166,57 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-black/5 text-xs">
-                    @foreach ($roster as $r)
+                    @forelse ($roster as $r)
                         <tr class="hover:bg-primary/5 transition" x-show="(selectedDept === 'Semua' || selectedDept === '{{ $r['dept'] }}') && (searchQuery === '' || '{{ strtolower($r['name']) }}'.includes(searchQuery.toLowerCase()) || '{{ strtolower($r['nip']) }}'.includes(searchQuery.toLowerCase()))">
                             <td class="px-6 py-3.5">
-                                <div class="flex items-center gap-3">
-                                    <img src="https://i.pravatar.cc/40?img={{ $r['avatar'] }}" class="w-9 h-9 rounded-full object-cover shrink-0 border border-black/10" alt="{{ $r['name'] }}">
-                                    <div>
-                                        <p class="font-bold text-on-surface text-xs leading-tight">{{ $r['name'] }}</p>
-                                        <p class="text-[11px] text-on-surface-variant/60 font-mono mt-0.5">{{ $r['nip'] }}</p>
-                                    </div>
-                                </div>
+                                <p class="font-bold text-on-surface text-xs leading-tight">{{ $r['name'] }}</p>
+                                <p class="text-[11px] text-on-surface-variant/60 font-mono mt-0.5">ID: {{ $r['nip'] }}</p>
                             </td>
                             <td class="px-4 py-3.5">
                                 <p class="font-bold text-on-surface text-xs">{{ $r['dept'] }}</p>
                                 <p class="text-[11px] text-on-surface-variant/60">{{ $r['pos'] }}</p>
                             </td>
-                            @foreach ($r['days'] as $d)
+                            @foreach ($r['days'] as $i => $d)
                                 <td class="px-2 py-3.5 text-center border-l border-black/5">
-                                    <span class="inline-flex items-center justify-center px-2.5 py-1 rounded-lg text-xs font-bold shadow-2xs transition hover:scale-105 cursor-pointer {{ $mapBadge[$d] }}"
-                                          title="{{ $mapName[$d] }}"
-                                          @click="triggerToast('Shift {{ $r['name'] }} diubah ke {{ $d }}')">
-                                        {{ $d }}
-                                    </span>
+                                    <div x-data="{ open: false }" class="relative inline-block">
+                                        <button type="button" @click="open = !open"
+                                                class="inline-flex items-center justify-center px-2.5 py-1 rounded-lg text-xs font-bold shadow-2xs transition hover:scale-105 cursor-pointer {{ $d ? ($mapBadge[$d] ?? 'bg-gray-100 text-gray-700 border border-gray-300') : 'w-7 h-7 text-[10px] text-on-surface-variant/30 border border-dashed border-black/10' }}"
+                                                title="{{ $d ? ($mapName[$d] ?? $d) : 'Klik untuk atur shift' }}">
+                                            {{ $d ?: '-' }}
+                                        </button>
+
+                                        <div x-show="open" @click.outside="open = false" x-cloak
+                                             class="absolute z-30 mt-1 left-1/2 -translate-x-1/2 w-36 bg-white border border-black/10 rounded-xl shadow-xl p-1.5 space-y-0.5">
+                                            @foreach ($shiftTypes as $st)
+                                                <button type="button"
+                                                        @click="open = false; assignShift({{ $r['id'] }}, {{ $st['id'] }}, '{{ $labels[$i]['iso'] }}')"
+                                                        class="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-[11px] font-semibold text-left hover:bg-surface-variant/20 transition">
+                                                    <span class="w-2.5 h-2.5 rounded-full shrink-0" style="background-color:{{ $st['color'] }}"></span>
+                                                    {{ $st['name'] }}
+                                                </button>
+                                            @endforeach
+                                        </div>
+                                    </div>
                                 </td>
                             @endforeach
                         </tr>
-                    @endforeach
+                    @empty
+                        <tr>
+                            <td colspan="{{ 2 + count($labels) }}" class="px-6 py-10 text-center text-xs text-on-surface-variant/50">
+                                Belum ada karyawan aktif.
+                            </td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
 
-        <!-- TABLE FOOTER WITH LEGEND & VALIDATION RULES -->
+        <!-- TABLE FOOTER WITH LEGEND -->
         <div class="px-6 py-3.5 bg-surface-variant/15 border-t border-black/5 flex items-center justify-between text-xs text-on-surface-variant/70 flex-wrap gap-4">
             <div class="flex items-center gap-4 flex-wrap">
-                <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-emerald-600"></span> <strong>P</strong> = Pagi (08:00–17:00)</span>
-                <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-amber-600"></span> <strong>S</strong> = Siang (13:00–22:00)</span>
-                <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-purple-600"></span> <strong>M</strong> = Malam (22:00–07:00 H+1)</span>
-                <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-slate-500"></span> <strong>L</strong> = Libur (Off)</span>
+                @foreach ($shiftTypes as $t)
+                    <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded {{ $t['bg'] }}"></span> <strong>{{ $t['code'] }}</strong> = {{ $t['name'] }}</span>
+                @endforeach
             </div>
             <div class="flex items-center gap-1.5 text-xs font-bold text-primary">
                 <span class="material-symbols-outlined text-[18px]">verified_user</span>
@@ -222,10 +225,10 @@
         </div>
     </div>
 
-    <!-- LOWER SECTION: PENGAJUAN TUKAR SHIFT & GEOFENCING OFFICE (2 COLUMNS) -->
+    <!-- LOWER SECTION: TUKAR SHIFT & GEOFENCING -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-        <!-- CARD 1: PENGAJUAN TUKAR SHIFT ANTA PEGAWAI -->
+        <!-- CARD 1: PENGAJUAN TUKAR SHIFT -->
         <div class="bg-white rounded-2xl border border-black/5 p-6 shadow-sm space-y-4">
             <div class="flex items-center justify-between border-b border-black/5 pb-4">
                 <div>
@@ -235,11 +238,13 @@
                     </h2>
                     <p class="text-xs text-on-surface-variant/60 mt-0.5">Persetujuan 2 belah pihak & atasan (Supervisor/HR)</p>
                 </div>
-                <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-200">1 Menunggu SPV</span>
+                @if ($pendingSpvCount > 0)
+                    <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-200">{{ $pendingSpvCount }} Menunggu SPV</span>
+                @endif
             </div>
 
             <div class="space-y-3.5">
-                @foreach ($swapRequests as $req)
+                @forelse ($swapRequests as $req)
                     <div class="p-4 rounded-xl border border-black/10 bg-surface-variant/5 space-y-3">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-2.5">
@@ -253,10 +258,12 @@
                                     <span class="text-xs font-bold text-on-surface">{{ $req['to'] }}</span>
                                 </div>
                             </div>
-                            @if ($req['status'] === 'Pending SPV')
+                            @if ($req['status_raw'] === 'pending_spv')
                                 <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200">Menunggu SPV</span>
-                            @else
+                            @elseif ($req['status_raw'] === 'approved')
                                 <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">Disetujui</span>
+                            @else
+                                <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-200">Ditolak</span>
                             @endif
                         </div>
 
@@ -276,23 +283,32 @@
                             <span class="text-[10px] font-mono text-on-surface-variant/50">{{ $req['created'] }}</span>
                         </div>
 
-                        @if ($req['status'] === 'Pending SPV')
+                        @if ($req['status_raw'] === 'pending_spv')
                             <div class="pt-2 flex justify-end gap-2">
-                                <button type="button" @click="triggerToast('Pengajuan tukar shift ditolak', 'error')" class="px-3 py-1.5 rounded-lg border border-black/10 text-xs font-semibold text-on-surface-variant hover:bg-black/5 transition">
-                                    Tolak
-                                </button>
-                                <button type="button" @click="triggerToast('Pengajuan tukar shift disetujui!'); {{ $req['status'] = 'Approved' }}" class="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition shadow-sm">
-                                    Setujui
-                                </button>
+                                <form method="POST" action="{{ route('hr.shift.swap.reject', $req['db_id']) }}">
+                                    @csrf
+                                    <button type="submit" class="px-3 py-1.5 rounded-lg border border-black/10 text-xs font-semibold text-on-surface-variant hover:bg-black/5 transition">
+                                        Tolak
+                                    </button>
+                                </form>
+                                <form method="POST" action="{{ route('hr.shift.swap.approve', $req['db_id']) }}">
+                                    @csrf
+                                    <button type="submit" class="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition shadow-sm">
+                                        Setujui
+                                    </button>
+                                </form>
                             </div>
                         @endif
                     </div>
-                @endforeach
+                @empty
+                    <p class="text-xs text-on-surface-variant/50 text-center py-6">Belum ada pengajuan tukar shift.</p>
+                @endforelse
             </div>
         </div>
 
         <!-- CARD 2: PENGATURAN RADIUS GEOFENCING OFFICE -->
-        <div class="bg-white rounded-2xl border border-black/5 p-6 shadow-sm space-y-5 flex flex-col justify-between">
+        <div class="bg-white rounded-2xl border border-black/5 p-6 shadow-sm space-y-5 flex flex-col justify-between"
+             x-data="{ radiusMeter: {{ $company->geofence_radius_meters ?? 100 }}, toleranceMin: {{ $company->late_tolerance_minutes ?? 15 }} }">
             <div class="space-y-4">
                 <div class="flex items-center justify-between border-b border-black/5 pb-4">
                     <div>
@@ -311,8 +327,10 @@
                         <span class="material-symbols-outlined text-[28px]">apartment</span>
                     </div>
                     <div class="min-w-0 flex-1 text-xs">
-                        <p class="font-bold text-on-surface text-sm">Kantor Pusat — Jakarta Selatan</p>
-                        <p class="text-on-surface-variant/60 font-mono mt-0.5">Lat: -6.2088 | Long: 106.8456</p>
+                        <p class="font-bold text-on-surface text-sm">{{ $company->name ?? 'Kantor Pusat' }}</p>
+                        <p class="text-on-surface-variant/60 font-mono mt-0.5">
+                            Lat: {{ $company->office_latitude ?? '-' }} | Long: {{ $company->office_longitude ?? '-' }}
+                        </p>
                         <p class="text-[11px] text-emerald-700 font-semibold mt-1 flex items-center gap-1">
                             <span class="material-symbols-outlined text-[15px]">security</span>
                             Anti-Mock Location Engine: Aktif (Mendeteksi Fake GPS)
@@ -320,56 +338,106 @@
                     </div>
                 </div>
 
-                <!-- Radius Slider -->
-                <div class="space-y-3">
-                    <div class="flex items-center justify-between">
-                        <label class="text-xs font-bold text-on-surface-variant/80 uppercase tracking-wide">Radius Absensi Kantor</label>
-                        <span class="font-mono font-extrabold text-primary text-base" x-text="radiusMeter + ' meter'">100 meter</span>
-                    </div>
-                    <input type="range" min="25" max="500" step="25" x-model="radiusMeter" class="w-full accent-primary h-2 bg-black/10 rounded-lg cursor-pointer">
-                    <div class="flex justify-between text-[10px] text-on-surface-variant/60 font-mono">
-                        <span>25m (Sangat Ketat)</span>
-                        <span>100m (Rekomendasi)</span>
-                        <span>500m (Fleksibel)</span>
-                    </div>
-                </div>
+                <form method="POST" action="{{ route('hr.shift.geofencing.update') }}"
+                      class="space-y-4"
+                      x-data="{
+                          lat: '{{ $company->office_latitude ?? '' }}',
+                          lng: '{{ $company->office_longitude ?? '' }}',
+                          detecting: false,
+                          detectLocation() {
+                              if (!navigator.geolocation) { triggerToast('Browser tidak mendukung GPS', 'error'); return; }
+                              this.detecting = true;
+                              navigator.geolocation.getCurrentPosition(
+                                  (pos) => {
+                                      this.lat = pos.coords.latitude.toFixed(7);
+                                      this.lng = pos.coords.longitude.toFixed(7);
+                                      this.detecting = false;
+                                  },
+                                  () => { this.detecting = false; triggerToast('Gagal mengambil lokasi. Izinkan akses GPS di browser.', 'error'); },
+                                  { enableHighAccuracy: true, timeout: 8000 }
+                              );
+                          }
+                      }">
+                    @csrf
 
-                <!-- Tolerance & Cross-Day Rules -->
-                <div class="grid grid-cols-2 gap-3 pt-3 border-t border-black/5">
-                    <div class="p-3 rounded-xl border border-black/5 bg-surface-variant/10">
-                        <span class="text-[10px] font-bold text-on-surface-variant/60 uppercase">Toleransi Keterlambatan</span>
-                        <div class="flex items-center gap-1.5 mt-1">
-                            <span class="material-symbols-outlined text-[18px] text-amber-600">timer</span>
-                            <span class="font-mono font-bold text-sm text-on-surface">15 Menit</span>
+                    <!-- Koordinat Kantor (manual / deteksi otomatis) -->
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <label class="text-xs font-bold text-on-surface-variant/80 uppercase tracking-wide">Titik Koordinat Kantor</label>
+                            <button type="button" @click="detectLocation()" :disabled="detecting"
+                                    class="inline-flex items-center gap-1.5 text-[11px] font-bold text-primary hover:underline disabled:opacity-50">
+                                <span class="material-symbols-outlined text-[15px]" :class="detecting && 'animate-spin'">my_location</span>
+                                <span x-text="detecting ? 'Mendeteksi...' : 'Deteksi Lokasi Saya'"></span>
+                            </button>
                         </div>
-                        <p class="text-[10px] text-on-surface-variant/50 mt-0.5">Clock in &le; 08:15 terhitung Tepat Waktu</p>
-                    </div>
-
-                    <div class="p-3 rounded-xl border border-black/5 bg-surface-variant/10">
-                        <span class="text-[10px] font-bold text-on-surface-variant/60 uppercase">Logika Cross-Day (Malam)</span>
-                        <div class="flex items-center gap-1.5 mt-1">
-                            <span class="material-symbols-outlined text-[18px] text-purple-600">nightlight</span>
-                            <span class="font-mono font-bold text-sm text-on-surface">H+1 Clock-out</span>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="text" name="office_latitude" x-model="lat" placeholder="Latitude, mis. -6.2088000"
+                                   class="w-full border border-black/10 rounded-xl px-3 py-2 text-xs font-mono focus:ring-2 focus:ring-primary/20 focus:outline-none">
+                            <input type="text" name="office_longitude" x-model="lng" placeholder="Longitude, mis. 106.8456000"
+                                   class="w-full border border-black/10 rounded-xl px-3 py-2 text-xs font-mono focus:ring-2 focus:ring-primary/20 focus:outline-none">
                         </div>
-                        <p class="text-[10px] text-on-surface-variant/50 mt-0.5">Tidak memotong kuota absen 2 hari</p>
+                        <p class="text-[10px] text-on-surface-variant/50">
+                            "Deteksi Lokasi Saya" memakai GPS perangkat kamu saat ini — pastikan kamu sedang berada tepat di lokasi kantor saat menekannya. Atau isi manual dari Google Maps.
+                        </p>
                     </div>
-                </div>
-            </div>
 
-            <div class="pt-2">
-                <button type="button" @click="triggerToast('Pengaturan Geofencing berhasil disimpan!')" class="w-full py-2.5 rounded-xl bg-primary hover:bg-primary-dark text-white font-medium text-xs transition shadow-sm">
-                    Simpan Pengaturan Geofencing
-                </button>
+                    <!-- Radius Slider -->
+                    <div class="space-y-3 pt-2">
+                        <div class="flex items-center justify-between">
+                            <label class="text-xs font-bold text-on-surface-variant/80 uppercase tracking-wide">Radius Absensi Kantor</label>
+                            <span class="font-mono font-extrabold text-primary text-base" x-text="radiusMeter + ' meter'">100 meter</span>
+                        </div>
+                        <input type="range" name="geofence_radius_meters" min="25" max="500" step="25" x-model="radiusMeter" class="w-full accent-primary h-2 bg-black/10 rounded-lg cursor-pointer">
+                        <div class="flex justify-between text-[10px] text-on-surface-variant/60 font-mono">
+                            <span>25m (Sangat Ketat)</span>
+                            <span>100m (Rekomendasi)</span>
+                            <span>500m (Fleksibel)</span>
+                        </div>
+                    </div>
+
+                    <!-- Tolerance & Cross-Day Rules -->
+                    <div class="grid grid-cols-2 gap-3 pt-3 border-t border-black/5">
+                        <div class="p-3 rounded-xl border border-black/5 bg-surface-variant/10">
+                            <label class="text-[10px] font-bold text-on-surface-variant/60 uppercase block mb-1.5">Toleransi Keterlambatan</label>
+                            <div class="flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-[18px] text-amber-600">timer</span>
+                                <input type="number" name="late_tolerance_minutes" x-model="toleranceMin" min="0" max="120"
+                                       class="w-16 font-mono font-bold text-sm text-on-surface border border-black/10 rounded-lg px-2 py-1 focus:ring-2 focus:ring-primary/20 focus:outline-none">
+                                <span class="text-xs text-on-surface-variant/60">menit</span>
+                            </div>
+                            <p class="text-[10px] text-on-surface-variant/50 mt-1">
+                                Clock in &le; <span x-text="toleranceMin"></span> menit dari jam standar terhitung Tepat Waktu
+                            </p>
+                        </div>
+
+                        <div class="p-3 rounded-xl border border-black/5 bg-surface-variant/10">
+                            <span class="text-[10px] font-bold text-on-surface-variant/60 uppercase">Logika Cross-Day (Malam)</span>
+                            <div class="flex items-center gap-1.5 mt-1">
+                                <span class="material-symbols-outlined text-[18px] text-purple-600">nightlight</span>
+                                <span class="font-mono font-bold text-sm text-on-surface">H+1 Clock-out</span>
+                            </div>
+                            <p class="text-[10px] text-on-surface-variant/50 mt-0.5">Diatur otomatis via kolom is_cross_day di jenis shift</p>
+                        </div>
+                    </div>
+
+                    <button type="submit"
+                            class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-semibold text-xs transition shadow-sm shadow-emerald-600/20 flex items-center justify-center gap-1.5">
+                        <span class="material-symbols-outlined text-[16px]">save</span>
+                        Simpan Pengaturan Geofencing
+                    </button>
+                </form>
             </div>
         </div>
     </div>
 
-    <!-- MODAL BULK ASSIGN SHIFT KE TIM -->
+    <!-- MODAL BULK ASSIGN SHIFT -->
     <div x-show="showBulkModal" x-cloak class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" @click.self="showBulkModal = false">
-        <div class="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-150">
+        <form method="POST" action="{{ route('hr.shift.bulk-assign') }}"
+              class="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-150 max-h-[90vh] overflow-y-auto">
+            @csrf
             <div class="flex items-center justify-between border-b border-black/5 pb-3">
                 <div class="flex items-center gap-2.5">
-                    <div class="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                    <div class="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-700">
                         <span class="material-symbols-outlined text-[20px]">group_add</span>
                     </div>
                     <div>
@@ -382,15 +450,14 @@
                 </button>
             </div>
 
-            <!-- Form -->
             <div class="space-y-4 text-xs">
                 <div>
                     <label class="font-bold text-on-surface-variant/80 uppercase tracking-wide block mb-1.5">1. Pilih Jenis Shift</label>
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
                         @foreach ($shiftTypes as $st)
                             <label class="border rounded-xl p-2.5 flex flex-col items-center gap-1 cursor-pointer transition text-center"
-                                   :class="selectedShift === '{{ $st['code'] }}' ? 'border-primary bg-primary/5 text-primary font-bold' : 'border-black/10 hover:border-black/20'">
-                                <input type="radio" name="shift_preset" value="{{ $st['code'] }}" x-model="selectedShift" class="hidden">
+                                   :class="selectedShift == {{ $st['id'] }} ? 'border-emerald-600 bg-emerald-50 text-emerald-700 font-bold' : 'border-black/10 hover:border-black/20'">
+                                <input type="radio" name="shift_type_id" value="{{ $st['id'] }}" x-model="selectedShift" class="hidden">
                                 <span class="w-3 h-3 rounded-full" style="background-color:{{ $st['color'] }}"></span>
                                 <span class="text-xs leading-tight">{{ $st['name'] }}</span>
                                 <span class="text-[10px] font-mono text-on-surface-variant/60">{{ $st['time'] }}</span>
@@ -402,27 +469,28 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="font-bold text-on-surface-variant/80 uppercase tracking-wide block mb-1">2. Dari Tanggal</label>
-                        <input type="date" value="2026-10-21" class="w-full border border-black/10 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-primary/20 focus:outline-none">
+                        <input type="date" name="date_start" value="{{ $weekStart->toDateString() }}" required
+                               class="w-full border border-black/10 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-primary/20 focus:outline-none">
                     </div>
                     <div>
                         <label class="font-bold text-on-surface-variant/80 uppercase tracking-wide block mb-1">Sampai Tanggal</label>
-                        <input type="date" value="2026-10-27" class="w-full border border-black/10 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-primary/20 focus:outline-none">
+                        <input type="date" name="date_end" value="{{ $weekEnd->toDateString() }}" required
+                               class="w-full border border-black/10 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-primary/20 focus:outline-none">
                     </div>
                 </div>
 
                 <div>
                     <div class="flex items-center justify-between mb-1.5">
                         <label class="font-bold text-on-surface-variant/80 uppercase tracking-wide">3. Pilih Karyawan Penerima</label>
-                        <button type="button" @click="toggleSelectAll()" class="text-primary font-bold hover:underline"
-                                x-text="selectAll ? 'Batal Pilih Semua' : 'Pilih Semua (6 Karyawan)'">Pilih Semua</button>
+                        <button type="button" @click="toggleSelectAll()" class="text-emerald-700 font-bold hover:underline"
+                                x-text="selectAll ? 'Batal Pilih Semua' : `Pilih Semua (${allEmployeeIds.length} Karyawan)`">Pilih Semua</button>
                     </div>
 
                     <div class="max-h-36 overflow-y-auto border border-black/10 rounded-xl p-2 divide-y divide-black/5 bg-surface-variant/10">
                         @foreach ($roster as $r)
                             <label class="flex items-center justify-between p-2 hover:bg-white rounded-lg cursor-pointer transition">
                                 <div class="flex items-center gap-2.5">
-                                    <input type="checkbox" value="{{ $r['nip'] }}" x-model="selectedEmployees" class="rounded border-black/20 text-primary focus:ring-primary/20">
-                                    <img src="https://i.pravatar.cc/24?img={{ $r['avatar'] }}" class="w-5 h-5 rounded-full" alt="">
+                                    <input type="checkbox" name="employee_ids[]" value="{{ $r['id'] }}" x-model="selectedEmployees" class="rounded border-black/20 text-emerald-600 focus:ring-emerald-500/20">
                                     <span class="font-bold text-on-surface">{{ $r['name'] }}</span>
                                 </div>
                                 <span class="text-[11px] font-mono text-on-surface-variant/60">{{ $r['dept'] }}</span>
@@ -439,20 +507,19 @@
                 </div>
             </div>
 
-            <!-- Modal Action Buttons -->
             <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-black/5">
                 <button type="button" @click="showBulkModal = false" class="px-4 py-2 rounded-xl border border-black/10 text-xs font-bold text-on-surface-variant/70 hover:bg-black/5 transition">
                     Batal
                 </button>
-                <button type="button" @click="showBulkModal = false; triggerToast('Jadwal shift berhasil diterapkan ke tim!')" class="px-5 py-2 rounded-xl bg-primary text-white text-xs font-bold hover:bg-primary-dark shadow-sm flex items-center gap-1.5 transition">
+                <button type="submit" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm flex items-center gap-1.5 transition">
                     <span class="material-symbols-outlined text-[16px]">check</span>
                     Terapkan Jadwal Shift
                 </button>
             </div>
-        </div>
+        </form>
     </div>
 
-    <!-- TOAST NOTIFICATION (THEME-MATCHED DEEP EMERALD) -->
+    <!-- TOAST NOTIFICATION -->
     <div x-show="toast.show" x-transition:enter="transition ease-out duration-300"
          x-transition:enter-start="opacity-0 translate-y-4 scale-95"
          x-transition:enter-end="opacity-100 translate-y-0 scale-100"

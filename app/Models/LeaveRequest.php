@@ -22,9 +22,10 @@ class LeaveRequest extends Model
         'total_days',
         'reason',
         'status',
-        'attachment',
-        'approved_by',
-        'approved_at',
+        'attachment',      
+        'approved_by',     
+        'approved_at',     
+        'rejection_reason',
     ];
 
     protected $casts = [
@@ -54,7 +55,7 @@ class LeaveRequest extends Model
     public function scopeCoveringDate($query, string $date)
     {
         return $query->whereDate('start_date', '<=', $date)
-                      ->whereDate('end_date', '>=', $date);
+            ->whereDate('end_date', '>=', $date);
     }
 
     /**

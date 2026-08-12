@@ -34,4 +34,9 @@ class Payroll extends Model
     {
         return $this->hasMany(PayrollDetail::class);
     }
+
+    public function payrollBatch()
+    {
+        return $this->belongsTo(PayrollBatch::class);
+    }
 }

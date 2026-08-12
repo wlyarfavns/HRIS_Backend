@@ -4,35 +4,31 @@
 @section('page-title', 'Penggajian')
 @section('page-desc', 'Proses payroll periode berjalan: rekap absensi → kalkulasi → approval → disbursement.')
 
+{{--
+    Docblock ini murni bantuan untuk IDE (Intelephense) agar mengenali
+    $start & $end sebagai instance Carbon, bukan string — menghilangkan
+    warning "Call to a member function translatedFormat()/format() on
+    a non-object of type string" yang muncul di tab Problems.
+    Tidak berpengaruh ke runtime.
+--}}
 @php
-    $steps = [
-        ['step' => 1, 'label' => 'Cut-off Rekap Absensi', 'status' => 'Selesai', 'date' => '25 Agu 2026', 'state' => 'completed', 'icon' => 'check', 'desc' => '1.284 presensi terkunci'],
-        ['step' => 2, 'label' => 'Engine Payroll (PPh21 & BPJS)', 'status' => 'Selesai', 'date' => '26 Agu 2026', 'state' => 'completed', 'icon' => 'check', 'desc' => 'Kalkulasi TER PP 58/2023'],
-        ['step' => 3, 'label' => 'Approval HR Operations', 'status' => 'Selesai', 'date' => '27 Agu 2026', 'state' => 'completed', 'icon' => 'check', 'desc' => 'Disetujui HR Lead'],
-        ['step' => 4, 'label' => 'Approval Finance', 'status' => 'Sedang Proses', 'date' => 'Pending Review', 'state' => 'active', 'icon' => 'pending_actions', 'desc' => 'Review Finance Manager'],
-        ['step' => 5, 'label' => 'Export Bank Transfer', 'status' => 'Terjadwal', 'date' => '01 Sep 2026', 'state' => 'upcoming', 'icon' => 'schedule', 'desc' => 'CSV BCA, Mandiri & BNI'],
-    ];
-
-    $components = [
-        ['nip' => 'EMP-00231', 'name' => 'Budi Santoso', 'avatar' => 22, 'dept' => 'Sales', 'basic' => 6500000, 'allowance' => 850000, 'overtime' => 375723, 'bpjs' => 260000, 'pph21' => 180000, 'deduction' => 440000, 'net' => 7285723],
-        ['nip' => 'EMP-01044', 'name' => 'Siti Aminah', 'avatar' => 44, 'dept' => 'Front Office', 'basic' => 5800000, 'allowance' => 700000, 'overtime' => 0, 'bpjs' => 232000, 'pph21' => 95000, 'deduction' => 327000, 'net' => 6173000],
-        ['nip' => 'EMP-00812', 'name' => 'Eko Prasetyo', 'avatar' => 19, 'dept' => 'Sales & Migration', 'basic' => 7200000, 'allowance' => 900000, 'overtime' => 512000, 'bpjs' => 288000, 'pph21' => 265000, 'deduction' => 553000, 'net' => 8059000],
-        ['nip' => 'EMP-00567', 'name' => 'Pam Beesly', 'avatar' => 47, 'dept' => 'Front Office', 'basic' => 5500000, 'allowance' => 650000, 'overtime' => 0, 'bpjs' => 220000, 'pph21' => 75000, 'deduction' => 295000, 'net' => 5855000],
-    ];
+    /** @var \App\Models\Payroll[]|\Illuminate\Support\Collection $payrolls */
+    /** @var array $steps */
+    /** @var \Carbon\Carbon $start */
+    /** @var \Carbon\Carbon $end */
 @endphp
 
 @section('content')
 <div x-data="{
     showProcessModal: false,
-    selectedDept: 'Semua',
-    toast: { show: false, message: '', type: 'success' },
+    toast: { show: false, message: '{{ session('success') }}', type: 'success' },
     triggerToast(msg, type='success') {
         this.toast.message = msg;
         this.toast.type = type;
         this.toast.show = true;
         setTimeout(() => this.toast.show = false, 3000);
     }
-}">
+}" x-init="if ('{{ session('success') }}') triggerToast('{{ session('success') }}')">
 
     {{-- STATS & PERIODE BERJALAN --}}
     <div class="grid grid-cols-4 gap-5">
@@ -43,24 +39,33 @@
                     <span class="material-symbols-outlined text-[14px] text-brand-gold">bolt</span> Engine V1.0
                 </span>
             </div>
-            <p class="text-2xl font-extrabold text-white mt-3 mb-1">1 – 31 Agustus 2026</p>
-            <p class="text-white/70 text-xs">Status: <span class="font-bold text-brand-gold">Menunggu Approval Tim Finance</span></p>
+            <p class="text-2xl font-extrabold text-white mt-3 mb-1">
+                {{ $start->translatedFormat('d') }} – {{ $end->translatedFormat('d M Y') }}
+            </p>
+            <p class="text-white/70 text-xs">
+                Status:
+                <span class="font-bold text-brand-gold">
+                    {{ $payrolls->isEmpty() ? 'Belum Diproses' : ($steps[3]['status'] ?? '-') }}
+                </span>
+            </p>
         </div>
 
         <div class="card-flat rounded-2xl p-5">
             <p class="text-xs font-bold text-on-surface-variant/50 uppercase tracking-wide mb-2">Karyawan Diproses</p>
-            <p class="text-2xl font-extrabold font-mono-data text-on-surface">1.284 Org</p>
-            <p class="text-[11px] text-on-surface-variant/40 mt-1">100% presensi cut-off selesai</p>
+            <p class="text-2xl font-extrabold font-mono-data text-on-surface">{{ $totalKaryawan }} Org</p>
+            <p class="text-[11px] text-on-surface-variant/40 mt-1">
+                {{ $payrolls->isEmpty() ? 'Belum ada data periode ini' : 'Cut-off presensi selesai' }}
+            </p>
         </div>
 
         <div class="card-flat rounded-2xl p-5">
             <p class="text-xs font-bold text-on-surface-variant/50 uppercase tracking-wide mb-2">Total Estimasi Net Payroll</p>
-            <p class="text-2xl font-extrabold font-mono-data text-primary">Rp9,84 M</p>
+            <p class="text-2xl font-extrabold font-mono-data text-primary">{{ $totalGajiBersihFormatted }}</p>
             <p class="text-[11px] text-on-surface-variant/40 mt-1">Termasuk PPh21 TER &amp; BPJS</p>
         </div>
     </div>
 
-    {{-- USER-FRIENDLY STEPPER PIPELINE PROSES PAYROLL --}}
+    {{-- PIPELINE PROSES PAYROLL (dari data asli, bukan hardcode) --}}
     <div class="card-flat rounded-2xl p-6 mt-6">
         <div class="flex items-center justify-between mb-6 flex-wrap gap-4">
             <div>
@@ -68,14 +73,35 @@
                 <p class="text-xs text-on-surface-variant/50 mt-0.5">5 tahap otomatisasi dari rekap data absensi hingga digital payslip &amp; export bank</p>
             </div>
 
-            <button type="button" @click="showProcessModal = true"
-                    class="bg-primary hover:brightness-110 text-white text-xs font-bold px-4 py-2.5 rounded-lg flex items-center gap-1.5 shadow-sm transition">
-                <span class="material-symbols-outlined text-[17px]">restart_alt</span>
-                Kalkulasi Ulang Payroll
-            </button>
+            <div class="flex items-center gap-2.5">
+                @if ($payrolls->isNotEmpty() && $steps[2]['state'] === 'active')
+                    <form method="POST" action="{{ route('hr.payroll.approveHr') }}">
+                        @csrf
+                        <input type="hidden" name="period" value="{{ $start->format('Y-m') }}">
+                        <button type="submit" class="border border-primary/30 text-primary hover:bg-primary/5 text-xs font-bold px-4 py-2.5 rounded-lg transition">
+                            Approve HR
+                        </button>
+                    </form>
+                @endif
+
+                @if ($payrolls->isNotEmpty() && $steps[3]['state'] === 'active')
+                    <form method="POST" action="{{ route('hr.payroll.approveFinance') }}">
+                        @csrf
+                        <input type="hidden" name="period" value="{{ $start->format('Y-m') }}">
+                        <button type="submit" class="border border-amber-500/40 text-amber-800 hover:bg-amber-500/10 text-xs font-bold px-4 py-2.5 rounded-lg transition">
+                            Approve Finance
+                        </button>
+                    </form>
+                @endif
+
+                <button type="button" @click="showProcessModal = true"
+                        class="bg-primary hover:brightness-110 text-white text-xs font-bold px-4 py-2.5 rounded-lg flex items-center gap-1.5 shadow-sm transition">
+                    <span class="material-symbols-outlined text-[17px]">restart_alt</span>
+                    Kalkulasi Ulang Payroll
+                </button>
+            </div>
         </div>
 
-        {{-- GRID OF CONNECTED STEP CARDS (HIGH CONTRAST & USER FRIENDLY) --}}
         <div class="grid grid-cols-5 gap-3.5 relative">
             @foreach ($steps as $s)
                 <div class="rounded-xl p-4 border flex flex-col justify-between transition relative
@@ -84,7 +110,6 @@
                     {{ $s['state'] === 'upcoming' ? 'border-black/10 bg-surface-container/30' : '' }}">
 
                     <div>
-                        {{-- CARD HEADER: STEP NUMBER & ICON BADGE --}}
                         <div class="flex items-center justify-between mb-3">
                             <div class="w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs shadow-xs
                                 {{ $s['state'] === 'completed' ? 'bg-primary text-white' : '' }}
@@ -99,7 +124,6 @@
                                 @endif
                             </div>
 
-                            {{-- STATUS PILL --}}
                             <span class="text-[10px] font-bold px-2 py-0.5 rounded font-mono-data
                                 {{ $s['state'] === 'completed' ? 'bg-primary/15 text-primary' : '' }}
                                 {{ $s['state'] === 'active' ? 'bg-amber-500/20 text-amber-900 font-extrabold' : '' }}
@@ -108,16 +132,10 @@
                             </span>
                         </div>
 
-                        {{-- TITLE --}}
-                        <h3 class="text-xs font-bold text-on-surface leading-tight mb-1">
-                            {{ $s['label'] }}
-                        </h3>
-                        <p class="text-[10px] text-on-surface-variant/60 leading-tight">
-                            {{ $s['desc'] }}
-                        </p>
+                        <h3 class="text-xs font-bold text-on-surface leading-tight mb-1">{{ $s['label'] }}</h3>
+                        <p class="text-[10px] text-on-surface-variant/60 leading-tight">{{ $s['desc'] }}</p>
                     </div>
 
-                    {{-- FOOTER DATE --}}
                     <div class="mt-4 pt-2 border-t border-black/5 flex items-center justify-between text-[10px] font-mono-data">
                         <span class="text-on-surface-variant/40">Tanggal:</span>
                         <span class="font-bold {{ $s['state'] === 'active' ? 'text-amber-800 font-extrabold' : 'text-on-surface-variant/70' }}">
@@ -129,7 +147,7 @@
         </div>
     </div>
 
-    {{-- PREVIEW KOMPONEN GAJI PER KARYAWAN --}}
+    {{-- KOMPONEN GAJI PER KARYAWAN (dari Payroll model, bukan array dummy) --}}
     <div class="card-flat rounded-2xl overflow-hidden mt-6">
         <div class="px-6 py-4 border-b border-black/5 flex items-center justify-between gap-4 flex-wrap">
             <div>
@@ -137,10 +155,10 @@
             </div>
 
             <div class="flex items-center gap-3">
-                <button type="button" @click="triggerToast('Mengunduh Laporan Rekapitulasi Payroll Periode 1–31 Agustus 2026 (XLSX)...', 'info')"
-                        class="border border-black/10 hover:bg-surface-container px-3.5 py-2 rounded-xl text-xs font-bold text-on-surface flex items-center gap-1.5 transition">
+                <a href="{{ route('hr.payroll.export', ['period' => $start->format('Y-m')]) }}"
+                   class="border border-black/10 hover:bg-surface-container px-3.5 py-2 rounded-xl text-xs font-bold text-on-surface flex items-center gap-1.5 transition">
                     <span class="material-symbols-outlined text-[16px] text-primary">download</span> Unduh Rekap (XLSX)
-                </button>
+                </a>
             </div>
         </div>
 
@@ -150,40 +168,63 @@
                     <tr class="bg-surface-container text-left text-[11px] font-bold text-on-surface-variant/50 uppercase tracking-widest border-b border-black/5">
                         <th class="px-6 py-3.5">Karyawan</th>
                         <th class="px-4 py-3.5 text-right">Gaji Pokok</th>
-                        <th class="px-4 py-3.5 text-right">Tunj. Jabatan</th>
-                        <th class="px-4 py-3.5 text-right">Upah Lembur</th>
-                        <th class="px-4 py-3.5 text-right">BPJS (1%+2%)</th>
-                        <th class="px-4 py-3.5 text-right">PPh21 TER</th>
+                        <th class="px-4 py-3.5 text-right">Tunjangan</th>
+                        <th class="px-4 py-3.5 text-right">Potongan</th>
                         <th class="px-4 py-3.5 text-right">Gaji Bersih (Net)</th>
+                        <th class="px-4 py-3.5 text-center">Status</th>
                         <th class="px-6 py-3.5 text-center">Slip Gaji</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-black/5">
-                    @foreach ($components as $c)
+                    @forelse ($payrolls as $p)
                         <tr class="hover:bg-primary/5 transition">
                             <td class="px-6 py-3.5">
                                 <div class="flex items-center gap-2.5">
-                                    <img src="https://i.pravatar.cc/32?img={{ $c['avatar'] }}" class="w-8 h-8 rounded-full object-cover shrink-0" alt="{{ $c['name'] }}">
+                                    <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-[11px] font-bold text-primary shrink-0">
+                                        {{ strtoupper(substr($p->employee->full_name ?? '-', 0, 2)) }}
+                                    </div>
                                     <div>
-                                        <p class="font-bold text-on-surface text-xs leading-tight">{{ $c['name'] }}</p>
-                                        <p class="text-[10px] font-mono-data text-on-surface-variant/40">{{ $c['nip'] }} · {{ $c['dept'] }}</p>
+                                        <p class="font-bold text-on-surface text-xs leading-tight">{{ $p->employee->full_name ?? '-' }}</p>
+                                        <p class="text-[10px] font-mono-data text-on-surface-variant/40">
+                                            {{ $p->employee->employee_id ?? '-' }} · {{ $p->employee->department->name ?? '-' }}
+                                        </p>
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-4 py-3.5 text-right font-mono-data text-xs text-on-surface-variant/80">{{ number_format($c['basic'], 0, ',', '.') }}</td>
-                            <td class="px-4 py-3.5 text-right font-mono-data text-xs text-on-surface-variant/80">{{ number_format($c['allowance'], 0, ',', '.') }}</td>
-                            <td class="px-4 py-3.5 text-right font-mono-data text-xs text-on-surface-variant/80">{{ number_format($c['overtime'], 0, ',', '.') }}</td>
-                            <td class="px-4 py-3.5 text-right font-mono-data text-xs text-error">-{{ number_format($c['bpjs'], 0, ',', '.') }}</td>
-                            <td class="px-4 py-3.5 text-right font-mono-data text-xs text-error">-{{ number_format($c['pph21'], 0, ',', '.') }}</td>
-                            <td class="px-4 py-3.5 text-right font-mono-data font-extrabold text-xs text-primary">Rp{{ number_format($c['net'], 0, ',', '.') }}</td>
+                            <td class="px-4 py-3.5 text-right font-mono-data text-xs text-on-surface-variant/80">
+                                {{ number_format($p->basic_salary, 0, ',', '.') }}
+                            </td>
+                            <td class="px-4 py-3.5 text-right font-mono-data text-xs text-on-surface-variant/80">
+                                {{ number_format($p->total_allowances, 0, ',', '.') }}
+                            </td>
+                            <td class="px-4 py-3.5 text-right font-mono-data text-xs text-error">
+                                -{{ number_format($p->total_deductions, 0, ',', '.') }}
+                            </td>
+                            <td class="px-4 py-3.5 text-right font-mono-data font-extrabold text-xs text-primary">
+                                Rp{{ number_format($p->net_salary, 0, ',', '.') }}
+                            </td>
+                            <td class="px-4 py-3.5 text-center">
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded
+                                    {{ $p->status === 'approved_finance' ? 'bg-primary/15 text-primary' : '' }}
+                                    {{ $p->status === 'approved_hr' ? 'bg-amber-500/15 text-amber-800' : '' }}
+                                    {{ $p->status === 'draft' ? 'bg-black/5 text-on-surface-variant/60' : '' }}">
+                                    {{ ucfirst(str_replace('_', ' ', $p->status)) }}
+                                </span>
+                            </td>
                             <td class="px-6 py-3.5 text-center">
-                                <a href="{{ route('hr.payroll.slip', $c['nip']) }}"
+                                <a href="{{ route('hr.payroll.slip', $p->id) }}"
                                    class="text-xs font-bold text-primary hover:underline flex items-center justify-center gap-1">
                                     <span class="material-symbols-outlined text-[16px]">description</span> Lihat
                                 </a>
                             </td>
                         </tr>
-                    @endforeach
+                    @empty
+                        <tr>
+                            <td colspan="7" class="px-6 py-10 text-center text-xs text-on-surface-variant/50">
+                                Belum ada data payroll untuk periode ini. Klik "Kalkulasi Ulang Payroll" untuk memproses.
+                            </td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
@@ -193,7 +234,7 @@
     <div x-show="showProcessModal" x-cloak
          class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"
          @click.self="showProcessModal = false">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-150">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
             <div class="flex items-center justify-between border-b border-black/5 pb-3">
                 <div class="flex items-center gap-2">
                     <span class="material-symbols-outlined text-primary text-[22px]">restart_alt</span>
@@ -205,24 +246,27 @@
             </div>
 
             <p class="text-xs text-on-surface-variant/70 leading-relaxed">
-                Kalkulasi ulang akan memuat ulang data presensi terkunci, jam lembur SPL terverifikasi, serta tabel TER PPh21 Depkeu PP 58/2023 untuk <strong class="text-on-surface font-mono-data">1.284 karyawan</strong>.
+                Kalkulasi ulang akan memuat ulang data presensi terkunci, jam lembur SPL terverifikasi, serta tabel TER PPh21
+                untuk periode <strong class="text-on-surface font-mono-data">{{ $start->translatedFormat('F Y') }}</strong>.
             </p>
 
-            <div class="flex items-center justify-end gap-2.5 pt-2 border-t border-black/5">
+            <form method="POST" action="{{ route('hr.payroll.run') }}" class="flex items-center justify-end gap-2.5 pt-2 border-t border-black/5">
+                @csrf
+                <input type="hidden" name="period" value="{{ $start->format('Y-m') }}">
                 <button type="button" @click="showProcessModal = false"
                         class="px-4 py-2.5 rounded-lg border border-black/10 text-xs font-bold text-on-surface-variant/70 hover:bg-surface-container transition">
                     Batal
                 </button>
-                <button type="button" @click="showProcessModal = false"
+                <button type="submit"
                         class="px-5 py-2.5 rounded-lg bg-primary text-white text-xs font-bold hover:brightness-110 shadow-sm flex items-center gap-1.5 transition">
                     <span class="material-symbols-outlined text-[16px]">sync</span>
                     Jalankan Engine Payroll
                 </button>
-            </div>
+            </form>
         </div>
     </div>
 
-    <!-- TOAST NOTIFICATION (THEME-MATCHED DEEP EMERALD) -->
+    <!-- TOAST NOTIFICATION -->
     <div x-show="toast.show" x-transition:enter="transition ease-out duration-300"
          x-transition:enter-start="opacity-0 translate-y-4 scale-95"
          x-transition:enter-end="opacity-100 translate-y-0 scale-100"

@@ -37,7 +37,7 @@
                             <button type="button"
                                 @click="navigator.clipboard.writeText('{{ session('success_data')['nip'] }}'); copied = true; setTimeout(() => copied = false, 2000)"
                                 class="w-8 h-8 rounded-lg flex items-center justify-center cursor-pointer
-                                               bg-primary/10 hover:bg-primary hover:text-white text-primary transition"
+                                                               bg-primary/10 hover:bg-primary hover:text-white text-primary transition"
                                 :title="copied ? 'Tersalin!' : 'Salin NIP'">
                                 <span class="material-symbols-outlined text-[16px]"
                                     x-text="copied ? 'check' : 'content_copy'"></span>
@@ -59,7 +59,7 @@
                 </p>
 
                 <button @click="show = false" class="w-full py-3 rounded-lg bg-primary text-white text-sm font-bold
-                                   hover:brightness-110 transition cursor-pointer">
+                                                   hover:brightness-110 transition cursor-pointer">
                     Mengerti
                 </button>
             </div>
@@ -68,12 +68,12 @@
 
     {{-- ── KONTEN UTAMA ─────────────────────────────────────────────────────── --}}
     <div x-data="{
-                contractType: 'PKWT',
-                autoNip: '{{ $predictedNip }}',
-                expiryDate: '',
-                h30Reminder: true,
-                confirmOpen: false
-            }">
+                        contractType: 'PKWT',
+                        autoNip: '{{ $predictedNip }}',
+                        expiryDate: '',
+                        h30Reminder: true,
+                        confirmOpen: false
+                    }">
 
         {{-- LINK KEMBALI --}}
         <a href="{{ route('hr.employees.index') }}"
@@ -96,7 +96,7 @@
 
         {{-- BLUEPRINT BADGES CALLOUT --}}
         <div class="card-flat rounded-2xl p-4 mb-6 bg-gradient-to-r from-primary/5 via-white to-surface-container
-                        border border-primary/20 flex items-center justify-between gap-4 flex-wrap">
+                                border border-primary/20 flex items-center justify-between gap-4 flex-wrap">
             <div class="flex items-center gap-3">
                 <span class="w-9 h-9 rounded-xl bg-primary text-white flex items-center justify-center font-bold shadow-sm">
                     <span class="material-symbols-outlined text-[20px]">badge</span>
@@ -158,8 +158,8 @@
                         </label>
                         <input type="text" name="full_name" required value="{{ old('full_name') }}"
                             placeholder="Contoh: Budi Santoso" class="w-full px-3.5 py-2.5 bg-surface-container rounded-lg text-sm border border-transparent
-                                       hover:border-primary/20 focus:border-primary/40 focus:ring-2 focus:ring-primary/20
-                                       focus:bg-white focus:outline-none transition">
+                                               hover:border-primary/20 focus:border-primary/40 focus:ring-2 focus:ring-primary/20
+                                               focus:bg-white focus:outline-none transition">
                     </div>
                     <div>
                         <label class="text-xs font-bold text-on-surface-variant/70 uppercase tracking-wide block mb-1">
@@ -167,8 +167,8 @@
                         </label>
                         <input type="text" name="nik" maxlength="16" required value="{{ old('nik') }}"
                             placeholder="3171xxxxxxxxxxxx" class="w-full px-3.5 py-2.5 bg-surface-container rounded-lg text-sm border border-transparent
-                                       hover:border-primary/20 focus:border-primary/40 focus:ring-2 focus:ring-primary/20
-                                       focus:bg-white focus:outline-none transition font-mono-data">
+                                               hover:border-primary/20 focus:border-primary/40 focus:ring-2 focus:ring-primary/20
+                                               focus:bg-white focus:outline-none transition font-mono-data">
                     </div>
                     <div>
                         <label class="text-xs font-bold text-on-surface-variant/70 uppercase tracking-wide block mb-1">
@@ -176,16 +176,16 @@
                         </label>
                         <input type="text" name="phone" required value="{{ old('phone') }}" placeholder="081234567890"
                             class="w-full px-3.5 py-2.5 bg-surface-container rounded-lg text-sm border border-transparent
-                                       hover:border-primary/20 focus:border-primary/40 focus:ring-2 focus:ring-primary/20
-                                       focus:bg-white focus:outline-none transition font-mono-data">
+                                               hover:border-primary/20 focus:border-primary/40 focus:ring-2 focus:ring-primary/20
+                                               focus:bg-white focus:outline-none transition font-mono-data">
                     </div>
                     <div>
                         <label class="text-xs font-bold text-on-surface-variant/70 uppercase tracking-wide block mb-1">
                             NPWP (15/16 Digit)
                         </label>
                         <input type="text" name="npwp" value="{{ old('npwp') }}" placeholder="Opsional jika ada" class="w-full px-3.5 py-2.5 bg-surface-container rounded-lg text-sm border border-transparent
-                                       hover:border-primary/20 focus:border-primary/40 focus:ring-2 focus:ring-primary/20
-                                       focus:bg-white focus:outline-none transition font-mono-data">
+                                               hover:border-primary/20 focus:border-primary/40 focus:ring-2 focus:ring-primary/20
+                                               focus:bg-white focus:outline-none transition font-mono-data">
                     </div>
                     <div>
                         <label class="text-xs font-bold text-on-surface-variant/70 uppercase tracking-wide block mb-1">
@@ -193,8 +193,8 @@
                         </label>
                         <input type="text" name="bpjs_number" value="{{ old('bpjs_number') }}"
                             placeholder="Contoh: 000123456789" class="w-full px-3.5 py-2.5 bg-surface-container rounded-lg text-sm border border-transparent
-                                       hover:border-primary/20 focus:border-primary/40 focus:ring-2 focus:ring-primary/20
-                                       focus:bg-white focus:outline-none transition font-mono-data">
+                                               hover:border-primary/20 focus:border-primary/40 focus:ring-2 focus:ring-primary/20
+                                               focus:bg-white focus:outline-none transition font-mono-data">
                     </div>
                 </div>
             </div>
@@ -220,12 +220,13 @@
                                 NIP &amp; Password Awal
                             </p>
                             <p class="font-mono-data font-extrabold text-2xl text-primary leading-none" x-text="autoNip">
-                                {{ $predictedNip }}</p>
+                                {{ $predictedNip }}
+                            </p>
                         </div>
                         <button type="button"
                             @click="navigator.clipboard.writeText(autoNip); copied = true; setTimeout(() => copied = false, 2000)"
                             class="w-9 h-9 rounded-lg flex items-center justify-center transition cursor-pointer
-                                       bg-primary/10 hover:bg-primary hover:text-white text-primary"
+                                               bg-primary/10 hover:bg-primary hover:text-white text-primary"
                             :title="copied ? 'Tersalin!' : 'Salin NIP'">
                             <span class="material-symbols-outlined text-[18px]"
                                 x-text="copied ? 'check' : 'content_copy'"></span>
@@ -241,8 +242,8 @@
                         <div class="relative">
                             <select name="department_id" required
                                 class="appearance-none w-full pl-3.5 pr-9 py-2.5 bg-surface-container rounded-lg text-sm
-                                           border border-transparent hover:border-primary/20 focus:border-primary/40
-                                           focus:ring-2 focus:ring-primary/20 focus:bg-white focus:outline-none transition cursor-pointer">
+                                                   border border-transparent hover:border-primary/20 focus:border-primary/40
+                                                   focus:ring-2 focus:ring-primary/20 focus:bg-white focus:outline-none transition cursor-pointer">
                                 <option value="" disabled {{ old('department_id') ? '' : 'selected' }}>Pilih Departemen
                                 </option>
                                 @foreach ($departments as $dept)
@@ -251,8 +252,9 @@
                                     </option>
                                 @endforeach
                             </select>
-                            <span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2
-                                             text-on-surface-variant/50 text-[18px] pointer-events-none">expand_more</span>
+                            <span
+                                class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2
+                                                     text-on-surface-variant/50 text-[18px] pointer-events-none">expand_more</span>
                         </div>
                     </div>
 
@@ -263,8 +265,8 @@
                         <div class="relative">
                             <select name="position_id" required
                                 class="appearance-none w-full pl-3.5 pr-9 py-2.5 bg-surface-container rounded-lg text-sm
-                                           border border-transparent hover:border-primary/20 focus:border-primary/40
-                                           focus:ring-2 focus:ring-primary/20 focus:bg-white focus:outline-none transition cursor-pointer">
+                                                   border border-transparent hover:border-primary/20 focus:border-primary/40
+                                                   focus:ring-2 focus:ring-primary/20 focus:bg-white focus:outline-none transition cursor-pointer">
                                 <option value="" disabled {{ old('position_id') ? '' : 'selected' }}>Pilih Posisi</option>
                                 @foreach ($positions as $pos)
                                     <option value="{{ $pos->id }}" {{ old('position_id') == $pos->id ? 'selected' : '' }}>
@@ -272,9 +274,37 @@
                                     </option>
                                 @endforeach
                             </select>
-                            <span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2
-                                             text-on-surface-variant/50 text-[18px] pointer-events-none">expand_more</span>
+                            <span
+                                class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2
+                                                     text-on-surface-variant/50 text-[18px] pointer-events-none">expand_more</span>
                         </div>
+                    </div>
+
+                    <div>
+                        <label class="text-xs font-bold text-on-surface-variant/70 uppercase tracking-wide block mb-1">
+                            Atasan Langsung (Supervisor)
+                        </label>
+                        <div class="relative">
+                            <select name="supervisor_id"
+                                class="appearance-none w-full pl-3.5 pr-9 py-2.5 bg-surface-container rounded-lg text-sm
+                                               border border-transparent hover:border-primary/20 focus:border-primary/40
+                                               focus:ring-2 focus:ring-primary/20 focus:bg-white focus:outline-none transition cursor-pointer">
+                                <option value="" {{ old('supervisor_id') ? '' : 'selected' }}>-- Tidak ada (Level Tertinggi)
+                                    --</option>
+
+                                @foreach ($supervisors as $spv)
+                                    <option value="{{ $spv->id }}" {{ old('supervisor_id') == $spv->id ? 'selected' : '' }}>
+                                        {{ $spv->name }} — Supervisor
+                                    </option>
+                                @endforeach
+
+                            </select>
+                            <span
+                                class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant/50 text-[18px] pointer-events-none">expand_more</span>
+                        </div>
+                        <p class="text-[10px] text-on-surface-variant/50 mt-1">
+                            Menentukan siapa yang berhak <em>approve</em> cuti/lembur.
+                        </p>
                     </div>
 
                     <div>
@@ -283,8 +313,8 @@
                         </label>
                         <input type="date" name="join_date" required value="{{ old('join_date', now()->format('Y-m-d')) }}"
                             class="w-full px-3.5 py-2.5 bg-surface-container rounded-lg text-sm border border-transparent
-                                       hover:border-primary/20 focus:border-primary/40 focus:ring-2 focus:ring-primary/20
-                                       focus:bg-white focus:outline-none transition cursor-pointer">
+                                               hover:border-primary/20 focus:border-primary/40 focus:ring-2 focus:ring-primary/20
+                                               focus:bg-white focus:outline-none transition cursor-pointer">
                     </div>
 
                     <div>
@@ -294,15 +324,16 @@
                         <div class="relative">
                             <select name="contract_type" x-model="contractType" required
                                 class="appearance-none w-full pl-3.5 pr-9 py-2.5 bg-surface-container rounded-lg text-sm
-                                           border border-transparent hover:border-primary/20 focus:border-primary/40
-                                           focus:ring-2 focus:ring-primary/20 focus:bg-white focus:outline-none transition cursor-pointer">
+                                                   border border-transparent hover:border-primary/20 focus:border-primary/40
+                                                   focus:ring-2 focus:ring-primary/20 focus:bg-white focus:outline-none transition cursor-pointer">
                                 <option value="PKWT">PKWT (Kontrak Waktu Tertentu)</option>
                                 <option value="PKWTT">PKWTT (Karyawan Tetap)</option>
                                 <option value="Probation">Probation (3 Bulan)</option>
                                 <option value="Internship">Internship / Magang</option>
                             </select>
-                            <span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2
-                                             text-on-surface-variant/50 text-[18px] pointer-events-none">expand_more</span>
+                            <span
+                                class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2
+                                                     text-on-surface-variant/50 text-[18px] pointer-events-none">expand_more</span>
                         </div>
                     </div>
 
@@ -311,8 +342,8 @@
                             Tanggal Berakhir Kontrak
                         </label>
                         <input type="date" name="contract_end_date" x-model="expiryDate" class="w-full px-3.5 py-2.5 bg-surface-container rounded-lg text-sm border border-transparent
-                                       hover:border-primary/20 focus:border-primary/40 focus:ring-2 focus:ring-primary/20
-                                       focus:bg-white focus:outline-none transition cursor-pointer">
+                                               hover:border-primary/20 focus:border-primary/40 focus:ring-2 focus:ring-primary/20
+                                               focus:bg-white focus:outline-none transition cursor-pointer">
                     </div>
 
                     <div>
@@ -321,14 +352,14 @@
                         </label>
                         <input type="number" name="basic_salary" required value="{{ old('basic_salary') }}"
                             placeholder="Contoh: 6500000" class="w-full px-3.5 py-2.5 bg-surface-container rounded-lg text-sm border border-transparent
-                                       hover:border-primary/20 focus:border-primary/40 focus:ring-2 focus:ring-primary/20
-                                       focus:bg-white focus:outline-none transition font-mono-data">
+                                               hover:border-primary/20 focus:border-primary/40 focus:ring-2 focus:ring-primary/20
+                                               focus:bg-white focus:outline-none transition font-mono-data">
                     </div>
                 </div>
 
                 {{-- H-30 REMINDER --}}
                 <div x-show="contractType !== 'PKWTT'" class="mt-4 p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-900
-                               flex items-center justify-between text-xs">
+                                       flex items-center justify-between text-xs">
                     <div class="flex items-center gap-2">
                         <span class="material-symbols-outlined text-[18px] text-amber-700">alarm</span>
                         <span>Sistem akan mengirimkan notifikasi otomatis ke HR &amp; Atasan pada
@@ -355,8 +386,8 @@
 
                 <div x-data="{ fileName: '' }" class="max-w-sm">
                     <label class="border border-dashed border-black/20 rounded-xl p-4 text-center
-                                      hover:border-primary/40 hover:bg-primary/5 transition cursor-pointer
-                                      flex flex-col items-center justify-center">
+                                              hover:border-primary/40 hover:bg-primary/5 transition cursor-pointer
+                                              flex flex-col items-center justify-center">
                         <span class="material-symbols-outlined text-[32px] text-primary/60 mb-2">upload_file</span>
                         <p class="font-bold text-xs text-on-surface" x-text="fileName || 'KTP Asli / e-KTP'"></p>
                         <p class="text-[10px] text-on-surface-variant/40 mt-0.5">Klik untuk pilih file</p>
@@ -369,20 +400,19 @@
             {{-- FORM SUBMIT BAR --}}
             <div class="flex items-center justify-between pt-2">
                 <a href="{{ route('hr.employees.index') }}" class="px-5 py-3 rounded-lg border border-black/10 text-xs font-bold
-                               text-on-surface-variant/70 hover:bg-surface-container transition cursor-pointer">
+                                       text-on-surface-variant/70 hover:bg-surface-container transition cursor-pointer">
                     Batal
                 </a>
 
                 {{-- Tombol ini TIDAK submit form, hanya buka modal konfirmasi --}}
-                {{-- SESUDAH — validasi form dulu sebelum buka modal --}}
                 <button type="button" @click="
-            if ($refs.formOnboarding.checkValidity()) {
-                confirmOpen = true
-            } else {
-                $refs.formOnboarding.reportValidity()
-            }
-        " class="px-6 py-3 rounded-lg bg-primary text-white text-xs font-bold
-               hover:brightness-110 shadow-sm flex items-center gap-2 transition cursor-pointer">
+                    if ($refs.formOnboarding.checkValidity()) {
+                        confirmOpen = true
+                    } else {
+                        $refs.formOnboarding.reportValidity()
+                    }
+                " class="px-6 py-3 rounded-lg bg-primary text-white text-xs font-bold
+                       hover:brightness-110 shadow-sm flex items-center gap-2 transition cursor-pointer">
                     <span class="material-symbols-outlined text-[18px]">how_to_reg</span>
                     Simpan &amp; Terbitkan NIP Karyawan
                 </button>
@@ -406,7 +436,7 @@
 
                 {{-- Ikon --}}
                 <div class="w-16 h-16 rounded-full bg-amber-500/10 text-amber-600
-                                flex items-center justify-center mx-auto mb-4">
+                                        flex items-center justify-center mx-auto mb-4">
                     <span class="material-symbols-outlined text-[32px]">help</span>
                 </div>
 
@@ -424,13 +454,14 @@
 
                 {{-- Tombol aksi --}}
                 <div class="flex gap-3">
-                    <button type="button" @click="confirmOpen = false" class="flex-1 py-3 rounded-lg border border-black/10 text-sm font-bold
-                                   text-on-surface-variant/70 hover:bg-surface-container transition cursor-pointer">
+                    <button type="button" @click="confirmOpen = false"
+                        class="flex-1 py-3 rounded-lg border border-black/10 text-sm font-bold
+                                           text-on-surface-variant/70 hover:bg-surface-container transition cursor-pointer">
                         Tidak, Batal
                     </button>
                     <button type="button" @click="confirmOpen = false; $nextTick(() => $refs.formOnboarding.submit())"
                         class="flex-1 py-3 rounded-lg bg-primary text-white text-sm font-bold
-                                   hover:brightness-110 transition cursor-pointer flex items-center justify-center gap-2">
+                                           hover:brightness-110 transition cursor-pointer flex items-center justify-center gap-2">
                         <span class="material-symbols-outlined text-[18px]">check</span>
                         Ya, Simpan
                     </button>

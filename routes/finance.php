@@ -1,20 +1,30 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Web\Finance\ReimbursementController;
+use App\Http\Controllers\Web\Finance\PayrollController;
+use App\Http\Controllers\Web\Finance\ExportController;
+use App\Http\Controllers\Web\Finance\DisbursementController;
 
-Route::prefix('finance')->name('finance.')->group(function () {
+Route::middleware(['auth', 'role:finance'])->prefix('finance')->name('finance.')->group(function () {
+    Route::get('/dashboard', fn() => view('finance.dashboard'))->name('dashboard');
 
-    Route::get('/dashboard', fn () => view('finance.dashboard'))->name('dashboard');
+    Route::get('/reimbursement', [ReimbursementController::class, 'index'])->name('reimbursement.index');
+    Route::patch('/reimbursement/{reimbursement}/action', [ReimbursementController::class, 'action'])->name('reimbursement.action');
 
-    Route::get('/reimbursement', fn () => view('finance.reimbursement.index'))->name('reimbursement.index');
+    Route::get('/payroll', [PayrollController::class, 'index'])->name('payroll.index');
+    Route::get('/payroll/{batch}', [PayrollController::class, 'show'])->name('payroll.show');
+    Route::post('/payroll/{batch}/approve', [PayrollController::class, 'approve'])->name('payroll.approve');
 
-    Route::get('/payroll', fn () => view('finance.payroll.index'))->name('payroll.index');
+    Route::get('/export-bank', [ExportController::class, 'index'])->name('export.index');
+    Route::post('/export-bank/{batch}/generate', [ExportController::class, 'generate'])->name('export.generate');
+    Route::get('/export-bank/{batch}/{bankCode}/download', [ExportController::class, 'download'])->name('export.download');
 
-    Route::get('/export-bank', fn () => view('finance.export.index'))->name('export.index');
+    Route::get('/disbursement', [DisbursementController::class, 'index'])->name('disbursement.index');
+    Route::post('/disbursement/{batch}/mark-disbursed', [DisbursementController::class, 'markDisbursed'])->name('disbursement.markDisbursed');
+    Route::post('/disbursement/{batch}/mark-published', [DisbursementController::class, 'markPublished'])->name('disbursement.markPublished');
+    Route::get('/disbursement/{id}/slip', [PayrollController::class, 'slip'])->name('disbursement.slip');
 
-    Route::get('/disbursement', fn () => view('finance.disbursement.index'))->name('disbursement.index');
-    Route::get('/disbursement/{id}/slip', fn ($id) => view('finance.disbursement.slip', ['id' => $id]))->name('disbursement.slip');
-
-    Route::get('/pengaturan', fn () => view('finance.pengaturan.index'))->name('settings.index');
-    Route::get('/profil', fn () => view('finance.profile'))->name('profile');
+    Route::get('/pengaturan', fn() => view('finance.pengaturan.index'))->name('settings.index');
+    Route::get('/profil', fn() => view('finance.profile'))->name('profile');
 });

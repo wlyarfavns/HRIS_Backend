@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Mobile\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Payroll;
@@ -23,6 +23,8 @@ class PayrollApiController extends Controller
             'end_date' => 'required|date|after_or_equal:start_date',
         ]);
 
+        $this->authorizeCompany($request, $validated['company_id']);
+
         $summaries = $this->payrollService->generateAttendanceSummary(
             $validated['company_id'],
             $validated['start_date'],
@@ -43,6 +45,8 @@ class PayrollApiController extends Controller
             'end_date' => 'required|date|after_or_equal:start_date',
         ]);
 
+        $this->authorizeCompany($request, $validated['company_id']);
+
         $payrolls = $this->payrollService->calculateSalary(
             $validated['company_id'],
             $validated['start_date'],
@@ -58,6 +62,7 @@ class PayrollApiController extends Controller
     public function approveHr(Request $request, $id)
     {
         $payroll = Payroll::findOrFail($id);
+        $this->authorizeCompany($request, $payroll->company_id);
 
         if ($payroll->status !== Payroll::STATUS_DRAFT) {
             return response()->json([
@@ -65,9 +70,7 @@ class PayrollApiController extends Controller
             ], 400);
         }
 
-        $payroll->update([
-            'status' => Payroll::STATUS_APPROVED_HR
-        ]);
+        $payroll->update(['status' => Payroll::STATUS_APPROVED_HR]);
 
         return response()->json([
             'message' => 'Payroll approved by HR successfully.',
@@ -78,6 +81,7 @@ class PayrollApiController extends Controller
     public function approveFinance(Request $request, $id)
     {
         $payroll = Payroll::findOrFail($id);
+        $this->authorizeCompany($request, $payroll->company_id);
 
         if ($payroll->status !== Payroll::STATUS_APPROVED_HR) {
             return response()->json([
@@ -85,9 +89,7 @@ class PayrollApiController extends Controller
             ], 400);
         }
 
-        $payroll->update([
-            'status' => Payroll::STATUS_APPROVED_FINANCE
-        ]);
+        $payroll->update(['status' => Payroll::STATUS_APPROVED_FINANCE]);
 
         return response()->json([
             'message' => 'Payroll approved by Finance successfully.',
@@ -103,6 +105,8 @@ class PayrollApiController extends Controller
             'end_date' => 'required|date|after_or_equal:start_date',
         ]);
 
+        $this->authorizeCompany($request, $validated['company_id']);
+
         $payrolls = Payroll::with('employee')
             ->where('company_id', $validated['company_id'])
             ->where('period_start', $validated['start_date'])
@@ -117,7 +121,7 @@ class PayrollApiController extends Controller
         foreach ($payrolls as $payroll) {
             $employee = $payroll->employee;
             $description = "Gaji Periode " . $validated['start_date'] . " to " . $validated['end_date'];
-            
+
             $row = [
                 '"' . ($employee->employee_id ?? '') . '"',
                 '"' . ($employee->full_name ?? '') . '"',
@@ -138,14 +142,16 @@ class PayrollApiController extends Controller
         ]);
     }
 
-    public function generateSlip($id)
+    /**
+     * Pastikan user hanya bisa mengakses data company miliknya sendiri.
+     */
+    private function authorizeCompany(Request $request, $companyId): void
     {
-        $payroll = Payroll::with(['employee', 'company'])->findOrFail($id);
-
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.payslip', [
-            'payroll' => $payroll
-        ]);
-
-        return $pdf->download('Slip_Gaji_' . ($payroll->employee->employee_id ?? 'Karyawan') . '_' . $payroll->period_start->format('M_Y') . '.pdf');
+        abort_unless(
+            $request->user()->company_id === (int) $companyId,
+            403,
+            'Unauthorized: data milik company lain.'
+        );
     }
+
 }

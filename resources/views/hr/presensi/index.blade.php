@@ -4,14 +4,6 @@
 @section('page-title', 'Presensi & Live Attendance')
 @section('page-desc', 'Pencatatan jam masuk & keluar via GPS Haversine + live selfie capture.')
 
-{{--
-    Variabel berikut sudah dikirim dari App\Http\Controllers\Web\HR\PresensiController@index:
-    $stats  -> array statistik kartu atas
-    $logs   -> koleksi baris presensi + izin/sakit hari itu (format sama seperti dummy sebelumnya)
-    $badge  -> mapping status => class warna badge
-    $date   -> tanggal yang sedang ditampilkan (Y-m-d)
-    $search -> keyword pencarian nama (nullable)
---}}
 
 @section('content')
 <div x-data="{
@@ -52,10 +44,6 @@
                 <input type="date" name="date" value="{{ $date }}" onchange="this.form.submit()"
                        class="text-xs font-bold border border-black/10 rounded-lg px-3 py-2 bg-white
                               hover:border-primary/40 focus:outline-none focus:ring-2 focus:ring-primary/20 transition">
-                <button type="submit"
-                        class="border border-black/10 hover:bg-surface-container px-3 py-2 rounded-lg text-xs font-bold text-on-surface">
-                    Terapkan
-                </button>
                 <a href="{{ route('hr.attendance.export', ['date' => $date]) }}"
                    class="border border-black/10 hover:bg-surface-container px-3 py-2 rounded-lg text-xs font-bold text-on-surface flex items-center gap-1">
                     <span class="material-symbols-outlined text-[16px]">download</span> Export Rekap

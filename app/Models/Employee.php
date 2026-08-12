@@ -9,6 +9,7 @@ class Employee extends Model
     protected $fillable = [
         'company_id',
         'user_id',
+        'supervisor_id',
         'employee_id',
         'full_name',
         'nik',
@@ -81,5 +82,29 @@ class Employee extends Model
     public function payrolls()
     {
         return $this->hasMany(Payroll::class);
+    }
+
+    public function overtimeRequests()
+    {
+        return $this->hasMany(OvertimeRequest::class);
+    }
+    public function reimbursements()
+    {
+        return $this->hasMany(Reimbursement::class);
+    }
+
+    public function supervisor()
+    {
+        return $this->belongsTo(User::class, 'supervisor_id');
+    }
+
+    public function subordinates()
+    {
+        return $this->hasMany(Employee::class, 'supervisor_id');
+    }
+
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class);
     }
 }

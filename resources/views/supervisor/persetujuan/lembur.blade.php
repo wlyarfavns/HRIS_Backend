@@ -5,30 +5,22 @@
 @section('page-desc', 'Verifikasi dan setujui Surat Perintah Lembur anggota tim Anda sebelum diteruskan ke HR.')
 
 @php
-    $stats = [
-        ['label' => 'SPL Pending Review', 'value' => '1 Pengajuan', 'icon' => 'timelapse', 'color' => 'text-amber-700'],
-        ['label' => 'Sedang Lembur Hari Ini', 'value' => '3 Pegawai', 'icon' => 'schedule', 'color' => 'text-primary'],
-        ['label' => 'Total Jam Lembur Tim', 'value' => '14 Jam', 'icon' => 'query_stats', 'color' => 'text-purple-700'],
-        ['label' => 'Status SPL Tim', 'value' => '94% Disetujui', 'icon' => 'verified', 'color' => 'text-primary'],
-    ];
-
-    $pending = [
-        [
-            'nip' => 'EMP-01120', 'name' => 'Kevin Malone', 'avatar' => 55, 'dept' => 'Finance Staff',
-            'hours' => 2, 'project' => 'Closing Laporan Bulanan Q3', 'salary' => 5200000,
-            'date' => '25 Okt 2026', 'start' => '17:30', 'end' => '19:30',
-            'notes' => 'Rekonsiliasi mutasi rekening giro BCA & Mandiri untuk persiapan audit',
-        ],
-    ];
-
-    $history = [
-        ['nip' => 'EMP-00812', 'name' => 'Eko Prasetyo', 'avatar' => 19, 'hours' => 3, 'project' => 'Migrasi Server Cloud', 'status' => 'Approved SPV', 'decided' => 'Disetujui Anda, 24 Agu'],
-        ['nip' => 'EMP-00933', 'name' => 'Dwight Schrute', 'avatar' => 51, 'hours' => 4, 'project' => 'Client Emergency Tender', 'status' => 'Locked HR', 'decided' => 'Disetujui Anda, 22 Agu'],
+    $statsView = [
+        ['label' => 'SPL Pending Review', 'value' => $stats['pending_review'] . ' Pengajuan', 'icon' => 'timelapse', 'color' => 'text-amber-700'],
+        ['label' => 'Sedang Lembur Hari Ini', 'value' => $stats['today_overtime'] . ' Pegawai', 'icon' => 'schedule', 'color' => 'text-primary'],
+        ['label' => 'Total Jam Lembur Tim (Bulan Ini)', 'value' => number_format($stats['total_hours'], 1, ',', '.') . ' Jam', 'icon' => 'query_stats', 'color' => 'text-purple-700'],
     ];
 
     $badge = [
-        'Approved SPV' => 'bg-sky-50 text-sky-800 border border-sky-200',
-        'Locked HR' => 'bg-emerald-50 text-emerald-800 border border-emerald-200',
+        'approved_spv' => 'bg-sky-50 text-sky-800 border border-sky-200',
+        'locked'       => 'bg-emerald-50 text-emerald-800 border border-emerald-200',
+        'rejected'     => 'bg-rose-50 text-rose-800 border border-rose-200',
+    ];
+
+    $statusLabel = [
+        'approved_spv' => 'Approved SPV',
+        'locked'       => 'Locked HR',
+        'rejected'     => 'Ditolak',
     ];
 @endphp
 
@@ -36,22 +28,19 @@
 <div x-data="{
     showModal: false,
     selectedReq: null,
-    toast: { show: false, message: '', type: 'success' },
-    triggerToast(msg, type='success') {
-        this.toast.message = msg;
-        this.toast.type = type;
-        this.toast.show = true;
-        setTimeout(() => this.toast.show = false, 3000);
-    },
-    openReview(r) {
-        this.selectedReq = r;
-        this.showModal = true;
-    }
 }">
 
+    @if (session('success'))
+        <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)"
+             class="mb-5 p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2">
+            <span class="material-symbols-outlined text-[18px]">check_circle</span>
+            {{ session('success') }}
+        </div>
+    @endif
+
     {{-- STATS --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        @foreach ($stats as $s)
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        @foreach ($statsView as $s)
             <div class="bg-white rounded-2xl p-5 border border-black/5 shadow-sm space-y-2 relative overflow-hidden">
                 <div class="flex items-center justify-between mb-1">
                     <p class="text-xs font-bold text-on-surface-variant/60 uppercase tracking-wide">{{ $s['label'] }}</p>
@@ -69,7 +58,9 @@
                 <h2 class="text-base font-bold text-on-surface">Surat Perintah Lembur Menunggu Persetujuan Anda</h2>
                 <p class="text-xs text-on-surface-variant/60 mt-0.5">Setelah Anda setujui, HR Operations akan mengunci data untuk masuk perhitungan payroll</p>
             </div>
-            <span class="text-[11px] font-bold px-3 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200">Wajib Review SPV</span>
+            @if ($pending->count() > 0)
+                <span class="text-[11px] font-bold px-3 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200">Wajib Review SPV</span>
+            @endif
         </div>
 
         <div class="overflow-x-auto">
@@ -84,37 +75,63 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-black/5 text-xs">
-                    @foreach ($pending as $r)
-                        @php $upah = round((1/173) * $r['salary'] * $r['hours']); @endphp
+                    @forelse ($pending as $r)
+                        @php $upah = \App\Models\OvertimeRequest::calculateOvertimePay($r->salary_snapshot, $r->hours); @endphp
                         <tr class="hover:bg-primary/5 transition">
                             <td class="px-6 py-3.5">
                                 <div class="flex items-center gap-3">
-                                    <img src="https://i.pravatar.cc/36?img={{ $r['avatar'] }}" class="w-9 h-9 rounded-full object-cover shrink-0 border border-black/10" alt="{{ $r['name'] }}">
+                                    <img src="https://ui-avatars.com/api/?name={{ urlencode($r->employee->full_name) }}&background=random"
+                                         class="w-9 h-9 rounded-full object-cover shrink-0 border border-black/10" alt="{{ $r->employee->full_name }}">
                                     <div>
-                                        <p class="font-bold text-on-surface text-xs leading-tight">{{ $r['name'] }}</p>
-                                        <p class="text-[10px] font-mono text-on-surface-variant/50 mt-0.5">{{ $r['nip'] }} · {{ $r['dept'] }}</p>
+                                        <p class="font-bold text-on-surface text-xs leading-tight">{{ $r->employee->full_name }}</p>
+                                        <p class="text-[10px] font-mono text-on-surface-variant/50 mt-0.5">
+                                            {{ $r->employee->employee_id }} · {{ $r->employee->department->name ?? '-' }}
+                                        </p>
                                     </div>
                                 </div>
                             </td>
                             <td class="px-4 py-3.5">
-                                <p class="text-xs font-bold text-on-surface">{{ $r['project'] }}</p>
-                                <p class="text-[10px] text-on-surface-variant/60 font-mono mt-0.5">{{ $r['date'] }} ({{ $r['start'] }}–{{ $r['end'] }})</p>
+                                <p class="text-xs font-bold text-on-surface">{{ $r->project ?? '-' }}</p>
+                                <p class="text-[10px] text-on-surface-variant/60 font-mono mt-0.5">
+                                    {{ $r->date->translatedFormat('d M Y') }}
+                                    ({{ \Carbon\Carbon::parse($r->start_time)->format('H:i') }}–{{ \Carbon\Carbon::parse($r->end_time)->format('H:i') }})
+                                </p>
                             </td>
                             <td class="px-4 py-3.5 font-mono font-bold text-xs text-on-surface">
-                                {{ $r['hours'] }} Jam
+                                {{ rtrim(rtrim(number_format($r->hours, 1, ',', '.'), '0'), ',') }} Jam
                             </td>
                             <td class="px-4 py-3.5 text-right font-mono font-extrabold text-xs text-primary">
                                 Rp{{ number_format($upah, 0, ',', '.') }}
                             </td>
                             <td class="px-6 py-3.5 text-center">
-                                <button type="button" @click="openReview({{ json_encode(array_merge($r, ['upah' => $upah])) }})"
-                                        class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-primary hover:bg-primary-dark text-white text-xs font-bold transition shadow-xs whitespace-nowrap">
+                                {{-- FIX: pakai @js() bukan {{ json_encode(...) }} agar tidak
+                                     bentrok dengan tanda kutip ganda pembungkus atribut @click.
+                                     @js() meng-escape kutip jadi unicode sehingga aman
+                                     ditaruh di dalam atribut HTML. --}}
+                                <button type="button"
+                                    @click="showModal = true; selectedReq = @js([
+                                        'id'      => $r->id,
+                                        'name'    => $r->employee->full_name,
+                                        'project' => $r->project,
+                                        'hours'   => $r->hours,
+                                        'start'   => \Carbon\Carbon::parse($r->start_time)->format('H:i'),
+                                        'end'     => \Carbon\Carbon::parse($r->end_time)->format('H:i'),
+                                        'notes'   => $r->notes,
+                                        'upah'    => $upah,
+                                    ])"
+                                    class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-primary hover:bg-primary-dark text-white text-xs font-bold transition shadow-xs whitespace-nowrap">
                                     <span class="material-symbols-outlined text-[16px]">verified</span>
                                     Review SPL Tim
                                 </button>
                             </td>
                         </tr>
-                    @endforeach
+                    @empty
+                        <tr>
+                            <td colspan="5" class="px-6 py-10 text-center text-xs text-on-surface-variant/50">
+                                Tidak ada pengajuan lembur yang menunggu review Anda.
+                            </td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
@@ -137,25 +154,34 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-black/5 text-xs">
-                    @foreach ($history as $r)
+                    @forelse ($history as $r)
                         <tr class="hover:bg-primary/5 transition">
                             <td class="px-6 py-3.5">
                                 <div class="flex items-center gap-3">
-                                    <img src="https://i.pravatar.cc/32?img={{ $r['avatar'] }}" class="w-7 h-7 rounded-full object-cover shrink-0 border border-black/10" alt="">
-                                    <span class="font-bold text-on-surface text-xs">{{ $r['name'] }}</span>
+                                    <img src="https://ui-avatars.com/api/?name={{ urlencode($r->employee->full_name) }}&background=random"
+                                         class="w-7 h-7 rounded-full object-cover shrink-0 border border-black/10" alt="">
+                                    <span class="font-bold text-on-surface text-xs">{{ $r->employee->full_name }}</span>
                                 </div>
                             </td>
-                            <td class="px-4 py-3.5 font-mono text-xs text-on-surface-variant/80 font-bold">{{ $r['hours'] }} Jam</td>
-                            <td class="px-4 py-3.5 text-xs text-on-surface font-medium">{{ $r['project'] }}</td>
-                            <td class="px-4 py-3.5 text-xs font-medium text-on-surface-variant/80">{{ $r['decided'] }}</td>
+                            <td class="px-4 py-3.5 font-mono text-xs text-on-surface-variant/80 font-bold">{{ $r->hours }} Jam</td>
+                            <td class="px-4 py-3.5 text-xs text-on-surface font-medium">{{ $r->project ?? '-' }}</td>
+                            <td class="px-4 py-3.5 text-xs font-medium text-on-surface-variant/80">
+                                {{ $r->status === 'rejected' ? 'Ditolak' : 'Disetujui' }} Anda, {{ $r->approved_at?->translatedFormat('d M') ?? '-' }}
+                            </td>
                             <td class="px-4 py-3.5">
-                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap {{ $badge[$r['status']] }}">
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap {{ $badge[$r->status] ?? '' }}">
                                     <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
-                                    {{ $r['status'] }}
+                                    {{ $statusLabel[$r->status] ?? $r->status_label }}
                                 </span>
                             </td>
                         </tr>
-                    @endforeach
+                    @empty
+                        <tr>
+                            <td colspan="5" class="px-6 py-10 text-center text-xs text-on-surface-variant/50">
+                                Belum ada riwayat keputusan.
+                            </td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
@@ -195,6 +221,10 @@
                         <span class="text-on-surface-variant/60 font-sans">Durasi &amp; Jam:</span>
                         <span class="font-bold text-primary" x-text="selectedReq ? selectedReq.hours + ' Jam (' + selectedReq.start + '–' + selectedReq.end + ')' : ''"></span>
                     </div>
+                    <div class="flex justify-between pt-2 border-t border-black/5">
+                        <span class="text-on-surface-variant/70 font-sans font-bold">Estimasi Upah Lembur:</span>
+                        <span class="font-extrabold text-sm text-primary" x-text="selectedReq ? 'Rp' + Number(selectedReq.upah).toLocaleString('id-ID') : ''"></span>
+                    </div>
                 </div>
 
                 <div>
@@ -208,36 +238,25 @@
                         class="px-4 py-2 rounded-xl border border-black/10 text-xs font-bold text-on-surface-variant/70 hover:bg-black/5 transition">
                     Batal
                 </button>
-                <button type="button" @click="showModal = false; triggerToast('SPL tim ditolak', 'error')"
-                        class="px-4 py-2 rounded-xl border border-rose-200 text-rose-700 bg-rose-50 hover:bg-rose-100 text-xs font-semibold transition">
-                    Tolak SPL
-                </button>
-                <button type="button" @click="showModal = false; triggerToast('SPL tim berhasil disetujui & diteruskan ke HR Operations!')"
-                        class="px-5 py-2 rounded-xl bg-primary text-white text-xs font-bold hover:bg-primary-dark shadow-sm flex items-center gap-1.5 transition">
-                    <span class="material-symbols-outlined text-[16px]">check</span>
-                    Setujui SPL Tim
-                </button>
+
+                <form method="POST" :action="selectedReq ? '{{ url('supervisor/persetujuan/lembur') }}/' + selectedReq.id + '/reject' : '#'">
+                    @csrf
+                    <button type="submit"
+                            class="px-4 py-2 rounded-xl border border-rose-200 text-rose-700 bg-rose-50 hover:bg-rose-100 text-xs font-semibold transition">
+                        Tolak SPL
+                    </button>
+                </form>
+
+                <form method="POST" :action="selectedReq ? '{{ url('supervisor/persetujuan/lembur') }}/' + selectedReq.id + '/approve' : '#'">
+                    @csrf
+                    <button type="submit"
+                            class="px-5 py-2 rounded-xl bg-primary text-white text-xs font-bold hover:bg-primary-dark shadow-sm flex items-center gap-1.5 transition">
+                        <span class="material-symbols-outlined text-[16px]">check</span>
+                        Setujui SPL Tim
+                    </button>
+                </form>
             </div>
         </div>
-    </div>
-
-    <!-- TOAST NOTIFICATION (THEME-MATCHED DEEP EMERALD) -->
-    <div x-show="toast.show" x-transition:enter="transition ease-out duration-300"
-         x-transition:enter-start="opacity-0 translate-y-4 scale-95"
-         x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-         x-transition:leave="transition ease-in duration-200"
-         x-transition:leave-start="opacity-100 translate-y-0 scale-100"
-         x-transition:leave-end="opacity-0 translate-y-4 scale-95"
-         class="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-2xl shadow-2xl text-white font-medium text-xs border border-emerald-500/30 backdrop-blur-md"
-         :class="{
-             'bg-[#0B3D2E] text-white': toast.type === 'success' || toast.type === 'info',
-             'bg-rose-950 border-rose-500/30 text-white': toast.type === 'error'
-         }"
-         style="display: none;">
-        <span class="material-symbols-outlined text-[20px]"
-              :class="toast.type === 'error' ? 'text-rose-400' : 'text-emerald-400'"
-              x-text="toast.type === 'error' ? 'error' : (toast.type === 'info' ? 'info' : 'check_circle')"></span>
-        <span x-text="toast.message" class="text-xs font-semibold"></span>
     </div>
 
 </div>
