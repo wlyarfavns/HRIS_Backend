@@ -4,13 +4,14 @@ namespace App\Http\Controllers\Mobile\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Payroll;
+use App\Services\PayrollService;
 use Illuminate\Http\Request;
 
 class PayrollApiController extends Controller
 {
     protected $payrollService;
 
-    public function __construct(\App\Services\PayrollService $payrollService)
+    public function __construct(PayrollService $payrollService)
     {
         $this->payrollService = $payrollService;
     }
@@ -138,7 +139,7 @@ class PayrollApiController extends Controller
 
         return response($csvString, 200, [
             'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="bank_transfer_'.$validated['start_date'].'_'.$validated['end_date'].'.csv"',
+            'Content-Disposition' => 'attachment; filename="bank_transfer_' . $validated['start_date'] . '_' . $validated['end_date'] . '.csv"',
         ]);
     }
 
@@ -152,6 +153,28 @@ class PayrollApiController extends Controller
             403,
             'Unauthorized: data milik company lain.'
         );
+    }
+
+    public function generateSlip(Request $request, $id)
+    {
+        $payroll = \App\Models\Payroll::with(['employee', 'details.salaryComponent'])->findOrFail($id);
+        $this->authorizeCompany($request, $payroll->company_id);
+
+        return response()->json([
+            'message' => 'Slip gaji ditemukan.',
+            'data' => [
+                'employee' => $payroll->employee->only(['employee_id', 'full_name', 'email']),
+                'period_start' => $payroll->period_start,
+                'period_end' => $payroll->period_end,
+                'basic_salary' => $payroll->basic_salary,
+                'net_salary' => $payroll->net_salary,
+                'details' => $payroll->details->map(fn($d) => [
+                    'name' => $d->salaryComponent->name ?? '-',
+                    'type' => $d->type,
+                    'amount' => $d->amount,
+                ]),
+            ],
+        ], 200);
     }
 
 }

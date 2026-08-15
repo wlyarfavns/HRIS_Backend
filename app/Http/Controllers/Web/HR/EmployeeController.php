@@ -8,6 +8,8 @@ use App\Models\LeaveType;
 use App\Models\Employee;
 use App\Models\Department;
 use App\Models\Position;
+use App\Models\SalaryComponent;
+use App\Models\EmployeeSalaryComponent;
 use App\Models\User;
 use App\Models\EmployeeContract;
 use Illuminate\Http\Request;
@@ -137,7 +139,14 @@ class EmployeeController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('hr.karyawan.edit', compact('employee', 'departments', 'positions', 'supervisors'));
+        return view('hr.karyawan.edit', compact(
+            'employee',
+            'departments',
+            'positions',
+            'supervisors',
+            'salaryComponents',
+            'employeeComponentAmounts'
+        ));
     }
     public function update(Request $request, Employee $employee)
     {
@@ -403,6 +412,11 @@ class EmployeeController extends Controller
             'basic_salary' => 'required|numeric|min:0',
             'status' => 'required|in:pending,active,inactive,resigned',
             'ktp_file' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+
+            // BARU — Data Rekening Bank
+            'bank_name' => 'nullable|in:BCA,MANDIRI,BNI',
+            'bank_account_number' => 'nullable|string|max:50',
+            'bank_account_holder' => 'nullable|string|max:255',
         ]);
 
         $data = $request->only([
@@ -419,6 +433,9 @@ class EmployeeController extends Controller
             'employment_status',
             'basic_salary',
             'status',
+            'bank_name',
+            'bank_account_number',
+            'bank_account_holder',
         ]);
 
         if ($request->hasFile('ktp_file')) {
@@ -426,6 +443,28 @@ class EmployeeController extends Controller
         }
 
         $employee->update($data);
+
+        // Simpan/update nominal komponen gaji per karyawan
+        foreach ($request->input('components', []) as $componentId => $amount) {
+            // Field kosong dianggap "tidak diisi" — skip, jangan timpa jadi 0
+            if ($amount === null || $amount === '') {
+                continue;
+            }
+
+            // Proteksi: pastikan komponen ini benar milik company yang sama (cegah IDOR)
+            $validComponent = SalaryComponent::where('id', $componentId)
+                ->where('company_id', $companyId)
+                ->exists();
+
+            if (!$validComponent) {
+                continue;
+            }
+
+            EmployeeSalaryComponent::updateOrCreate(
+                ['employee_id' => $employee->id, 'salary_component_id' => $componentId],
+                ['amount' => $amount]
+            );
+        }
 
         return redirect()->route('hr.employees.index')->with('success', 'Perubahan data karyawan berhasil disimpan!');
     }

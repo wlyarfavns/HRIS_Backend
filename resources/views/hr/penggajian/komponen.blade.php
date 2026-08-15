@@ -18,7 +18,7 @@
     showEditModal: false,
     editing: null,
     openEdit(c) { this.editing = c; this.showEditModal = true; },
-    toast: { show: false, message: '{{ session('success') }}' },
+    toast: { show: false, message: {{ Js::from(session('success')) }} },
 }" x-init="if (toast.message) { toast.show = true; setTimeout(() => toast.show = false, 3000); }">
 
     {{-- STAT ROW --}}
@@ -62,15 +62,17 @@
             </div>
         </div>
 
+        {{-- Kolom mengikuti tampilan baru: Komponen (+ badge Kena Pajak inline), Kategori, Tipe, Nominal/Rumus, Keterangan.
+             Kolom Aksi tetap dipertahankan karena edit/hapus adalah fungsi CRUD nyata yang tidak ada di versi contoh dummy. --}}
         <div class="overflow-x-auto">
             <table class="w-full text-sm">
                 <thead>
                     <tr class="bg-surface-container text-left text-[11px] font-bold text-on-surface-variant/50 uppercase tracking-widest border-b border-black/5">
                         <th class="px-6 py-3.5">Komponen</th>
                         <th class="px-4 py-3.5">Kategori</th>
-                        <th class="px-4 py-3.5">Tipe Kalkulasi</th>
+                        <th class="px-4 py-3.5">Tipe</th>
                         <th class="px-4 py-3.5">Nominal / Rumus</th>
-                        <th class="px-4 py-3.5 text-center">Kena Pajak</th>
+                        <th class="px-6 py-3.5">Keterangan</th>
                         <th class="px-6 py-3.5 text-center">Aksi</th>
                     </tr>
                 </thead>
@@ -79,9 +81,14 @@
                         <tr class="hover:bg-primary/5 transition">
                             <td class="px-6 py-3.5">
                                 <p class="font-bold text-on-surface text-xs">{{ $c->name }}</p>
-                                <p class="text-[10px] text-on-surface-variant/40 font-mono-data mt-0.5">
-                                    {{ $c->type === 'earning' ? 'Earning' : 'Deduction' }}
-                                </p>
+                                <div class="flex items-center gap-1.5 mt-0.5">
+                                    <span class="text-[10px] font-mono-data text-on-surface-variant/40">
+                                        {{ $c->type === 'earning' ? 'Earning' : 'Deduction' }}
+                                    </span>
+                                    @if ($c->is_taxable)
+                                        <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-error/10 text-error">Kena Pajak</span>
+                                    @endif
+                                </div>
                             </td>
                             <td class="px-4 py-3.5">
                                 <span class="text-[11px] font-bold px-2.5 py-1 rounded {{ $categoryColor[$c->category] ?? 'bg-surface-container text-on-surface-variant/60' }}">
@@ -92,19 +99,16 @@
                             <td class="px-4 py-3.5 font-mono-data text-xs text-on-surface font-extrabold">
                                 {{ $c->formula_note ?? ($c->default_amount ? 'Rp' . number_format($c->default_amount, 0, ',', '.') : '-') }}
                             </td>
-                            <td class="px-4 py-3.5 text-center">
-                                @if ($c->is_taxable)
-                                    <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-error/10 text-error">Ya</span>
-                                @else
-                                    <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-surface-container text-on-surface-variant/50">Tidak</span>
-                                @endif
+                            {{-- TODO: field 'description' belum ada di skema lama (yg ada cuma formula_note). Tambahkan kolom ini di migration bila ingin diisi. --}}
+                            <td class="px-6 py-3.5 text-on-surface-variant/60 text-xs">
+                                {{ $c->description ?? '-' }}
                             </td>
                             <td class="px-6 py-3.5 text-center">
                                 <div class="flex items-center justify-center gap-1.5">
-                                    <button type="button" @click="openEdit({{ $c->toJson() }})"
-                                            class="p-1.5 rounded-lg text-on-surface-variant/40 hover:text-primary hover:bg-primary/10 transition" title="Edit">
-                                        <span class="material-symbols-outlined text-[16px]">edit</span>
-                                    </button>
+                                    <button type="button" @click="openEdit({{ Js::from($c) }})"
+        class="p-1.5 rounded-lg text-on-surface-variant/40 hover:text-primary hover:bg-primary/10 transition" title="Edit">
+    <span class="material-symbols-outlined text-[16px]">edit</span>
+</button>
                                     <form method="POST" action="{{ route('hr.payroll.components.destroy', $c->id) }}"
                                           onsubmit="return confirm('Hapus komponen {{ $c->name }}?');">
                                         @csrf
@@ -187,8 +191,14 @@
                     </div>
                 </div>
                 <div>
-                    <label class="font-bold text-on-surface-variant/70 uppercase block mb-1">Catatan Rumus (opsional)</label>
+                    <label class="font-bold text-on-surface-variant/70 uppercase block mb-1">Catatan Rumus</label>
                     <input type="text" name="formula_note" placeholder="Contoh: 1/173 × Gaji Pokok × Jam"
+                           class="w-full border border-black/10 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-primary/20 focus:outline-none">
+                </div>
+                {{-- TODO: field baru sesuai tampilan baru — tambahkan kolom 'description' di migration jika ingin disimpan --}}
+                <div>
+                    <label class="font-bold text-on-surface-variant/70 uppercase block mb-1">Keterangan (opsional)</label>
+                    <input type="text" name="description" placeholder="Contoh: Diperhitungkan jika SPL diapprove"
                            class="w-full border border-black/10 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-primary/20 focus:outline-none">
                 </div>
 
@@ -267,6 +277,11 @@
                 <div>
                     <label class="font-bold text-on-surface-variant/70 uppercase block mb-1">Catatan Rumus</label>
                     <input type="text" name="formula_note" x-bind:value="editing?.formula_note"
+                           class="w-full border border-black/10 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-primary/20 focus:outline-none">
+                </div>
+                <div>
+                    <label class="font-bold text-on-surface-variant/70 uppercase block mb-1">Keterangan (opsional)</label>
+                    <input type="text" name="description" x-bind:value="editing?.description"
                            class="w-full border border-black/10 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-primary/20 focus:outline-none">
                 </div>
 

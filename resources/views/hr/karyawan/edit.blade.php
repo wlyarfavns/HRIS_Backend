@@ -2,7 +2,7 @@
 
 @section('title', 'Edit Karyawan')
 @section('page-title', 'Edit Karyawan')
-@section('page-desc', 'Perbarui data pribadi, pekerjaan, dan dokumen karyawan.')
+@section('page-desc', 'Perbarui data pribadi, pekerjaan, rekening bank, komponen gaji, dan dokumen karyawan.')
 
 
 @section('content')
@@ -17,7 +17,6 @@
 
     {{-- IDENTITAS RINGKAS --}}
     <div class="card-flat rounded-2xl p-6 flex items-center gap-4">
-        {{-- Menggunakan id sebagai acuan avatar agar konsisten --}}
         <img src="https://i.pravatar.cc/56?u={{ $employee->id }}" class="w-14 h-14 rounded-full object-cover" alt="{{ $employee->full_name }}">
         <div class="flex-1">
             <p class="text-base font-bold text-on-surface">{{ $employee->full_name }}</p>
@@ -28,7 +27,7 @@
         </span>
     </div>
 
-    {{-- FORM (Arahkan ke ID atau NIP Karyawan) --}}
+    {{-- FORM --}}
     <form method="POST" action="{{ route('hr.employees.updateWeb', $employee->id) }}" enctype="multipart/form-data" class="space-y-6">
         @csrf
         @method('PUT')
@@ -45,7 +44,7 @@
             </div>
         @endif
 
-        {{-- DATA PRIBADI --}}
+        {{-- 1. DATA PRIBADI --}}
         <div class="card-flat rounded-2xl p-6">
             <div class="flex items-center gap-3 mb-6">
                 <span class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-bold text-sm">1</span>
@@ -91,7 +90,7 @@
             </div>
         </div>
 
-        {{-- DATA PEKERJAAN --}}
+        {{-- 2. DATA PEKERJAAN --}}
         <div class="card-flat rounded-2xl p-6">
             <div class="flex items-center gap-3 mb-6">
                 <span class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-bold text-sm">2</span>
@@ -185,7 +184,7 @@
             </div>
         </div>
 
-        {{-- STATUS KEPEGAWAIAN --}}
+        {{-- 3. STATUS KEPEGAWAIAN --}}
         <div class="card-flat rounded-2xl p-6">
             <div class="flex items-center gap-3 mb-6">
                 <span class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-bold text-sm">3</span>
@@ -212,18 +211,60 @@
             </div>
         </div>
 
-        {{-- DOKUMEN --}}
+        {{-- 4. DATA REKENING BANK --}}
+        <div class="card-flat rounded-2xl p-6">
+            <div class="flex items-center gap-3 mb-2">
+                <span class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-bold text-sm">4</span>
+                <h2 class="text-base font-bold text-on-surface">Data Rekening Bank</h2>
+            </div>
+            <p class="text-xs text-on-surface-variant/40 mb-6 ml-11">
+                Dipakai untuk transfer gaji & export mass transfer bank oleh Finance.
+                Pilihan bank dibatasi agar konsisten dan tidak salah kelompok saat export CSV.
+            </p>
+            <div class="grid grid-cols-3 gap-5">
+                <div>
+                    <label class="text-xs font-bold text-on-surface-variant/60 uppercase tracking-wide">Nama Bank</label>
+                    <div class="relative mt-1.5">
+                        @php $currentBank = old('bank_name', $employee->bank_name); @endphp
+                        <select name="bank_name"
+                                class="appearance-none w-full pl-3.5 pr-9 py-2.5 bg-surface-container rounded-lg text-sm border border-transparent
+                                       hover:border-primary/20 focus:border-primary/40 focus:ring-2 focus:ring-primary/20 focus:bg-white focus:outline-none transition cursor-pointer">
+                            <option value="" {{ !$currentBank ? 'selected' : '' }}>-- Pilih Bank --</option>
+                            <option value="BCA" {{ $currentBank === 'BCA' ? 'selected' : '' }}>BCA</option>
+                            <option value="MANDIRI" {{ $currentBank === 'MANDIRI' ? 'selected' : '' }}>Mandiri</option>
+                            <option value="BNI" {{ $currentBank === 'BNI' ? 'selected' : '' }}>BNI</option>
+                        </select>
+                        <span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant/50 text-[18px] pointer-events-none">expand_more</span>
+                    </div>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-on-surface-variant/60 uppercase tracking-wide">Nomor Rekening</label>
+                    <input type="text" name="bank_account_number" value="{{ old('bank_account_number', $employee->bank_account_number) }}"
+                           class="mt-1.5 w-full px-3.5 py-2.5 bg-surface-container rounded-lg text-sm border border-transparent
+                                  hover:border-primary/20 focus:border-primary/40 focus:ring-2 focus:ring-primary/20 focus:bg-white focus:outline-none transition font-mono-data">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-on-surface-variant/60 uppercase tracking-wide">Nama Pemilik Rekening</label>
+                    <input type="text" name="bank_account_holder" value="{{ old('bank_account_holder', $employee->bank_account_holder) }}"
+                           placeholder="Sesuai buku tabungan"
+                           class="mt-1.5 w-full px-3.5 py-2.5 bg-surface-container rounded-lg text-sm border border-transparent
+                                  hover:border-primary/20 focus:border-primary/40 focus:ring-2 focus:ring-primary/20 focus:bg-white focus:outline-none transition">
+                </div>
+            </div>
+        </div>
+
+        {{-- 6. DOKUMEN --}}
         <div class="card-flat rounded-2xl p-6">
             <div class="flex items-center gap-3 mb-6">
-                <span class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-bold text-sm">4</span>
+                <span class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-bold text-sm">6</span>
                 <h2 class="text-base font-bold text-on-surface">Dokumen</h2>
             </div>
             <div class="grid grid-cols-3 gap-5">
                 @php
                     $documents = [
                         ['name' => 'ktp_file', 'label' => 'Scan KTP', 'uploaded' => !empty($employee->ktp_file_path)],
-                        ['name' => 'npwp_file', 'label' => 'Scan NPWP', 'uploaded' => !empty($employee->npwp)], // Indikator jika string NPWP diisi
-                        ['name' => 'bpjs_file', 'label' => 'Kartu BPJS', 'uploaded' => !empty($employee->bpjs_number)] // Indikator jika string BPJS diisi
+                        ['name' => 'npwp_file', 'label' => 'Scan NPWP', 'uploaded' => !empty($employee->npwp)],
+                        ['name' => 'bpjs_file', 'label' => 'Kartu BPJS', 'uploaded' => !empty($employee->bpjs_number)]
                     ];
                 @endphp
                 @foreach ($documents as $doc)

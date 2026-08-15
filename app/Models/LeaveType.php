@@ -21,6 +21,13 @@ class LeaveType extends Model
         'requires_attachment',
     ];
 
+    // Tambahkan baris ini
+    protected $casts = [
+        'is_quota_based' => 'boolean',
+        'allow_carry_forward' => 'boolean',
+        'requires_attachment' => 'boolean',
+    ];
+
     public function company()
     {
         return $this->belongsTo(Company::class);

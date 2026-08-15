@@ -24,8 +24,15 @@
             'bpjs'     => $bpjs,
             'pph21'    => $pph21,
             'net'      => $p->net_salary,
-            'earnings' => $earnings->map(fn ($d) => ['label' => $d->salaryComponent->name ?? '-', 'amount' => $d->amount])->values(),
-            'deductions' => $deductions->map(fn ($d) => ['label' => $d->salaryComponent->name ?? '-', 'amount' => $d->amount])->values(),
+            // FIX: Gaji Pokok disimpan sebagai kolom terpisah (payrolls.basic_salary),
+            // bukan sebagai baris di payroll_details — jadi harus ditambahkan manual
+            // sebagai item pertama supaya breakdown "Pendapatan" tidak hilang gaji pokoknya.
+            'earnings' => collect([
+                    ['label' => 'Gaji Pokok', 'amount' => (float) $p->basic_salary],
+                ])
+                ->concat($earnings->map(fn ($d) => ['label' => $d->salaryComponent->name ?? '-', 'amount' => (float) $d->amount]))
+                ->values(),
+            'deductions' => $deductions->map(fn ($d) => ['label' => $d->salaryComponent->name ?? '-', 'amount' => (float) $d->amount])->values(),
         ];
     });
 

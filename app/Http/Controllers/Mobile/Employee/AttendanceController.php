@@ -5,31 +5,80 @@ namespace App\Http\Controllers\Mobile\Employee;
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
 use App\Models\LeaveRequest;
+use App\Services\AttendanceStatusService;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
 class AttendanceController extends Controller
 {
-    /**
-     * Mengecek status absensi karyawan hari ini
-     */
     public function today(Request $request)
     {
         $employee = $request->user()->employee;
         $today = now()->toDateString();
+        $company = $employee->company;
 
         $attendance = Attendance::where('employee_id', $employee->id)
             ->where('date', $today)
             ->first();
 
-        // Kalau tidak ada absen, cek apakah hari ini sedang izin/sakit/cuti
+        // Ambil shift assignment hari ini (dipakai untuk tampilan jam kerja)
+        $assignment = \App\Models\ShiftAssignment::with('shiftType')
+            ->where('employee_id', $employee->id)
+            ->where('date', $today)
+            ->first();
+
+        // Susun data shift — pakai shift assignment kalau ada, fallback ke jam standar company
+        $shiftData = null;
+        if ($assignment && $assignment->shiftType) {
+            $shiftData = [
+                'name' => $assignment->shiftType->name,
+                'start_time' => substr($assignment->shiftType->start_time, 0, 5),
+                'end_time' => substr($assignment->shiftType->end_time, 0, 5),
+                'is_off' => (bool) $assignment->shiftType->is_off,
+            ];
+        } else {
+            $shiftData = [
+                'name' => 'Jam Kerja Standar',
+                'start_time' => substr($company->standard_in_time, 0, 5),
+                'end_time' => substr($company->standard_out_time, 0, 5),
+                'is_off' => false,
+            ];
+        }
+
         $leave = null;
+        $isPastTimeLimit = false;
+
         if (!$attendance) {
             $leave = LeaveRequest::with('leaveType')
                 ->where('employee_id', $employee->id)
                 ->coveringDate($today)
                 ->where('status', 'approved')
                 ->first();
+
+            // Kalau hari ini shift libur (is_off), tidak perlu cek batas waktu
+            if (!$leave && !($shiftData['is_off'] ?? false)) {
+                $standardInTimeStr = $assignment
+                    ? substr($assignment->shiftType->start_time, 0, 8)
+                    : $company->standard_in_time;
+
+                $standardStartTime = Carbon::createFromTimeString($today . ' ' . $standardInTimeStr);
+                $maxTolerableTime = $standardStartTime->copy()->addMinutes($company->late_tolerance_minutes);
+
+                if (now()->greaterThan($maxTolerableTime)) {
+                    $isPastTimeLimit = true;
+
+                    // BARU: catat sebagai Tidak Hadir (Alpha) ke database, sekali saja
+                    $attendance = Attendance::create([
+                        'company_id' => $company->id,
+                        'employee_id' => $employee->id,
+                        'shift_assignment_id' => $assignment?->id,
+                        'date' => $today,
+                        'time_in' => null,
+                        'time_out' => null,
+                        'status' => Attendance::STATUS_ABSENT, // 'alpha' — sesuai constant di model
+                    ]);
+                }
+            }
         }
 
         return response()->json([
@@ -37,12 +86,10 @@ class AttendanceController extends Controller
             'message' => 'Status absensi hari ini.',
             'data' => $attendance,
             'leave' => $leave,
+            'is_past_time_limit' => $isPastTimeLimit,
+            'shift' => $shiftData,
         ]);
     }
-
-    /**
-     * Proses Absen Pulang
-     */
     public function checkOut(Request $request)
     {
         $request->validate([
@@ -54,29 +101,23 @@ class AttendanceController extends Controller
 
         $employee = $request->user()->employee;
         $company = $employee->company;
-        $today = now()->toDateString();
 
         $isMockLocation = filter_var($request->is_mock_location, FILTER_VALIDATE_BOOLEAN);
 
-        // 1. CEK FAKE GPS
         if ($isMockLocation) {
             return response()->json(['success' => false, 'message' => 'Fake GPS terdeteksi.'], 403);
         }
 
-        // 2. CARI DATA ABSEN MASUK HARI INI
         $attendance = Attendance::where('employee_id', $employee->id)
-            ->where('date', $today)
+            ->whereNull('time_out')
+            ->whereIn('date', [now()->toDateString(), now()->subDay()->toDateString()])
+            ->latest('date')
             ->first();
 
         if (!$attendance) {
-            return response()->json(['success' => false, 'message' => 'Anda belum melakukan absen masuk hari ini.'], 400);
+            return response()->json(['success' => false, 'message' => 'Anda belum melakukan absen masuk.'], 400);
         }
 
-        if ($attendance->time_out !== null) {
-            return response()->json(['success' => false, 'message' => 'Anda sudah melakukan absen pulang hari ini.'], 400);
-        }
-
-        // 3. KALKULASI JARAK (HAVERSINE)
         $distance = $this->calculateHaversineDistance(
             $company->office_latitude,
             $company->office_longitude,
@@ -91,7 +132,6 @@ class AttendanceController extends Controller
             ], 403);
         }
 
-        // 4. SIMPAN DATA ABSEN PULANG
         $photoPath = $request->file('photo')->store('attendances/checkout', 'public');
 
         $attendance->update([
@@ -109,7 +149,6 @@ class AttendanceController extends Controller
             'data' => $attendance
         ], 200);
     }
-
     public function checkIn(Request $request)
     {
         $request->validate([
@@ -120,13 +159,11 @@ class AttendanceController extends Controller
         ]);
 
         $employee = $request->user()->employee;
-
-        // Tarik data Company beserta aturan absensinya
         $company = $employee->company;
+        $today = now()->toDateString();
 
         $isMockLocation = filter_var($request->is_mock_location, FILTER_VALIDATE_BOOLEAN);
 
-        // 1. CEK FAKE GPS
         if ($isMockLocation) {
             return response()->json([
                 'success' => false,
@@ -134,8 +171,24 @@ class AttendanceController extends Controller
             ], 403);
         }
 
-        // 2. CEK WAKTU BERDASARKAN ATURAN COMPANY
-        $standardStartTime = Carbon::createFromTimeString($company->standard_in_time);
+        $assignment = \App\Models\ShiftAssignment::with('shiftType')
+            ->where('employee_id', $employee->id)
+            ->where('date', $today)
+            ->first();
+
+        if ($assignment && $assignment->shiftType->is_off) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Hari ini Anda dijadwalkan libur, tidak perlu absen.'
+            ], 403);
+        }
+
+        // Kalau ada assignment, pakai jam mulai shift-nya. Kalau tidak ada, fallback ke jam standar company.
+        $standardInTimeStr = $assignment
+            ? substr($assignment->shiftType->start_time, 0, 8)
+            : $company->standard_in_time;
+
+        $standardStartTime = Carbon::createFromTimeString($today . ' ' . $standardInTimeStr);
         $maxTolerableTime = $standardStartTime->copy()->addMinutes($company->late_tolerance_minutes);
         $currentTime = Carbon::now();
 
@@ -146,12 +199,10 @@ class AttendanceController extends Controller
             ], 403);
         }
 
-        // 2b. TENTUKAN STATUS & MENIT KETERLAMBATAN (dibandingkan jam standar, bukan batas toleransi)
         $isLate = $currentTime->greaterThan($standardStartTime);
         $status = $isLate ? Attendance::STATUS_LATE : Attendance::STATUS_PRESENT;
         $lateMinutes = $isLate ? $standardStartTime->diffInMinutes($currentTime) : 0;
 
-        // 3. KALKULASI JARAK (HAVERSINE)
         $distance = $this->calculateHaversineDistance(
             $company->office_latitude,
             $company->office_longitude,
@@ -166,18 +217,17 @@ class AttendanceController extends Controller
             ], 403);
         }
 
-        // 4. CEK ABSEN GANDA HARI INI
-        if (Attendance::where('employee_id', $employee->id)->where('date', now()->toDateString())->exists()) {
+        if (Attendance::where('employee_id', $employee->id)->where('date', $today)->exists()) {
             return response()->json(['success' => false, 'message' => 'Anda sudah absen hari ini.'], 400);
         }
 
-        // 5. SIMPAN DATA
         $photoPath = $request->file('photo')->store('attendances', 'public');
 
         $attendance = Attendance::create([
             'company_id' => $company->id,
             'employee_id' => $employee->id,
-            'date' => now()->toDateString(),
+            'shift_assignment_id' => $assignment?->id, // BARU — lihat catatan migration di bawah
+            'date' => $today,
             'time_in' => now()->toTimeString(),
             'photo_in' => $photoPath,
             'latitude_in' => $request->latitude,
@@ -194,7 +244,6 @@ class AttendanceController extends Controller
             'data' => $attendance
         ], 201);
     }
-
     /**
      * Karyawan mengajukan izin / sakit / cuti (dengan lampiran opsional, mis. surat dokter)
      */
@@ -251,12 +300,13 @@ class AttendanceController extends Controller
     }
 
     /**
-     * Mengambil ringkasan absensi minggu ini (Senin - Minggu)
+     * Mengambil ringkasan absensi minggu ini dan statistik bulanan/tahunan
      */
     public function summary(Request $request)
     {
         $employee = $request->user()->employee;
 
+        // 1. Hitung Absensi Minggu Ini
         $startOfWeek = Carbon::now()->startOfWeek()->toDateString();
         $endOfWeek = Carbon::now()->endOfWeek()->toDateString();
 
@@ -264,13 +314,38 @@ class AttendanceController extends Controller
             ->whereBetween('date', [$startOfWeek, $endOfWeek])
             ->get();
 
+        // 2. Hitung Sisa Cuti Tahun Ini
+        $currentYear = now()->year;
+        // Pastikan Anda sudah mengimpor App\Models\LeaveBalance di atas file ini jika belum
+        $leaveBalances = \App\Models\LeaveBalance::where('employee_id', $employee->id)
+            ->where('year', $currentYear)
+            ->get();
+
+        $leaveQuota = $leaveBalances->sum(fn($b) => $b->initial_quota + $b->carried_forward_quota);
+        $leaveUsed = $leaveBalances->sum('used_quota');
+        $leaveBalance = max($leaveQuota - $leaveUsed, 0);
+
+        // 3. Hitung Total Lembur Bulan Ini 
+        // Asumsi Anda memiliki model App\Models\Overtime. Sesuaikan nama model dan kolom jika berbeda.
+        $overtimeHours = 0;
+        if (class_exists(\App\Models\Overtime::class)) {
+            $overtimeHours = \App\Models\Overtime::where('employee_id', $employee->id)
+                ->where('status', 'approved') // asumsikan hanya menghitung yang disetujui
+                ->whereMonth('date', now()->month)
+                ->whereYear('date', now()->year)
+                ->sum('duration'); // Sesuaikan kolom durasi (contoh: 'duration' atau 'hours')
+        }
+
         return response()->json([
             'success' => true,
             'data' => [
                 'present' => $attendances->where('status', Attendance::STATUS_PRESENT)->count(),
-                'late'    => $attendances->where('status', Attendance::STATUS_LATE)->count(),
-                'permit'  => $attendances->where('status', Attendance::STATUS_PERMIT)->count(),
-                'sick'    => $attendances->where('status', Attendance::STATUS_SAKIT)->count(),
+                'late' => $attendances->where('status', Attendance::STATUS_LATE)->count(),
+                'permit' => $attendances->where('status', Attendance::STATUS_PERMIT)->count(),
+                'sick' => $attendances->where('status', Attendance::STATUS_SAKIT)->count(),
+                // Tambahkan dua field ini agar dibaca oleh Flutter
+                'leave_balance' => $leaveBalance,
+                'overtime_hours' => $overtimeHours,
             ]
         ], 200);
     }
@@ -278,18 +353,48 @@ class AttendanceController extends Controller
     /**
      * Mengambil riwayat absensi terbaru (Limit 10)
      */
+
+    public function checkAttendanceStatus(Request $request, AttendanceStatusService $service)
+    {
+        $request->validate([
+            'shift_id' => 'nullable|exists:shifts,id',
+            'type' => 'nullable|in:clock_in,clock_out',
+            'actual_clock_in' => 'nullable|date_format:Y-m-d H:i:s',
+            'actual_clock_out' => 'nullable|date_format:Y-m-d H:i:s',
+            'expected_clock_in' => 'nullable|date_format:Y-m-d H:i:s',
+            'expected_clock_out' => 'nullable|date_format:Y-m-d H:i:s',
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Status presensi berhasil dihitung',
+            'data' => $service->resolve($request->all()),
+        ]);
+    }
+
     public function history(Request $request)
     {
         $employee = $request->user()->employee;
 
+        $month = $request->filled('month')
+            ? Carbon::parse($request->month . '-01')
+            : Carbon::now();
+
         $history = Attendance::where('employee_id', $employee->id)
+            ->whereBetween('date', [
+                $month->copy()->startOfMonth()->toDateString(),
+                $month->copy()->endOfMonth()->toDateString(),
+            ])
             ->orderBy('date', 'desc')
-            ->limit(10)
             ->get(['date', 'time_in', 'time_out', 'status']);
 
         return response()->json([
             'success' => true,
-            'data' => $history
-        ], 200);
+            'data' => $history,
+            'meta' => [
+                'month' => $month->format('Y-m'),
+                'days_in_month' => $month->daysInMonth,
+            ],
+        ]);
     }
 }

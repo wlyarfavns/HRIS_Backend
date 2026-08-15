@@ -5,9 +5,13 @@ use App\Http\Controllers\Web\Finance\ReimbursementController;
 use App\Http\Controllers\Web\Finance\PayrollController;
 use App\Http\Controllers\Web\Finance\ExportController;
 use App\Http\Controllers\Web\Finance\DisbursementController;
+use App\Http\Controllers\Web\Finance\DashboardController;
+use App\Http\Controllers\Web\Shared\ProfileController;
+
 
 Route::middleware(['auth', 'role:finance'])->prefix('finance')->name('finance.')->group(function () {
-    Route::get('/dashboard', fn() => view('finance.dashboard'))->name('dashboard');
+    // routes/finance.php
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/reimbursement', [ReimbursementController::class, 'index'])->name('reimbursement.index');
     Route::patch('/reimbursement/{reimbursement}/action', [ReimbursementController::class, 'action'])->name('reimbursement.action');
@@ -26,5 +30,8 @@ Route::middleware(['auth', 'role:finance'])->prefix('finance')->name('finance.')
     Route::get('/disbursement/{id}/slip', [PayrollController::class, 'slip'])->name('disbursement.slip');
 
     Route::get('/pengaturan', fn() => view('finance.pengaturan.index'))->name('settings.index');
-    Route::get('/profil', fn() => view('finance.profile'))->name('profile');
+
+    Route::get('/profil', [ProfileController::class, 'index'])->name('profile');
+    Route::patch('/profil', [ProfileController::class, 'update'])->name('profile.update');
+    Route::patch('/profil/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
 });

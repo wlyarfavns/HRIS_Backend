@@ -75,15 +75,10 @@
             color: #0B3D2E;
             font-weight: 600;
         }
-        .nav-tab.is-active:hover {
-            background-color: rgba(11, 61, 46, 0.16);
-            color: #0B3D2E;
-        }
+        .nav-tab.is-active:hover { background-color: rgba(11, 61, 46, 0.16); color: #0B3D2E; }
         .nav-tab:not(.is-active) { color: rgba(65, 73, 68, 0.8); }
-        .nav-tab:not(.is-active):hover {
-            background-color: rgba(11, 61, 46, 0.06);
-            color: #0B3D2E;
-        }
+        .nav-tab:not(.is-active):hover { background-color: rgba(11, 61, 46, 0.06); color: #0B3D2E; }
+        
         .nav-subtab.is-active {
             background-color: rgba(11, 61, 46, 0.08);
             color: #0B3D2E;
@@ -91,17 +86,11 @@
         }
         .nav-subtab.is-active:hover { background-color: rgba(11, 61, 46, 0.16); }
         .nav-subtab:not(.is-active) { color: rgba(65, 73, 68, 0.7); }
-        .nav-subtab:not(.is-active):hover {
-            background-color: rgba(11, 61, 46, 0.06);
-            color: #0B3D2E;
-        }
+        .nav-subtab:not(.is-active):hover { background-color: rgba(11, 61, 46, 0.06); color: #0B3D2E; }
 
-        /*
-         * GLOBAL CURSOR FIX
-         * Browser tidak selalu otomatis pakai cursor "pointer" untuk <button>,
-         * elemen ber-role, atau elemen Alpine yang cuma pakai @click tanpa href.
-         * Aturan ini berlaku ke SEMUA halaman yang extends layout ini.
-         */
+        [x-cloak] { display: none !important; }
+
+        /* GLOBAL CURSOR FIX */
         button:not(:disabled),
         [type="button"]:not(:disabled),
         [type="submit"]:not(:disabled),
@@ -129,7 +118,7 @@
 <body class="text-on-surface antialiased bg-[#F4F7F5]">
 <div class="flex min-h-screen">
 
-    {{-- SIDEBAR HR --}}
+    {{-- SIDEBAR HR — struktur & menu persis seperti versi awal --}}
     <aside class="w-72 bg-white sidebar-border fixed h-screen flex flex-col">
         <div class="px-8 py-6 border-b border-black/5">
             <h1 class="text-xl font-extrabold text-primary tracking-tight leading-tight">HRIS System</h1>
@@ -137,6 +126,7 @@
         </div>
 
         <nav class="flex-1 px-4 pt-6 space-y-1 overflow-y-auto pb-8">
+
             <x-nav-link route="hr.dashboard">
                 <span class="material-symbols-outlined text-[20px]">dashboard</span>
                 Dashboard
@@ -149,7 +139,7 @@
 
             <x-nav-link route="hr.shift.index">
                 <span class="material-symbols-outlined text-[20px]">calendar_month</span>
-                Shift &amp; Roster
+                Shift &amp; Jadwal
             </x-nav-link>
 
             <x-nav-link route="hr.attendance.index">
@@ -157,22 +147,19 @@
                 Presensi &amp; Absensi
             </x-nav-link>
 
-            <x-nav-group icon="fact_check" label="Persetujuan" :active="request()->routeIs('hr.approvals.*')">
+            <x-nav-group icon="fact_check" label="Persetujuan"
+                :active="request()->routeIs('hr.approvals.*')">
                 <x-nav-sublink route="hr.approvals.leave" badge="5">Cuti &amp; Izin</x-nav-sublink>
                 <x-nav-sublink route="hr.approvals.overtime">Lembur (SPL)</x-nav-sublink>
                 <x-nav-sublink route="hr.approvals.reimbursement">Reimbursement</x-nav-sublink>
             </x-nav-group>
 
-            <x-nav-group icon="payments" label="Penggajian" :active="request()->routeIs('hr.payroll.*')">
-                <x-nav-sublink route="hr.payroll.index">Proses Payroll</x-nav-sublink>
-                <x-nav-sublink route="hr.payroll.components">Komponen Gaji</x-nav-sublink>
-            </x-nav-group>
-
-            <x-nav-link route="hr.structure.index">
-                <span class="material-symbols-outlined text-[20px]">account_tree</span>
-                Struktur Organisasi
+            <x-nav-link route="hr.payroll.index" active="hr.payroll.*">
+                <span class="material-symbols-outlined text-[20px]">payments</span>
+                Penggajian
             </x-nav-link>
         </nav>
+
     </aside>
 
     {{-- MAIN CONTENT --}}
@@ -191,14 +178,11 @@
                 <div class="flex items-center gap-4 shrink-0">
                     @yield('page-action')
 
-                    <button class="relative p-2 text-on-surface-variant/60 hover:text-primary transition-colors cursor-pointer">
-                        <span class="material-symbols-outlined">notifications</span>
-                        <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-brand-gold rounded-full ring-2 ring-white"></span>
-                    </button>
+                    @include('shared._topbar_notifications')
 
                     <div class="h-5 w-px bg-black/10"></div>
 
-                    {{-- AMBIL DATA PENGGUNA YANG SEDANG LOGIN --}}
+                    {{-- AMBIL DATA PENGGUNA YANG SEDANG LOGIN (DINAMIS) --}}
                     @php
                         $user = auth()->user();
                         $roleDbName = $user && $user->roles->first() ? $user->roles->first()->name : 'employee';
@@ -210,35 +194,34 @@
                             'employee'   => 'Pegawai'
                         ];
                         $roleLabel = $displayRoleMap[$roleDbName] ?? 'Pegawai';
+                        $userName = $user->name ?? 'User';
+                        $userEmail = $user->email ?? 'email@example.com';
                     @endphp
 
                     {{-- PROFIL + DROPDOWN --}}
                     <div class="relative" x-data="{ open: false }" @click.outside="open = false">
-                        <button @click="open = !open" class="flex items-center gap-3 group cursor-pointer">
+                        <button @click="open = !open" class="flex items-center gap-3 group">
                             <div class="text-right hidden sm:block">
-                                <p class="text-sm font-bold text-on-surface leading-tight">{{ $user->name }}</p>
+                                <p class="text-sm font-bold text-on-surface leading-tight">{{ $userName }}</p>
                                 <p class="text-[10px] text-on-surface-variant/60 font-bold uppercase tracking-wide">{{ $roleLabel }}</p>
                             </div>
-                            <img src="https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&background=random" alt="Foto profil"
+                            <img src="https://ui-avatars.com/api/?name={{ urlencode($userName) }}&background=random" alt="Foto profil"
                                 class="w-9 h-9 rounded-full object-cover ring-2 ring-transparent group-hover:ring-primary/20 transition">
                             <span class="material-symbols-outlined text-on-surface-variant/50 text-[18px] transition"
                                 :class="open && 'rotate-180'">expand_more</span>
                         </button>
 
-                        <div x-show="open" x-transition.origin.top.right
-                            class="absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-lg border border-black/5 py-2 z-30"
-                            style="display: none;">
+                        <div x-show="open" x-transition.origin.top.right x-cloak
+                            class="absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-lg border border-black/5 py-2 z-30">
                             <div class="px-4 py-2 border-b border-black/5">
-                                <p class="text-sm font-bold text-on-surface">{{ $user->name }}</p>
-                                <p class="text-xs text-on-surface-variant/60">{{ $user->email }}</p>
+                                <p class="text-sm font-bold text-on-surface">{{ $userName }}</p>
+                                <p class="text-xs text-on-surface-variant/60">{{ $userEmail }}</p>
                             </div>
-                            {{-- Ganti hr.profile menjadi rute profil universal --}}
                             <a href="{{ route('hr.profile') }}" class="flex items-center gap-2.5 px-4 py-2 text-sm text-on-surface-variant/80 hover:bg-primary/5 hover:text-primary transition cursor-pointer">
                                 <span class="material-symbols-outlined text-[18px]">account_circle</span>
                                 Profil Saya
                             </a>
                             <div class="border-t border-black/5 mt-1 pt-1">
-                                {{-- Arahkan action ke rute logout --}}
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
                                     <button type="submit" class="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-error hover:bg-error/5 text-left transition cursor-pointer">
@@ -249,6 +232,7 @@
                             </div>
                         </div>
                     </div>
+
                 </div>
             </div>
         </header>
@@ -258,6 +242,10 @@
         </main>
     </div>
 </div>
+
 @stack('scripts')
+
+@include('shared._toast')
+   
 </body>
 </html>

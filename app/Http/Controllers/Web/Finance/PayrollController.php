@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Services\PayrollService;
 use App\Models\PayrollBatch;
 use App\Models\Payroll;
+use App\Models\Company;
+
 class PayrollController extends Controller
 {
     public function __construct(protected PayrollService $payrollService)
@@ -41,8 +43,15 @@ class PayrollController extends Controller
     public function show(Request $request, PayrollBatch $batch)
     {
         abort_unless($batch->company_id === $request->user()->company_id, 403);
+
         $payrolls = $batch->payrolls()->with(['employee.department', 'details.salaryComponent'])->get();
-        return view('finance.payroll.show', compact('batch', 'payrolls'));
+
+        // FIX: nama & alamat perusahaan di header slip harus dari DB (tabel companies),
+        // bukan teks hardcoded — dipakai oleh _slip-preview-modal.blade.php (di-share
+        // otomatis lewat @include karena satu scope view dengan review.blade.php).
+        $company = Company::find($batch->company_id);
+
+        return view('finance.payroll.review', compact('batch', 'payrolls', 'company'));
     }
 
     public function approve(Request $request, PayrollBatch $batch)
@@ -77,6 +86,11 @@ class PayrollController extends Controller
             $statusTime = '-';
         }
 
+        // FIX: ambil nama & alamat perusahaan dari tabel companies (bukan hardcoded
+        // "PT Talenta Digital Nusantara" di slip.blade.php).
+        $company = Company::find($companyId);
+        $companyAddress = collect([$company?->address, $company?->city])->filter()->implode(', ');
+
         $slip = [
             'nip' => $payroll->employee->employee_id ?? '-',
             'name' => $payroll->employee->full_name ?? '-',
@@ -84,8 +98,16 @@ class PayrollController extends Controller
             'position' => $payroll->employee->position->name ?? '-',
             'department' => $payroll->employee->department->name ?? '-',
             'period' => $payroll->period_start->translatedFormat('F Y'),
-            'earnings' => $payroll->details->where('type', 'earning')
-                ->map(fn($d) => ['label' => $d->salaryComponent->name ?? '-', 'amount' => (float) $d->amount])->values(),
+            'company_name' => $company?->name ?? '-',
+            'company_address' => $companyAddress ?: '-',
+            'earnings' => collect([
+                    ['label' => 'Gaji Pokok', 'amount' => (float) $payroll->basic_salary],
+                ])
+                ->concat(
+                    $payroll->details->where('type', 'earning')
+                        ->map(fn($d) => ['label' => $d->salaryComponent->name ?? '-', 'amount' => (float) $d->amount])
+                )
+                ->values(),
             'deductions' => $payroll->details->where('type', 'deduction')
                 ->map(fn($d) => ['label' => $d->salaryComponent->name ?? '-', 'amount' => (float) $d->amount])->values(),
             'status' => $status,

@@ -106,18 +106,28 @@ class ProfileController extends Controller
     {
         $user = $request->user();
 
-        // Validasi input
+        // 1. Validasi input yang masuk
         $request->validate([
+            'current_password' => 'required|string',
             'new_password' => [
                 'required',
                 'string',
-                Password::min(8)          
-                    ->mixedCase()         
-                    ->numbers()           
-                    ->symbols(),          
+                Password::min(8)
+                    ->mixedCase()
+                    ->numbers()
+                    ->symbols(),
             ],
         ]);
 
+        // 2. CEK KECOCOKAN PASSWORD LAMA
+        if (!Hash::check($request->current_password, $user->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Kata sandi saat ini tidak cocok.'
+            ], 400); // Mengembalikan status 400 Bad Request
+        }
+
+        // 3. JIKA COCOK, UPDATE PASSWORD BARU
         try {
             $user->update([
                 'password' => Hash::make($request->new_password)

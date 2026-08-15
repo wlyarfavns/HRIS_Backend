@@ -5,10 +5,13 @@ use App\Http\Controllers\Web\Supervisor\AttendanceReportController;
 use App\Http\Controllers\Web\Supervisor\LeaveApprovalController;
 use App\Http\Controllers\Web\Supervisor\OvertimeApprovalController;
 use App\Http\Controllers\Web\Supervisor\ReimbursementApprovalController;
+use App\Http\Controllers\Web\Supervisor\SupervisorDashboardController;
+use App\Http\Controllers\Web\Shared\ProfileController;
 
 
 Route::prefix('supervisor')->name('supervisor.')->middleware(['auth', 'role:supervisor'])->group(function () {
-    Route::get('/dashboard', fn() => view('supervisor.dashboard'))->name('dashboard');
+    Route::get('/dashboard', [SupervisorDashboardController::class, 'index'])
+        ->name('dashboard');
 
     Route::get('/persetujuan/cuti', [LeaveApprovalController::class, 'index'])->name('approvals.leave');
     Route::post('/persetujuan/cuti/{id}/approve', [LeaveApprovalController::class, 'approve'])->name('approvals.leave.approve');
@@ -21,5 +24,7 @@ Route::prefix('supervisor')->name('supervisor.')->middleware(['auth', 'role:supe
     // MENGARAH KE CONTROLLER BARU
     Route::get('/laporan-kehadiran', [AttendanceReportController::class, 'index'])->name('attendance.report');
 
-    Route::get('/profil', fn() => view('supervisor.profile'))->name('profile');
+    Route::get('/profil', [ProfileController::class, 'index'])->name('profile');
+    Route::patch('/profil', [ProfileController::class, 'update'])->name('profile.update');
+    Route::patch('/profil/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
 });

@@ -6,4 +6,5 @@
 
 @section('content')
     @include('shared._slip-gaji-content', ['slip' => $slip, 'backRoute' => 'finance.disbursement.index'])
+    
 @endsection

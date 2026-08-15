@@ -8,7 +8,9 @@ use App\Models\Payroll;
 use App\Services\PayrollService;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\PayrollRecapExport;
+use App\Exports\PayrollExport;
+use App\Models\User;
+use App\Notifications\GeneralNotification;
 
 class PayrollController extends Controller
 {
@@ -17,45 +19,45 @@ class PayrollController extends Controller
     public function __construct(PayrollService $payrollService)
     {
         $this->payrollService = $payrollService;
+        Carbon::setLocale('id');
     }
-
-    /**
-     * Halaman utama Penggajian.
-     * Semua data (pipeline steps, rekap komponen gaji) diambil dari DB,
-     * tidak ada lagi $steps / $components hardcode di view.
-     */
     public function index(Request $request)
     {
         $companyId = $request->user()->company_id;
+        $period = $request->filled('period') ? Carbon::parse($request->input('period') . '-01') : now();
 
-        // Periode aktif: dari query string ?period=2026-08, default bulan berjalan
-        $period = $request->filled('period')
-            ? Carbon::parse($request->input('period') . '-01')
-            : now();
-
-        $start = $period->copy()->startOfMonth();
-        $end = $period->copy()->endOfMonth();
 
         $payrolls = Payroll::with(['employee.department', 'details.salaryComponent'])
             ->where('company_id', $companyId)
-            ->whereDate('period_start', $start->toDateString())
-            ->whereDate('period_end', $end->toDateString())
+            ->whereYear('period_end', $period->year)
+            ->whereMonth('period_end', $period->month)
             ->latest()
+            ->get()
+            ->unique('employee_id') // Ambil draf terbaru jika sempat di-run berkali-kali
+            ->values();
+
+        // 2. Ambil tanggal mulai/akhir dari database langsung agar UI ikut dinamis
+        $start = $payrolls->first() ? $payrolls->first()->period_start : $period->copy()->startOfMonth();
+        $end = $payrolls->first() ? $payrolls->first()->period_end : $period->copy()->endOfMonth();
+
+        $totalGross = $payrolls->sum('basic_salary') + $payrolls->sum('total_allowances');
+        $totalDeduct = $payrolls->sum('total_deductions');
+        $totalNet = $payrolls->sum('net_salary');
+
+        $components = \App\Models\SalaryComponent::forCompany($companyId)
+            ->orderBy('category')
+            ->orderBy('name')
             ->get();
-
-        $totalKaryawan = $payrolls->count();
-        $totalGajiBersih = $payrolls->sum('net_salary');
-        $totalGajiBersihFormatted = 'Rp' . number_format($totalGajiBersih, 0, ',', '.');
-
-        $steps = $this->buildPipelineSteps($payrolls, $start, $end);
 
         return view('hr.penggajian.index', compact(
             'payrolls',
-            'totalKaryawan',
-            'totalGajiBersihFormatted',
-            'steps',
+            'components',
             'start',
-            'end'
+            'end',
+            'period',
+            'totalGross',
+            'totalDeduct',
+            'totalNet'
         ));
     }
 
@@ -122,45 +124,88 @@ class PayrollController extends Controller
         ];
     }
 
-    /**
-     * Jalankan engine payroll (cut-off absensi + kalkulasi gaji).
-     * Tidak ada lagi hardcode company_id / tanggal Juli 2026.
-     */
     public function runPayroll(Request $request)
     {
+        // 1. Validasi input yang masuk dari JS
         $request->validate([
             'period' => 'required|date_format:Y-m',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+            'employee_ids' => 'required|string' // Format JSON array dari Alpine
         ]);
 
         $companyId = $request->user()->company_id;
         $period = Carbon::parse($request->input('period') . '-01');
-        $startDate = $period->copy()->startOfMonth()->toDateString();
-        $endDate = $period->copy()->endOfMonth()->toDateString();
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
 
-        $this->payrollService->generateAttendanceSummary($companyId, $startDate, $endDate);
-        $this->payrollService->calculateSalary($companyId, $startDate, $endDate);
+        // 2. Decode string JSON menjadi Array PHP
+        $employeeIds = json_decode($request->input('employee_ids'), true);
+
+        if (empty($employeeIds)) {
+            return back()->with('error', 'Tidak ada karyawan yang dipilih.');
+        }
+
+        // 3. Passing parameter ID dan Tanggal Custom ke Service
+        $this->payrollService->generateAttendanceSummary($companyId, $startDate, $endDate, $employeeIds);
+        $this->payrollService->calculateSalary($companyId, $startDate, $endDate, $employeeIds);
 
         return redirect()
             ->route('hr.payroll.index', ['period' => $period->format('Y-m')])
-            ->with('success', "Payroll periode {$period->translatedFormat('F Y')} berhasil dikalkulasi oleh sistem.");
+            ->with('success', "Payroll periode {$period->translatedFormat('F Y')} untuk " . count($employeeIds) . " karyawan berhasil dikalkulasi.");
     }
 
-    /**
-     * Approval oleh HR Operations. Hanya boleh dari status draft.
-     */
+    public function showRunPage(Request $request)
+    {
+        $companyId = $request->user()->company_id;
+
+        // Ambil data karyawan aktif untuk ditampilkan di tabel (Pilih Batch Karyawan)
+        $employees = \App\Models\Employee::with('department')
+            ->where('company_id', $companyId)
+            ->whereIn('status', ['active', 'probation', 'PKWT', 'PKWTT']) // Pastikan status sesuai di database Anda
+            ->get();
+
+        return view('hr.penggajian.run', compact('employees'));
+    }
+
     public function approveHr(Request $request)
     {
-        $request->validate(['period' => 'required|date_format:Y-m']);
         $companyId = $request->user()->company_id;
-        $period = Carbon::parse($request->input('period') . '-01');
-        $start = $period->copy()->startOfMonth()->toDateString();
-        $end = $period->copy()->endOfMonth()->toDateString();
 
+        // 1. Cari data payroll yang masih DRAFT (Sistem akan mengabaikan URL dan mencari draf asli di database)
+        $payroll = \App\Models\Payroll::where('company_id', $companyId)
+            ->where('status', \App\Models\Payroll::STATUS_DRAFT)
+            ->orderBy('period_start', 'asc')
+            ->first();
+
+        // Jika benar-benar tidak ada draf, kembalikan error
+        if (!$payroll) {
+            return back()->with('error', 'Tidak ada draft payroll yang tersedia untuk dikirim ke Finance.');
+        }
+
+        $start = $payroll->period_start->toDateString();
+        $end = $payroll->period_end->toDateString();
+
+        // Ambil nama bulan langsung dari database (Pasti akurat, contoh: "Maret 2026")
+        $bulanPayroll = $payroll->period_start->translatedFormat('F Y');
+
+        // 2. Eksekusi penguncian data dan pembuatan Batch untuk Finance
         $count = $this->payrollService->approveByHr($companyId, $start, $end);
-        $this->payrollService->submitBatchToFinance($companyId, $start, $end, $request->user()->id); // BARU
+        $this->payrollService->submitBatchToFinance($companyId, $start, $end, $request->user()->id);
 
-        return redirect()->route('hr.payroll.index', ['period' => $period->format('Y-m')])
-            ->with('success', "{$count} payroll disetujui HR & dikirim ke Finance.");
+        // 3. Trigger Notifikasi ke Finance
+        $financeUsers = User::role('finance')->where('company_id', $companyId)->get();
+        foreach ($financeUsers as $financeUser) {
+            $financeUser->notify(new GeneralNotification(
+                'Review Payroll Baru',
+                "HR telah mengirimkan data payroll periode {$bulanPayroll} untuk di-review & disetujui.",
+                '/finance/payroll'
+            ));
+        }
+
+        // 4. Redirect kembali dengan URL yang sudah dikoreksi ke bulan yang tepat
+        return redirect()->route('hr.payroll.index', ['period' => $payroll->period_start->format('Y-m')])
+            ->with('success', "{$count} data payroll periode {$bulanPayroll} berhasil dikirim ke Finance.");
     }
 
     /**
@@ -184,36 +229,30 @@ class PayrollController extends Controller
             ->with('success', "{$count} payroll disetujui oleh Finance.");
     }
 
-    /**
-     * Export rekap payroll periode berjalan ke XLSX (rekap internal HR,
-     * berbeda dari exportBankCsv di PayrollApiController yang khusus
-     * format upload bank).
-     */
     public function exportXlsx(Request $request)
     {
         $request->validate(['period' => 'required|date_format:Y-m']);
-
         $companyId = $request->user()->company_id;
         $period = Carbon::parse($request->input('period') . '-01');
 
-        return Excel::download(
-            new PayrollRecapExport(
-                $companyId,
-                $period->copy()->startOfMonth()->toDateString(),
-                $period->copy()->endOfMonth()->toDateString()
-            ),
-            "Rekap_Payroll_{$period->format('M_Y')}.xlsx"
-        );
-    }
+        $payrolls = Payroll::with(['employee.department', 'details.salaryComponent'])
+            ->where('company_id', $companyId)
+            ->whereYear('period_end', $period->year)
+            ->whereMonth('period_end', $period->month)
+            ->latest()
+            ->get()
+            ->unique('employee_id')
+            ->values();
 
-    /**
-     * Slip gaji individual (dibuka di HR web, tombol print/PDF ada di view).
-     */
+        $fileName = "Rekap_Payroll_{$period->format('M_Y')}.xlsx";
+
+        return Excel::download(new PayrollExport($payrolls), $fileName);
+    }
     public function slip(Request $request, $id)
     {
         $companyId = $request->user()->company_id;
 
-        $payroll = Payroll::with(['employee', 'details.salaryComponent'])
+        $payroll = Payroll::with(['employee.department', 'employee.position', 'company', 'details.salaryComponent'])
             ->where('company_id', $companyId)
             ->findOrFail($id);
 

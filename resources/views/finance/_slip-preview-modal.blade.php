@@ -20,6 +20,12 @@
 
         <div class="overflow-y-auto">
             {{-- HEADER PERUSAHAAN --}}
+            {{--
+                FIX: nama & alamat perusahaan sebelumnya hardcoded "PT Talenta Digital
+                Nusantara". Ini sama untuk semua karyawan dalam satu batch (tidak berubah
+                per slipEmployee), jadi cukup di-render sekali lewat Blade dari $company
+                (di-share otomatis dari review.blade.php lewat @include), bukan lewat Alpine.
+            --}}
             <div class="px-6 py-5 text-white" style="background-color:#0B3D2E;">
                 <div class="flex items-start justify-between">
                     <div>
@@ -27,8 +33,10 @@
                         <p class="text-lg font-extrabold mt-0.5" x-text="slipEmployee?.period"></p>
                     </div>
                     <div class="text-right">
-                        <p class="text-xs font-bold">PT Talenta Digital Nusantara</p>
-                        <p class="text-[10px] text-white/50 mt-0.5">Jl. Jenderal Sudirman No. 88, Jakarta Selatan</p>
+                        <p class="text-xs font-bold">{{ $company->name ?? '-' }}</p>
+                        <p class="text-[10px] text-white/50 mt-0.5">
+                            {{ collect([$company->address ?? null, $company->city ?? null])->filter()->implode(', ') ?: '-' }}
+                        </p>
                     </div>
                 </div>
             </div>
@@ -40,7 +48,7 @@
                 <div class="flex-1 min-w-0">
                     <p class="text-sm font-bold text-on-surface" x-text="slipEmployee?.name"></p>
                     <p class="text-[11px] font-mono-data text-on-surface-variant/50"
-                        x-text="slipEmployee?.nip + ' · ' + slipEmployee?.position"></p>
+                        x-text="slipEmployee?.nip + ' · ' + slipEmployee?.dept"></p>
                 </div>
                 <span class="text-[10px] font-bold px-2 py-1 rounded-lg bg-primary/10 text-primary"
                     x-text="slipEmployee?.bank + ' ' + slipEmployee?.rekening"></span>
@@ -55,7 +63,7 @@
                             <div class="flex items-center justify-between text-xs">
                                 <span class="text-on-surface-variant/60" x-text="e.label"></span>
                                 <span class="font-mono-data text-on-surface"
-                                    x-text="e.amount.toLocaleString('id-ID')"></span>
+                                    x-text="Number(e.amount).toLocaleString('id-ID')"></span>
                             </div>
                         </template>
                     </div>
@@ -67,7 +75,7 @@
                             <div class="flex items-center justify-between text-xs">
                                 <span class="text-on-surface-variant/60" x-text="d.label"></span>
                                 <span class="font-mono-data text-error"
-                                    x-text="'-' + d.amount.toLocaleString('id-ID')"></span>
+                                    x-text="'-' + Number(d.amount).toLocaleString('id-ID')"></span>
                             </div>
                         </template>
                     </div>
@@ -82,7 +90,7 @@
                     <p class="text-[10px] text-on-surface-variant/40 mt-0.5">Ditransfer ke rekening terdaftar</p>
                 </div>
                 <p class="text-xl font-extrabold font-mono-data text-primary"
-                    x-text="'Rp' + (((slipEmployee?.earnings || []).reduce((s,e)=>s+e.amount,0)) - ((slipEmployee?.deductions || []).reduce((s,d)=>s+d.amount,0))).toLocaleString('id-ID')">
+                    x-text="'Rp' + Number(slipEmployee?.net || 0).toLocaleString('id-ID')">
                 </p>
             </div>
 
@@ -92,7 +100,8 @@
         </div>
 
         <div class="px-5 py-3.5 border-t border-black/5 flex items-center justify-between shrink-0">
-            <a :href="slipEmployee ? '{{ url('finance/disbursement') }}/' + slipEmployee.payroll_id + '/slip' : '#'"
+            <a :href="slipEmployee ? '{{ url('finance/disbursement') }}/' + slipEmployee.id + '/slip' : '#'"
+               class="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline">
                 Lihat Detail Lengkap <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
             </a>
             <button type="button" @click="showSlipModal = false"

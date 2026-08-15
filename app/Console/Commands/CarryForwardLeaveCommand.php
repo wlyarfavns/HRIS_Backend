@@ -3,43 +3,48 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use App\Models\LeaveBalance;
 
 class CarryForwardLeaveCommand extends Command
 {
     protected $signature = 'leave:carry-forward';
 
-    protected $description = 'Carry forward remaining leave quota to the next year';
+    protected $description = 'Generate new leave quota and carry forward remaining quota to the next year';
 
     public function handle()
     {
         $currentYear = date('Y');
         $lastYear = $currentYear - 1;
 
-        $balances = \App\Models\LeaveBalance::where('year', $lastYear)->get();
+        $balances = LeaveBalance::with('leaveType')->where('year', $lastYear)->get();
 
         foreach ($balances as $balance) {
             $leaveType = $balance->leaveType;
+            $carryForwardAmount = 0;
 
+            // 1. Hitung sisa cuti tahun lalu (jika tipe cuti mengizinkan)
             if ($leaveType && $leaveType->allow_carry_forward) {
                 $available = ($balance->initial_quota + $balance->carried_forward_quota) - $balance->used_quota;
 
                 if ($available > 0) {
                     $carryForwardAmount = min($available, $leaveType->max_carry_forward_days);
-
-                    \App\Models\LeaveBalance::updateOrCreate(
-                        [
-                            'employee_id' => $balance->employee_id,
-                            'leave_type_id' => $balance->leave_type_id,
-                            'year' => $currentYear,
-                        ],
-                        [
-                            'carried_forward_quota' => $carryForwardAmount
-                        ]
-                    );
                 }
             }
+
+            LeaveBalance::updateOrCreate(
+                [
+                    'employee_id' => $balance->employee_id,
+                    'leave_type_id' => $balance->leave_type_id,
+                    'year' => $currentYear,
+                ],
+                [
+                    // Ambil jatah default dari tipe cuti, atau set default 12 jika tidak ada
+                    'initial_quota' => $leaveType->default_quota ?? 12,
+                    'carried_forward_quota' => $carryForwardAmount,
+                ]
+            );
         }
 
-        $this->info("Carry forward completed for year {$currentYear}");
+        $this->info("Generate quota & carry forward completed for year {$currentYear}");
     }
 }

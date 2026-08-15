@@ -29,23 +29,23 @@ class LeaveRequestController extends Controller
         }
 
         // Hitung total_days di server — jangan percaya nilai dari client
-        $start     = Carbon::parse($validated['start_date']);
-        $end       = Carbon::parse($validated['end_date']);
+        $start = Carbon::parse($validated['start_date']);
+        $end = Carbon::parse($validated['end_date']);
         $totalDays = $start->diffInDays($end) + 1;
 
         $leaveRequest = LeaveRequest::create([
-            'employee_id'   => $employee->id,
+            'employee_id' => $employee->id,
             'leave_type_id' => $validated['leave_type_id'],
-            'start_date'    => $validated['start_date'],
-            'end_date'      => $validated['end_date'],
-            'total_days'    => $totalDays,
-            'reason'        => $validated['reason'] ?? null,
-            'status'        => 'pending_spv', // ← Masuk ke antrian Supervisor dulu
+            'start_date' => $validated['start_date'],
+            'end_date' => $validated['end_date'],
+            'total_days' => $totalDays,
+            'reason' => $validated['reason'] ?? null,
+            'status' => 'pending_spv', // ← Masuk ke antrian Supervisor dulu
         ]);
 
         return response()->json([
             'message' => 'Pengajuan cuti berhasil dikirim. Menunggu persetujuan Supervisor.',
-            'data'    => $leaveRequest,
+            'data' => $leaveRequest,
         ], 201);
     }
 
@@ -99,7 +99,7 @@ class LeaveRequestController extends Controller
             return response()->json(['message' => 'Unauthorized.'], 403);
         }
 
-        $companyId    = $user->company_id;
+        $companyId = $user->company_id;
         $leaveRequest = LeaveRequest::whereHas('employee', fn($q) => $q->where('company_id', $companyId))
             ->findOrFail($id);
 
@@ -112,7 +112,7 @@ class LeaveRequestController extends Controller
         $leaveType = $leaveRequest->leaveType;
 
         if ($leaveType && $leaveType->is_quota_based) {
-            $year    = Carbon::parse($leaveRequest->start_date)->year;
+            $year = Carbon::parse($leaveRequest->start_date)->year;
             $balance = LeaveBalance::where('employee_id', $leaveRequest->employee_id)
                 ->where('leave_type_id', $leaveRequest->leave_type_id)
                 ->where('year', $year)->first();
@@ -131,14 +131,32 @@ class LeaveRequestController extends Controller
         }
 
         $leaveRequest->update([
-            'status'      => 'approved',
+            'status' => 'approved',
             'approved_by' => $user->id,
             'approved_at' => now(),
         ]);
 
         return response()->json([
             'message' => 'Pengajuan cuti disetujui.',
-            'data'    => $leaveRequest,
+            'data' => $leaveRequest,
         ]);
+    }
+
+    public function destroy(Request $request, $id)
+    {
+        $employee = $request->user()->employee;
+        abort_unless($employee, 404, 'Data karyawan tidak ditemukan.');
+
+        $leaveRequest = LeaveRequest::where('employee_id', $employee->id)->findOrFail($id);
+
+        if ($leaveRequest->status !== 'pending_spv') {
+            return response()->json([
+                'message' => 'Pengajuan yang sudah diproses tidak bisa dibatalkan.'
+            ], 422);
+        }
+
+        $leaveRequest->delete();
+
+        return response()->json(['message' => 'Pengajuan cuti dibatalkan.']);
     }
 }

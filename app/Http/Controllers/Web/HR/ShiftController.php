@@ -34,14 +34,14 @@ class ShiftController extends Controller
 
         $shiftTypesData = $shiftTypes->map(function (ShiftType $t) use ($countsByType) {
             return [
-                'id'    => $t->id,
-                'code'  => $t->code,
-                'name'  => $t->name,
-                'time'  => $t->time_label,
+                'id' => $t->id,
+                'code' => $t->code,
+                'name' => $t->name,
+                'time' => $t->time_label,
                 'color' => $t->color,
-                'bg'    => $t->bg_class,
+                'bg' => $t->bg_class,
                 'count' => $countsByType[$t->id] ?? 0,
-                'desc'  => $t->description,
+                'desc' => $t->description,
             ];
         });
 
@@ -65,10 +65,10 @@ class ShiftController extends Controller
             ->where('company_id', $companyId)
             ->whereBetween('date', [$weekStart->toDateString(), $weekEnd->toDateString()])
             ->get()
-            ->groupBy(fn ($a) => $a->employee_id . '_' . $a->date->toDateString());
+            ->groupBy(fn($a) => $a->employee_id . '_' . $a->date->toDateString());
 
         $mapBadge = $shiftTypes->pluck('badge_class', 'code');
-        $mapName = $shiftTypes->mapWithKeys(fn ($t) => [$t->code => $t->name . ' (' . $t->time_label . ')']);
+        $mapName = $shiftTypes->mapWithKeys(fn($t) => [$t->code => $t->name . ' (' . $t->time_label . ')']);
 
         $roster = $employees->map(function (Employee $e) use ($labels, $assignments) {
             $days = $labels->map(function ($l) use ($e, $assignments) {
@@ -77,13 +77,13 @@ class ShiftController extends Controller
             })->all();
 
             return [
-                'id'     => $e->id,
-                'nip'    => $e->employee_id ?? $e->nip ?? $e->nik ?? '-',
-                'name'   => $this->resolveEmployeeName($e),
-                'dept'   => $e->department->name ?? '-',
-                'pos'    => $e->position->name ?? '-',
+                'id' => $e->id,
+                'nip' => $e->employee_id ?? $e->nip ?? $e->nik ?? '-',
+                'name' => $this->resolveEmployeeName($e),
+                'dept' => $e->department->name ?? '-',
+                'pos' => $e->position->name ?? '-',
                 'avatar' => $e->id,
-                'days'   => $days,
+                'days' => $days,
             ];
         });
 
@@ -95,19 +95,19 @@ class ShiftController extends Controller
             ->get()
             ->map(function (ShiftSwapRequest $r) {
                 return [
-                    'id'            => 'SWP-' . str_pad($r->id, 3, '0', STR_PAD_LEFT),
-                    'db_id'         => $r->id,
-                    'from'          => $r->fromEmployee->name,
-                    'from_avatar'   => $r->fromEmployee->id,
-                    'from_shift'    => $r->fromAssignment->shiftType->name . ' (' . $r->fromAssignment->date->translatedFormat('d M') . ')',
-                    'to'            => $r->toEmployee->name,
-                    'to_avatar'     => $r->toEmployee->id,
-                    'to_shift'      => $r->toAssignment->shiftType->name . ' (' . $r->toAssignment->date->translatedFormat('d M') . ')',
-                    'reason'        => $r->reason,
+                    'id' => 'SWP-' . str_pad($r->id, 3, '0', STR_PAD_LEFT),
+                    'db_id' => $r->id,
+                    'from' => $r->fromEmployee->name,
+                    'from_avatar' => $r->fromEmployee->id,
+                    'from_shift' => $r->fromAssignment->shiftType->name . ' (' . $r->fromAssignment->date->translatedFormat('d M') . ')',
+                    'to' => $r->toEmployee->name,
+                    'to_avatar' => $r->toEmployee->id,
+                    'to_shift' => $r->toAssignment->shiftType->name . ' (' . $r->toAssignment->date->translatedFormat('d M') . ')',
+                    'reason' => $r->reason,
                     'peer_approved' => $r->peer_approved,
-                    'status'        => $r->status_label,
-                    'status_raw'    => $r->status,
-                    'created'       => $r->created_at->diffForHumans(),
+                    'status' => $r->status_label,
+                    'status_raw' => $r->status,
+                    'created' => $r->created_at->diffForHumans(),
                 ];
             });
 
@@ -116,17 +116,17 @@ class ShiftController extends Controller
         $company = \App\Models\Company::find($companyId);
 
         return view('hr.shift.index', [
-            'shiftTypes'   => $shiftTypesData,
-            'roster'       => $roster,
-            'mapBadge'     => $mapBadge,
-            'mapName'      => $mapName,
-            'labels'       => $labels,
+            'shiftTypes' => $shiftTypesData,
+            'roster' => $roster,
+            'mapBadge' => $mapBadge,
+            'mapName' => $mapName,
+            'labels' => $labels,
             'swapRequests' => $swapRequests,
             'pendingSpvCount' => $pendingSpvCount,
-            'weekStart'    => $weekStart,
-            'weekEnd'      => $weekEnd,
-            'departments'  => \App\Models\Department::where('company_id', $companyId)->pluck('name'),
-            'company'      => $company,
+            'weekStart' => $weekStart,
+            'weekEnd' => $weekEnd,
+            'departments' => \App\Models\Department::where('company_id', $companyId)->pluck('name'),
+            'company' => $company,
         ]);
     }
 
@@ -186,14 +186,29 @@ class ShiftController extends Controller
 
     public function approveSwap(Request $request, ShiftSwapRequest $swap)
     {
-        DB::transaction(function () use ($swap, $request) {
-            // Tukar shift_type_id di kedua assignment
-            $fromAssignment = $swap->fromAssignment;
-            $toAssignment = $swap->toAssignment;
+        $fromAssignment = $swap->fromAssignment;
+        $toAssignment = $swap->toAssignment;
 
-            $fromShiftTypeId = $fromAssignment->shift_type_id;
-            $fromAssignment->update(['shift_type_id' => $toAssignment->shift_type_id]);
-            $toAssignment->update(['shift_type_id' => $fromShiftTypeId]);
+        $fromEmployeeId = $fromAssignment->employee_id;
+        $toEmployeeId = $toAssignment->employee_id;
+
+        $conflictForTo = ShiftAssignment::where('employee_id', $toEmployeeId)
+            ->where('date', $fromAssignment->date)
+            ->where('id', '!=', $toAssignment->id)
+            ->exists();
+
+        $conflictForFrom = ShiftAssignment::where('employee_id', $fromEmployeeId)
+            ->where('date', $toAssignment->date)
+            ->where('id', '!=', $fromAssignment->id)
+            ->exists();
+
+        if ($conflictForTo || $conflictForFrom) {
+            return back()->with('error', 'Tukar shift tidak bisa disetujui: salah satu karyawan sudah memiliki jadwal lain di tanggal tersebut.');
+        }
+
+        DB::transaction(function () use ($fromAssignment, $toAssignment, $fromEmployeeId, $toEmployeeId, $swap, $request) {
+            $fromAssignment->update(['employee_id' => $toEmployeeId]);
+            $toAssignment->update(['employee_id' => $fromEmployeeId]);
 
             $swap->update([
                 'status' => 'approved',

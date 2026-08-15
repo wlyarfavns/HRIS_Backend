@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Dashboard') - TalentaHR</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -109,11 +110,6 @@
                 <span class="material-symbols-outlined text-[20px]">group</span>
                 Pengguna
             </x-nav-link>
-
-            <x-nav-link route="admin.logs.index">
-                <span class="material-symbols-outlined text-[20px]">history</span>
-                Log Aktivitas
-            </x-nav-link>
         </nav>
     </aside>
 
@@ -133,10 +129,7 @@
                 <div class="flex items-center gap-4">
                     @yield('page-action')
 
-                    <button class="relative p-2 text-on-surface-variant/60 hover:text-primary transition-colors">
-                        <span class="material-symbols-outlined">notifications</span>
-                        <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-brand-gold rounded-full ring-2 ring-white"></span>
-                    </button>
+                    @include('shared._topbar_notifications')
 
                     <div class="h-5 w-px bg-black/10"></div>
 
@@ -199,5 +192,6 @@
         </main>
     </div>
 </div>
+@include('shared._toast')
 </body>
 </html>

@@ -34,9 +34,19 @@ class OvertimeController extends Controller
             'notes' => 'required|string|max:500',
         ]);
 
-        $start = Carbon::parse($data['start_time']);
-        $end = Carbon::parse($data['end_time']);
-        $hours = round($start->diffInMinutes($end, true) / 60, 1);
+        // FIX: gunakan createFromFormat dan hitung selisih dengan abs()
+        // supaya tidak bergantung pada perilaku parameter kedua
+        // diffInMinutes() yang berubah antara Carbon 2 dan Carbon 3.
+        $start = Carbon::createFromFormat('H:i', $data['start_time']);
+        $end = Carbon::createFromFormat('H:i', $data['end_time']);
+
+        // Jaga-jaga untuk lembur yang melewati tengah malam
+        if ($end->lessThanOrEqualTo($start)) {
+            $end->addDay();
+        }
+
+        $minutes = $end->diffInMinutes($start);
+        $hours = round(abs($minutes) / 60, 1);
 
         $overtime = OvertimeRequest::create([
             'company_id' => $employee->company_id,
