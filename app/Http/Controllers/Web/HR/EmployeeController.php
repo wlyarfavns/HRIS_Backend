@@ -375,6 +375,7 @@ class EmployeeController extends Controller
                     'start_date' => $request->join_date,
                     'end_date' => $request->contract_end_date,
                     'status' => 'Active',
+                    'created_by' => auth()->id(),
                 ]);
             }
         });
