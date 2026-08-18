@@ -94,12 +94,9 @@
                             <td class="px-6 py-4  text-gray-700 font-semibold text-sm">{{ $t['cuti'] }} hari</td>
                             <td class="px-6 py-4  text-gray-700 font-semibold text-sm">{{ $t['alpha'] }} hari</td>
                             <td class="px-8 py-4">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-32 h-2.5 rounded-full bg-gray-100 overflow-hidden shadow-sm border border-gray-200">
-                                        <div class="h-full rounded-full transition-all duration-500 {{ $t['persentase'] >= 90 ? 'bg-[#0B3D2E]' : ($t['persentase'] >= 70 ? 'bg-gray-50' : 'bg-gray-50') }}" style="width: {{ $t['persentase'] }}%"></div>
-                                    </div>
-                                    <span class="text-xs font-medium text-gray-800 ">{{ $t['persentase'] }}%</span>
-                                </div>
+                                <span class="font-semibold text-sm {{ $t['persentase'] >= 90 ? 'text-[#0B3D2E]' : ($t['persentase'] >= 70 ? 'text-amber-600' : 'text-red-600') }}">
+                                    {{ $t['persentase'] }}%
+                                </span>
                             </td>
                         </tr>
                     @empty
