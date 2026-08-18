@@ -20,12 +20,12 @@
     ]; 
  
     $documents = [ 
-        ['label' => 'Scan KTP', 'icon' => 'badge', 'uploaded' => !empty($emp->ktp_file_path), 'file' => basename($emp->ktp_file_path ?? ''), 'size' => '-', 'date' => '-'], 
-        ['label' => 'Scan NPWP', 'icon' => 'receipt_long', 'uploaded' => !empty($emp->npwp_file_path), 'file' => basename($emp->npwp_file_path ?? ''), 'size' => '-', 'date' => '-'], 
-        ['label' => 'Kartu BPJS', 'icon' => 'health_and_safety', 'uploaded' => !empty($emp->bpjs_file_path), 'file' => basename($emp->bpjs_file_path ?? ''), 'size' => '-', 'date' => '-'], 
-        ['label' => 'Ijazah Terakhir', 'icon' => 'school', 'uploaded' => false, 'file' => null, 'size' => null, 'date' => null], 
-        ['label' => 'Kontrak Kerja', 'icon' => 'contract_edit', 'uploaded' => false, 'file' => null, 'size' => null, 'date' => null], 
-        ['label' => 'CV / Resume', 'icon' => 'description', 'uploaded' => false, 'file' => null, 'size' => null, 'date' => null], 
+        ['label' => 'Scan KTP', 'icon' => 'badge', 'uploaded' => !empty($emp->ktp_file_path), 'file' => basename($emp->ktp_file_path ?? ''), 'url' => $emp->ktp_file_path ? asset('storage/' . $emp->ktp_file_path) : '#', 'size' => '-', 'date' => '-'], 
+        ['label' => 'Scan NPWP', 'icon' => 'receipt_long', 'uploaded' => !empty($emp->npwp_file_path), 'file' => basename($emp->npwp_file_path ?? ''), 'url' => $emp->npwp_file_path ? asset('storage/' . $emp->npwp_file_path) : '#', 'size' => '-', 'date' => '-'], 
+        ['label' => 'Kartu BPJS', 'icon' => 'health_and_safety', 'uploaded' => !empty($emp->bpjs_file_path), 'file' => basename($emp->bpjs_file_path ?? ''), 'url' => $emp->bpjs_file_path ? asset('storage/' . $emp->bpjs_file_path) : '#', 'size' => '-', 'date' => '-'], 
+        ['label' => 'Ijazah Terakhir', 'icon' => 'school', 'uploaded' => false, 'file' => null, 'url' => '#', 'size' => null, 'date' => null], 
+        ['label' => 'Kontrak Kerja', 'icon' => 'contract_edit', 'uploaded' => false, 'file' => null, 'url' => '#', 'size' => null, 'date' => null], 
+        ['label' => 'CV / Resume', 'icon' => 'description', 'uploaded' => false, 'file' => null, 'url' => '#', 'size' => null, 'date' => null], 
     ];
 
     $uploadedCount = collect($documents)->where('uploaded', true)->count();
@@ -96,17 +96,17 @@
                         <p class="text-[11px] text-gray-500 mt-1 truncate">{{ $doc['file'] }}</p>
                         <p class="text-[11px] text-gray-400 mt-0.5">{{ $doc['size'] }} · diunggah {{ $doc['date'] }}</p>
 
-                        <div class="flex items-center justify-center gap-2 mt-4 pt-4 border-t border-gray-200">
-                            <button type="button" title="Lihat"
-                                    class="text-[11px] font-medium text-[#0B3D2E] flex items-center gap-1 px-3 py-1.5 rounded-lg hover:bg-[#0B3D2E] hover:text-white transition">
-                                <span class="material-symbols-outlined text-[16px]">visibility</span>
-                                Lihat
-                            </button>
-                            <button type="button" title="Unduh"
-                                    class="text-[11px] font-medium text-gray-500 flex items-center gap-1 px-3 py-1.5 rounded-lg hover:bg-gray-200 hover:text-gray-800 transition">
-                                <span class="material-symbols-outlined text-[16px]">download</span>
-                                Unduh
-                            </button>
+                        <div class="flex items-center justify-center gap-2 mt-4 pt-4 border-t border-gray-200"> 
+                            <a href="{{ $doc['url'] }}" target="_blank" title="Lihat" 
+                                    class="text-[11px] font-medium text-[#0B3D2E] flex items-center gap-1 px-3 py-1.5 rounded-lg hover:bg-[#0B3D2E] hover:text-white transition"> 
+                                <span class="material-symbols-outlined text-[16px]">visibility</span> 
+                                Lihat 
+                            </a> 
+                            <a href="{{ $doc['url'] }}" download="{{ $doc['file'] }}" title="Unduh" 
+                                    class="text-[11px] font-medium text-gray-500 flex items-center gap-1 px-3 py-1.5 rounded-lg hover:bg-gray-200 hover:text-gray-800 transition"> 
+                                <span class="material-symbols-outlined text-[16px]">download</span> 
+                                Unduh 
+                            </a> 
                         </div>
                     @else
                         <p class="text-sm font-medium text-gray-500 mt-3">{{ $doc['label'] }}</p>
