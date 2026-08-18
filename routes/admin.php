@@ -5,9 +5,11 @@ use App\Http\Controllers\Web\company\UserManagementController;
 use App\Http\Controllers\Web\company\CompanyProfileController;
 use App\Http\Controllers\Web\Shared\ProfileController;
 
+use App\Http\Controllers\Web\company\DashboardController;
+
 Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
 
-    Route::get('/dashboard', fn() => view('admin.dashboard'))->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::middleware('role:company|hr')->group(function () {
         Route::get('/pengguna', [UserManagementController::class, 'indexWeb'])->name('users.index');
