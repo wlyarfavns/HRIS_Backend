@@ -434,4 +434,6 @@
         this.action = '/hr/persetujuan/cuti/' + document.getElementById('reject-id').value + '/reject';
     });
 </script>
+
+<x-auto-refresh />
 @endsection

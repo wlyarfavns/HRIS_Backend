@@ -249,4 +249,6 @@
         <input type="hidden" name="rejection_reason" value="Ditolak oleh Supervisor">
     </form>
 </div>
+
+<x-auto-refresh />
 @endsection

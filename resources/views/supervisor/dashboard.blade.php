@@ -211,4 +211,6 @@
     background: #d1d5db;
 }
 </style>
+
+<x-auto-refresh />
 @endsection

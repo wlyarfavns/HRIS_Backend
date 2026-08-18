@@ -211,4 +211,6 @@
     </div>
 
 </div>
+
+<x-auto-refresh />
 @endsection

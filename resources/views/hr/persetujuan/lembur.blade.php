@@ -252,6 +252,8 @@
         </div>
 
     </div>
+
+<x-auto-refresh />
 @endsection
 
 @push('scripts')
