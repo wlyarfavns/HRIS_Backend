@@ -231,7 +231,8 @@
                                     </option>
                                 @endforeach
                             </select>
-                            </div>
+                            <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+</div>
                     </div>
 
                     <div>
@@ -248,7 +249,8 @@
                                     </option>
                                 @endforeach
                             </select>
-                            </div>
+                            <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+</div>
                     </div>
 
                     <div>
@@ -265,7 +267,8 @@
                                     </option>
                                 @endforeach
                             </select>
-                            </div>
+                            <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+</div>
                     </div>
 
                     <div>
@@ -288,7 +291,8 @@
                                 <option value="Probation">Probation (3 Bulan)</option>
                                 <option value="Internship">Internship / Magang</option>
                             </select>
-                            </div>
+                            <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+</div>
                     </div>
 
                     <div x-show="contractType !== 'PKWTT'">

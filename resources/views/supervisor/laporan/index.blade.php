@@ -51,7 +51,8 @@
                             <option value="{{ $num }}">{{ $name }}</option>
                         @endforeach
                     </select>
-                    </div>
+                    <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </div>
 
 
                 <div class="relative">
@@ -61,7 +62,8 @@
                             <option value="{{ $i }}">{{ $i }}</option>
                         @endfor
                     </select>
-                    </div>
+                    <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </div>
             </div>
         </form>
 

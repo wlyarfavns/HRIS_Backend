@@ -34,25 +34,27 @@
     <div class="bg-white rounded-md border border-gray-100 shadow-sm p-6">
         <h3 class="font-semibold text-gray-800 mb-4">Tambah Departemen Baru</h3>
 
-        <form action="{{ route('admin.org-structure.store') }}" method="POST" class="flex gap-4 items-end">
+        <form action="{{ route('admin.org-structure.store') }}" method="POST">
             @csrf
-            <div class="flex-1">
+            <div class="max-w-2xl">
                 <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Pilih Departemen</label>
-                <select name="name" id="name" required class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-[#0B3D2E] focus:border-[#0B3D2E] sm:text-sm">
-                    @if(empty($defaultDepartments))
-                        <option value="" disabled selected>-- Semua departemen default sudah ditambahkan --</option>
-                    @else
-                        <option value="" disabled selected>-- Pilih Departemen --</option>
-                        @foreach($defaultDepartments as $depName)
-                            <option value="{{ $depName }}">{{ $depName }}</option>
-                        @endforeach
-                    @endif
-                </select>
+                <div class="flex gap-4 items-start">
+                    <select name="name" id="name" required class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-[#0B3D2E] focus:border-[#0B3D2E] sm:text-sm">
+                        @if(empty($defaultDepartments))
+                            <option value="" disabled selected>-- Semua departemen default sudah ditambahkan --</option>
+                        @else
+                            <option value="" disabled selected>-- Pilih Departemen --</option>
+                            @foreach($defaultDepartments as $depName)
+                                <option value="{{ $depName }}">{{ $depName }}</option>
+                            @endforeach
+                        @endif
+                    </select>
+                    <button type="submit" @if(empty($defaultDepartments)) disabled @endif class="shrink-0 bg-[#0B3D2E] hover:bg-[#065c3e] disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-6 py-2 rounded-md font-medium transition-colors h-[38px]">
+                        Tambahkan
+                    </button>
+                </div>
                 <p class="text-xs text-gray-500 mt-2">Pilihan hanya memuat departemen yang belum ada. Departemen kustom dapat dibuat oleh role HR.</p>
             </div>
-            <button type="submit" @if(empty($defaultDepartments)) disabled @endif class="bg-[#0B3D2E] hover:bg-[#065c3e] disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-6 py-2 rounded-md font-medium transition-colors h-[38px]">
-                Tambahkan
-            </button>
         </form>
     </div>
 

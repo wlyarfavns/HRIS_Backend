@@ -109,7 +109,8 @@
                                 </option>
                             @endforeach
                         </select>
-                        </div>
+                        <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+</div>
                 </div>
 
                 <div>
@@ -123,7 +124,8 @@
                                 </option>
                             @endforeach
                         </select>
-                        </div>
+                        <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+</div>
                 </div>
 
 
@@ -139,7 +141,8 @@
                                 </option>
                             @endforeach
                         </select>
-                        </div>
+                        <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+</div>
                 </div>
 
                 <div>
@@ -158,7 +161,8 @@
                             <option value="Probation" {{ old('employment_status', $employee->employment_status) === 'Probation' ? 'selected' : '' }}>Probation (3 Bulan)</option>
                             <option value="Internship" {{ old('employment_status', $employee->employment_status) === 'Internship' ? 'selected' : '' }}>Internship / Magang</option>
                         </select>
-                        </div>
+                        <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+</div>
                 </div>
 
                 <div>
@@ -186,7 +190,8 @@
                             <option value="resigned" {{ old('status', $employee->status) === 'resigned' ? 'selected' : '' }}>Resigned (Keluar)</option>
                             <option value="pending" {{ old('status', $employee->status) === 'pending' ? 'selected' : '' }}>Pending</option>
                         </select>
-                        </div>
+                        <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+</div>
                 </div>
                 <div class="col-span-2 flex items-end">
                     <p class="text-xs text-gray-500">Mengubah status ke <span class="font-medium text-gray-700">Non-Aktif</span> atau <span class="font-medium text-gray-700">Resigned</span> akan menghentikan akses karyawan ke sistem presensi & payroll.</p>
@@ -218,7 +223,8 @@
                             <option value="MANDIRI" {{ $currentBank === 'MANDIRI' ? 'selected' : '' }}>Mandiri</option>
                             <option value="BNI" {{ $currentBank === 'BNI' ? 'selected' : '' }}>BNI</option>
                         </select>
-                        </div>
+                        <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+</div>
                 </div>
                 <div>
                     <label class="text-[11px] font-medium text-gray-500 uppercase tracking-wide block mb-1.5">Nomor Rekening</label>
