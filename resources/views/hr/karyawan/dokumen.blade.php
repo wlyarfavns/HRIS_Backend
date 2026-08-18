@@ -123,40 +123,9 @@
             <span class="w-8 h-8 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center font-medium text-sm">2</span>
             <h2 class="text-base font-medium text-gray-800">Riwayat Unggahan</h2>
         </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm text-left">
-                <thead>
-                    <tr class="bg-gray-50 text-[11px] font-medium text-gray-500 uppercase tracking-widest border-b border-gray-100">
-                        <th class="px-8 py-4">Nama Berkas</th>
-                        <th class="px-8 py-4">Jenis Dokumen</th>
-                        <th class="px-8 py-4">Ukuran</th>
-                        <th class="px-8 py-4">Tanggal Unggah</th>
-                        <th class="px-8 py-4">Diunggah Oleh</th>
-                        <th class="px-8 py-4 text-center">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100 text-gray-700">
-                    @foreach ($history as $h)
-                        <tr class="hover:bg-gray-50 transition">
-                            <td class="px-8 py-4 font-semibold text-gray-800">{{ $h['file'] }}</td>
-                            <td class="px-8 py-4 text-gray-600">{{ $h['type'] }}</td>
-                            <td class="px-8 py-4  text-gray-500">{{ $h['size'] }}</td>
-                            <td class="px-8 py-4  text-gray-500">{{ $h['date'] }}</td>
-                            <td class="px-8 py-4 text-gray-600">{{ $h['by'] }}</td>
-                            <td class="px-8 py-4">
-                                <div class="flex items-center justify-center gap-2">
-                                    <button type="button" title="Lihat" class="text-gray-400 hover:text-[#0B3D2E] transition">
-                                        <span class="material-symbols-outlined text-[18px]">visibility</span>
-                                    </button>
-                                    <button type="button" title="Unduh" class="text-gray-400 hover:text-gray-700 transition">
-                                        <span class="material-symbols-outlined text-[18px]">download</span>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
+        <div class="px-8 py-12 text-center"> 
+            <span class="material-symbols-outlined text-gray-300 text-5xl mb-3 block">history_toggle_off</span> 
+            <p class="text-sm text-gray-500">Belum ada riwayat unggahan dokumen saat ini.</p> 
         </div>
     </div>
 
