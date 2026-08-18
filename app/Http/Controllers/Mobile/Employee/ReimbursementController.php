@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreReimbursementRequest;
 use App\Models\Reimbursement;
 use Illuminate\Http\Request;
+use App\Notifications\GeneralNotification;
 
 class ReimbursementController extends Controller
 {
@@ -29,6 +30,14 @@ class ReimbursementController extends Controller
             'receipt_path' => $receiptPath,
             'status' => Reimbursement::STATUS_PENDING_SPV,
         ]);
+
+        if ($employee->supervisor) {
+            $employee->supervisor->notify(new GeneralNotification(
+                'Pengajuan Reimbursement Baru',
+                $employee->full_name . ' mengajukan reimbursement.',
+                '/supervisor/persetujuan/reimbursement'
+            ));
+        }
 
         return response()->json([
             'message' => 'Klaim reimbursement berhasil diajukan.',

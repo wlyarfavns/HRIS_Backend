@@ -5,16 +5,14 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
-    /**
-     * Run the migrations.
-     */
+
     public function up(): void
     {
         Schema::table('leave_requests', function (Blueprint $table) {
-            $table->string('attachment')->nullable();          // path file lampiran
-            $table->unsignedBigInteger('approved_by')->nullable(); // id user yang approve/reject
-            $table->timestamp('approved_at')->nullable();      // waktu diproses
-            $table->text('rejection_reason')->nullable();      // alasan penolakan
+            $table->string('attachment')->nullable();          
+            $table->unsignedBigInteger('approved_by')->nullable(); 
+            $table->timestamp('approved_at')->nullable();      
+            $table->text('rejection_reason')->nullable();      
         });
     }
 

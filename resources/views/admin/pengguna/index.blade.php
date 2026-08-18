@@ -5,38 +5,40 @@
 @section('page-desc', 'Kelola akun pengguna dan role/permission di sistem.')
 
 @section('content')
+<div class="space-y-8">
 
-    {{-- ROLE SUMMARY --}}
-    {{-- Ubah grid-cols-4 menjadi grid-cols-3 karena Super Admin dihapus --}}
-    <div class="grid grid-cols-3 gap-5">
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         @foreach ($roles as $role)
-            <div class="card-flat rounded-2xl p-5">
-                <div class="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                    <span class="material-symbols-outlined text-primary text-[20px]">{{ $role['icon'] }}</span>
+            <div class="bg-white rounded-md p-6 border border-gray-200">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-gray-500 font-medium text-sm">{{ $role['name'] }}</h3>
+                    <div class="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-500">
+                        <span class="material-symbols-outlined text-[18px]">{{ $role['icon'] }}</span>
+                    </div>
                 </div>
-                <p class="text-2xl font-extrabold font-mono-data text-on-surface leading-none">{{ $role['users'] }}</p>
-                <p class="text-xs font-bold text-on-surface-variant/50 uppercase tracking-wide mt-2">{{ $role['name'] }}</p>
-                <p class="text-[11px] text-on-surface-variant/40 mt-1">pengguna aktif</p>
+                <div class="flex items-end gap-2">
+                    <span class="text-3xl font-medium  text-gray-800">{{ $role['users'] }}</span>
+                    <span class="text-gray-500 text-xs mb-1">Pengguna Aktif</span>
+                </div>
             </div>
         @endforeach
     </div>
 
-    {{-- TABLE CARD --}}
-    <div class="card-flat rounded-2xl overflow-hidden mt-6">
 
-        <div class="px-6 py-4 border-b border-black/5 flex items-center justify-between gap-4 flex-wrap">
+    <div class="bg-white rounded-md p-6 border border-gray-200">
+
+        <div class="flex items-center justify-between mb-6 flex-wrap gap-4">
             <div>
-                <h2 class="text-base font-bold text-on-surface">Daftar Pengguna</h2>
-                <p class="text-xs text-on-surface-variant/50 mt-0.5">{{ count($users) }} pengguna terdaftar</p>
+                <h3 class="text-base font-medium text-gray-800">Daftar Pengguna</h3>
+                <p class="text-xs text-gray-500 mt-1">{{ count($users) }} pengguna terdaftar</p>
             </div>
 
-            {{-- BUNGKUS DENGAN FORM AGAR BISA MELAKUKAN REQUEST GET --}}
-            <form method="GET" action="{{ route('admin.users.index') }}" class="flex items-center gap-2.5">
+            <form method="GET" action="{{ route('admin.users.index') }}" class="flex items-center gap-3">
 
-                {{-- Dropdown Role --}}
                 <div class="relative">
                     <select name="role" onchange="this.form.submit()"
-                        class="appearance-none text-xs font-bold border border-black/10 rounded-lg pl-3 pr-8 py-2.5 bg-white hover:border-primary/40 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition cursor-pointer">
+                        class="appearance-none text-xs font-medium border border-gray-200 rounded-lg pl-3 pr-8 py-2 bg-gray-50 text-gray-700 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0B3D2E]/20 transition cursor-pointer">
                         <option value="Semua Role" {{ request('role') == 'Semua Role' ? 'selected' : '' }}>Semua Role</option>
                         @foreach ($roles as $r)
                             <option value="{{ $r['name'] }}" {{ request('role') == $r['name'] ? 'selected' : '' }}>
@@ -44,100 +46,87 @@
                             </option>
                         @endforeach
                     </select>
-                    <span
-                        class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant/50 text-[18px] pointer-events-none">expand_more</span>
-                </div>
+                    </div>
 
-                {{-- Input Pencarian --}}
+
                 <div class="relative">
-                    <span
-                        class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant/40 text-[18px]">search</span>
-
-                    {{-- Tambahkan name="search", value dari request(), dan event onblur untuk otomatis submit saat
-                    enter/pindah fokus --}}
                     <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama atau email..."
-                        class="w-56 pl-9 pr-3 py-2.5 bg-surface-container rounded-lg text-sm border border-transparent hover:border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 focus:bg-white transition"
+                        class="w-64 pl-9 pr-3 py-2 bg-gray-50 rounded-lg text-xs font-medium border border-gray-200 text-gray-700 placeholder-gray-400 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0B3D2E]/20 transition"
                         onkeydown="if(event.keyCode==13){this.form.submit();}">
                 </div>
 
-                <div class="w-px h-6 bg-black/10 mx-0.5"></div>
-
                 <a href="{{ route('admin.users.create') }}"
-                    class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2.5 rounded-lg flex items-center gap-1.5 whitespace-nowrap transition shadow-sm">
-                    <span class="material-symbols-outlined text-[16px]">person_add</span>
+                    class="bg-[#0B3D2E] hover:bg-[#043927] text-white text-xs font-medium px-4 py-2 rounded-lg flex items-center gap-2 whitespace-nowrap transition">
+                    <span class="material-symbols-outlined text-[16px]">add</span>
                     Tambah Pengguna
                 </a>
             </form>
         </div>
 
-        <table class="w-full text-sm">
-            <thead>
-                <tr
-                    class="bg-surface-container text-left text-[11px] font-bold text-on-surface-variant/50 uppercase tracking-widest">
-                    <th class="px-6 py-3.5">Pengguna</th>
-                    <th class="px-6 py-3.5">Role</th>
-                    <th class="px-6 py-3.5">Status</th>
-                    <th class="px-6 py-3.5 text-center">Aksi</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-black/5">
-                @foreach ($users as $user)
-                    @php
-                        // Deteksi nama role
-                        $roleDbName = $user->roles->first() ? $user->roles->first()->name : 'employee';
-                        $roleDisplayName = $displayRoleMap[$roleDbName] ?? 'Pegawai';
-
-                        // Menentukan warna badge role
-                        $roleColorClass = $roleDbName === 'company'
-                            ? 'bg-on-surface-variant/10 text-on-surface-variant'
-                            : 'bg-primary/10 text-primary';
-
-                        // Status (Asumsi default Aktif jika belum ada kolom status di database)
-                        $status = $user->status ?? 'Aktif';
-                        $statusColor = $status === 'Aktif' ? 'text-primary' : 'text-amber-700';
-                    @endphp
-
-                    <tr class="hover:bg-primary/5 transition">
-                        <td class="px-6 py-3.5">
-                            <div class="flex items-center gap-3">
-                                <img src="https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&background=random"
-                                    class="w-8 h-8 rounded-full object-cover" alt="{{ $user->name }}">
-                                <div>
-                                    <p class="font-bold text-on-surface">{{ $user->name }}</p>
-                                    <p class="text-xs text-on-surface-variant/50">{{ $user->email }}</p>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-3.5">
-                            <span class="text-[11px] font-bold px-2.5 py-1 rounded {{ $roleColorClass }}">
-                                {{ $roleDisplayName }}
-                            </span>
-                        </td>
-                        <td class="px-6 py-3.5">
-                            <span class="text-xs font-semibold {{ $statusColor }}">
-                                {{ $status }}
-                            </span>
-                        </td>
-                        <td class="px-6 py-3.5">
-                            <div class="flex items-center justify-center gap-1">
-                                <a href="{{ route('admin.users.edit', $user->id) }}" title="Edit"
-                                    class="p-1.5 rounded-lg text-on-surface-variant/50 hover:text-primary hover:bg-primary/10 transition">
-                                    <span class="material-symbols-outlined text-[18px]">edit</span>
-                                </a>
-                                <form action="{{ route('admin.users.destroyWeb', $user->id) }}" method="POST" class="inline"
-                                    onsubmit="return confirm('Yakin ingin menghapus akun pengguna ini secara permanen?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" title="Hapus Pengguna"
-                                        class="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition">
-                                        <span class="material-symbols-outlined text-[18px]">person_off</span>
-                                    </button>
-                                </form>
-                            </div>
-                        </td>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left whitespace-nowrap">
+                <thead class="text-[11px] text-gray-500 bg-gray-50 border-y border-gray-100">
+                    <tr>
+                        <th class="px-4 py-3 font-medium">Pengguna</th>
+                        <th class="px-4 py-3 font-medium">Role</th>
+                        <th class="px-4 py-3 font-medium">Status</th>
+                        <th class="px-4 py-3 font-medium text-right">Aksi</th>
                     </tr>
-                @endforeach
-            </tbody>
-        </table>
+                </thead>
+                <tbody class="text-gray-700">
+                    @forelse ($users as $user)
+                        @php
+                            $roleDbName = $user->roles->first() ? $user->roles->first()->name : 'employee';
+                            $roleDisplayName = $displayRoleMap[$roleDbName] ?? 'Pegawai';
+
+                            $status = $user->status ?? 'Aktif';
+                        @endphp
+                        <tr class="border-b border-gray-100 hover:bg-gray-50 transition">
+                            <td class="px-4 py-3">
+                                <p class="font-medium text-gray-800 text-sm">{{ $user->name }}</p>
+                                <p class="text-[11px] text-gray-500">{{ $user->email }}</p>
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="text-xs text-gray-600">
+                                    {{ $roleDisplayName }}
+                                </span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="inline-flex items-center gap-1.5 text-xs text-gray-600">
+                                    <span class="w-1.5 h-1.5 rounded-full {{ $status === 'Aktif' ? 'bg-gray-500' : 'bg-gray-50' }}"></span> 
+                                    {{ $status }}
+                                </span>
+                            </td>
+                            <td class="px-4 py-3 text-right">
+                                <div class="flex items-center justify-end gap-2">
+                                    <a href="{{ route('admin.users.edit', $user->id) }}" title="Edit"
+                                        class="text-gray-400 hover:text-gray-700 transition">
+                                        <span class="material-symbols-outlined text-[18px]">edit</span>
+                                    </a>
+                                    <form action="{{ route('admin.users.destroyWeb', $user->id) }}" method="POST" class="inline"
+                                        onsubmit="return confirm('Yakin ingin menghapus akun pengguna ini secara permanen?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" title="Hapus Pengguna"
+                                            class="text-gray-400 hover:text-gray-700 transition">
+                                            <span class="material-symbols-outlined text-[18px]">delete</span>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="4" class="px-4 py-8 text-center text-gray-500 text-sm">Tidak ada data pengguna.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-4 px-6 pb-6">
+            {{ $users->links() }}
+        </div>
     </div>
+</div>
 @endsection

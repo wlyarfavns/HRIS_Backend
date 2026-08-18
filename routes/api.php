@@ -10,6 +10,7 @@ use App\Http\Controllers\Mobile\Employee\OvertimeController;
 use App\Http\Controllers\Mobile\Employee\PayrollController;
 use App\Http\Controllers\Mobile\Employee\ReimbursementController;
 use App\Http\Controllers\Mobile\Employee\ShiftController as EmployeeShiftController;
+use App\Http\Controllers\Mobile\Employee\NotificationController;
 
 use App\Http\Controllers\Mobile\Admin\RoleController;
 use App\Http\Controllers\Mobile\Admin\PayrollApiController;
@@ -24,15 +25,9 @@ use App\Http\Controllers\Web\HR\ShiftController;
 use App\Http\Controllers\Web\HR\LeaveRequestController;
 use App\Http\Controllers\Web\HR\SalaryComponentWebController as SalaryComponentController;
 
-/*
-|--------------------------------------------------------------------------
-| API Routes (Khusus Mobile)
-|--------------------------------------------------------------------------
-*/
-
 Route::prefix('/mobile')->group(function () {
 
-    // ── PUBLIC (tanpa token) ─────────────────────────────────────────────
+
     Route::post('/login', [AuthController::class, 'login']);
 
     Route::post('/forgot-password/check-nip', [ForgotPasswordController::class, 'checkNip']);
@@ -40,10 +35,10 @@ Route::prefix('/mobile')->group(function () {
     Route::post('/forgot-password/verify-otp', [ForgotPasswordController::class, 'verifyOtp']);
     Route::post('/forgot-password/reset', [ForgotPasswordController::class, 'resetPassword']);
 
-    // ── AUTHENTICATED (butuh Bearer Token Sanctum) ──────────────────────
+
     Route::middleware('auth:sanctum')->group(function () {
 
-        // Auth & Aktivasi
+
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::post('/activation/send-otp', [AuthController::class, 'sendActivationOtp']);
         Route::post('/activation/verify-otp', [AuthController::class, 'verifyActivationOtp']);
@@ -51,11 +46,16 @@ Route::prefix('/mobile')->group(function () {
         Route::put('/profile/update', [ProfileController::class, 'update']);
         Route::put('/profile/password', [ProfileController::class, 'updatePassword']);
 
-        // ── ABSENSI (khusus role employee) ── FIX: sekarang dibungkus auth:sanctum
+
+        Route::get('/notifications', [NotificationController::class, 'index']);
+        Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+
+
         Route::middleware('role:employee')->group(function () {
             Route::get('/attendances/today', [AttendanceController::class, 'today']);
             Route::post('/attendances/check-in', [AttendanceController::class, 'checkIn']);
             Route::get('/attendances/summary', [AttendanceController::class, 'summary']);
+            Route::get('/attendances/statistics', [AttendanceController::class, 'statistics']);
             Route::get('/attendances/history', [AttendanceController::class, 'history']);
             Route::post('/attendances/check-out', [AttendanceController::class, 'checkOut']);
 
@@ -87,22 +87,22 @@ Route::prefix('/mobile')->group(function () {
         Route::middleware('role:employee')->prefix('shift-exchange')->group(function () {
             Route::get('/', [EmployeeShiftController::class, 'index']);
             Route::post('/', [EmployeeShiftController::class, 'store']);
-            // Route::post('/{swap}/peer-approve', [EmployeeShiftController::class, 'peerApprove']);
-            // Route::post('/{swap}/peer-reject', [EmployeeShiftController::class, 'peerReject']);
+
+
         });
 
-        // ── CUTI ──────────────────────────────────────────────────────────
+
         Route::get('/leave-requests', [LeaveRequestController::class, 'index']);
         Route::post('/leave-requests', [LeaveRequestController::class, 'store']);
         Route::get('/leave-types', [LeaveTypeController::class, 'index']);
         Route::delete('/leave-requests/{id}', [LeaveRequestController::class, 'destroy']);
         Route::middleware('role:hr')->patch('/leave-requests/{id}/approve', [LeaveRequestController::class, 'approve']);
 
-        // ── KONTRAK ───────────────────────────────────────────────────────
+
         Route::get('/contracts/reminder-h30', [EmployeeContractController::class, 'reminderH30']);
         Route::apiResource('contracts', EmployeeContractController::class);
 
-        // ── MASTER DATA (biasanya khusus admin/HR) ──────────────────────
+
         Route::apiResource('departments', DepartmentController::class);
         Route::apiResource('positions', PositionController::class);
         Route::apiResource('job-grades', JobGradeController::class);
@@ -112,7 +112,7 @@ Route::prefix('/mobile')->group(function () {
 
         Route::apiResource('salary-components', SalaryComponentController::class);
 
-        // ── PAYROLL ──────────────────────────────────────────────────────
+
         Route::post('/payroll/cutoff-attendance', [PayrollApiController::class, 'generateCutoff']);
         Route::post('/payroll/calculate', [PayrollApiController::class, 'calculateSalary']);
         Route::post('/payroll/{id}/approve-hr', [PayrollApiController::class, 'approveHr']);

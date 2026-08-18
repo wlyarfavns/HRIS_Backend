@@ -7,6 +7,9 @@ use App\Http\Requests\ReimbursementSpvActionRequest;
 use App\Models\Employee;
 use App\Models\Reimbursement;
 use Illuminate\Http\Request;
+use App\Models\User;
+use App\Notifications\GeneralNotification;
+use App\Notifications\SystemNotification;
 
 class ReimbursementApprovalController extends Controller
 {
@@ -19,20 +22,19 @@ class ReimbursementApprovalController extends Controller
             ->whereIn('employee_id', $subordinateIds)
             ->pendingSpv()
             ->latest('claim_date')
-            ->get();
+            ->paginate(10)->withQueryString();
 
         $history = Reimbursement::with('employee')
             ->whereIn('employee_id', $subordinateIds)
             ->where('spv_id', $user->id)
             ->latest('spv_approved_at')
-            ->limit(20)
-            ->get();
+            ->paginate(10)->withQueryString();
 
         $stats = [
-            ['label' => 'Klaim Pending Review', 'value' => $pending->count() . ' Pengajuan', 'icon' => 'receipt_long', 'color' => 'text-amber-700'],
-            ['label' => 'Total Nominal Pending', 'value' => 'Rp' . number_format($pending->sum('amount'), 0, ',', '.'), 'icon' => 'payments', 'color' => 'text-primary'],
+            ['label' => 'Klaim Pending Review', 'value' => $pending->total() . ' Pengajuan', 'icon' => 'receipt_long', 'color' => 'text-amber-700'],
+            ['label' => 'Total Nominal Pending', 'value' => 'Rp' . number_format(Reimbursement::whereIn('employee_id', $subordinateIds)->pendingSpv()->sum('amount'), 0, ',', '.'), 'icon' => 'payments', 'color' => 'text-primary'],
             ['label' => 'Klaim Tim Bulan Ini', 'value' => Reimbursement::whereIn('employee_id', $subordinateIds)->whereMonth('claim_date', now()->month)->count() . ' Pengajuan', 'icon' => 'fact_check', 'color' => 'text-purple-700'],
-            ['label' => 'Total Riwayat', 'value' => $history->count() . ' Pengajuan', 'icon' => 'verified', 'color' => 'text-primary'],
+            ['label' => 'Total Riwayat', 'value' => $history->total() . ' Pengajuan', 'icon' => 'verified', 'color' => 'text-primary'],
         ];
 
         return view('supervisor.persetujuan.reimbursement', compact('pending', 'history', 'stats'));
@@ -53,6 +55,23 @@ class ReimbursementApprovalController extends Controller
                 'spv_approved_at' => now(),
             ]);
 
+            $hrUsers = User::role('hr')->where('company_id', $user->company_id)->get();
+            foreach ($hrUsers as $hrUser) {
+                $hrUser->notify(new GeneralNotification(
+                    'Persetujuan Reimbursement (Menunggu HR)',
+                    "Supervisor telah menyetujui reimbursement dari {$reimbursement->employee->full_name}. Silakan tinjau dan proses pencairan dana.",
+                    route('hr.approvals.reimbursement') 
+                ));
+            }
+
+            if ($reimbursement->employee && $reimbursement->employee->user) {
+                $reimbursement->employee->user->notify(new SystemNotification(
+                    'Reimbursement Disetujui SPV',
+                    'Klaim reimbursement Anda telah disetujui Supervisor dan sedang menunggu proses HR/Finance.',
+                    'info'
+                ));
+            }
+
             return response()->json(['message' => 'Klaim berhasil disetujui & diteruskan ke HR Operations.', 'status' => $reimbursement->status]);
         }
 
@@ -62,6 +81,14 @@ class ReimbursementApprovalController extends Controller
             'spv_approved_at' => now(),
             'rejection_reason' => $request->rejection_reason,
         ]);
+
+        if ($reimbursement->employee && $reimbursement->employee->user) {
+            $reimbursement->employee->user->notify(new SystemNotification(
+                'Reimbursement Ditolak',
+                'Klaim reimbursement Anda telah ditolak oleh Supervisor. Alasan: ' . ($request->rejection_reason ?? 'Tidak ada alasan.'),
+                'error'
+            ));
+        }
 
         return response()->json(['message' => 'Klaim tim ditolak.', 'status' => $reimbursement->status]);
     }

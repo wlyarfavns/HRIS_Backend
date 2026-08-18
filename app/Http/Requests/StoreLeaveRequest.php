@@ -20,15 +20,13 @@ class StoreLeaveRequest extends FormRequest
             'start_date'    => 'required|date',
             'end_date'      => 'required|date|after_or_equal:start_date',
             'reason'        => 'nullable|string|max:500',
-            // employee_id  → diambil dari Auth::user()->employee di controller
-            // total_days   → dihitung dari start_date & end_date di controller
+            'attachment'    => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+
+
         ];
     }
 
-    /**
-     * Validasi tambahan setelah rules dasar lolos:
-     * cek min/max days berdasarkan LeaveType — tapi hitung sendiri, tidak dari client.
-     */
+
     public function withValidator($validator): void
     {
         $validator->after(function ($validator) {
@@ -38,7 +36,7 @@ class StoreLeaveRequest extends FormRequest
 
             if (!$leaveTypeId || !$startDate || !$endDate) return;
 
-            // Hitung total hari di sini untuk validasi min/max
+
             try {
                 $start     = Carbon::parse($startDate);
                 $end       = Carbon::parse($endDate);

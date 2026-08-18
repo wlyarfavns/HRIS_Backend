@@ -28,12 +28,13 @@ class Employee extends Model
         'employment_status',
         'basic_salary',
         'ktp_file_path',
+        'npwp_file_path',
+        'bpjs_file_path',
         'status',
         'bank_name',
         'bank_account_number',
         'bank_account_holder',
     ];
-
 
     protected $casts = [
 

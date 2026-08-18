@@ -6,13 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\OvertimeRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Notifications\SystemNotification;
 
 class OvertimeController extends Controller
 {
-    /**
-     * Daftar SPL untuk HR — SPL yang sudah disetujui Supervisor (approved_spv)
-     * bisa dikunci di sini agar masuk ke rekap Payroll.
-     */
+
     public function index(Request $request)
     {
         $companyId = $request->user()->company_id;
@@ -49,10 +47,7 @@ class OvertimeController extends Controller
         return view('hr.persetujuan.lembur', compact('requests', 'stats'));
     }
 
-    /**
-     * HR mengunci SPL yang sudah disetujui Supervisor.
-     * Hanya boleh mengunci SPL yang statusnya approved_spv.
-     */
+
     public function lock(Request $request, OvertimeRequest $overtime)
     {
         $companyId = $request->user()->company_id;
@@ -67,7 +62,7 @@ class OvertimeController extends Controller
             ], 400);
         }
 
-        // Pastikan upah lembur sudah/kembali terhitung sebelum dikunci
+
         $overtime->overtime_pay = OvertimeRequest::calculateOvertimePay(
             $overtime->salary_snapshot,
             $overtime->hours
@@ -80,15 +75,21 @@ class OvertimeController extends Controller
             'locked_at'    => now(),
         ]);
 
+        if ($overtime->employee && $overtime->employee->user) {
+            $overtime->employee->user->notify(new SystemNotification(
+                'Lembur Diproses HR',
+                'Pengajuan lembur Anda telah divalidasi HR dan masuk ke rekap Payroll bulan ini.',
+                'success'
+            ));
+        }
+
         return response()->json([
             'message' => "SPL {$overtime->employee->full_name} berhasil dikunci dan masuk ke rekap Payroll.",
             'data'    => $overtime,
         ]);
     }
 
-    /**
-     * HR menolak SPL (misalnya setelah direview ulang, sebelum dikunci).
-     */
+
     public function reject(Request $request, OvertimeRequest $overtime)
     {
         $companyId = $request->user()->company_id;
@@ -111,6 +112,14 @@ class OvertimeController extends Controller
             'approved_at'      => now(),
             'rejection_reason' => $data['reason'] ?? 'Ditolak oleh HR',
         ]);
+
+        if ($overtime->employee && $overtime->employee->user) {
+            $overtime->employee->user->notify(new SystemNotification(
+                'Lembur Ditolak',
+                'Pengajuan lembur Anda telah ditolak oleh HR. Alasan: ' . ($data['reason'] ?? 'Tidak ada alasan.'),
+                'error'
+            ));
+        }
 
         return response()->json([
             'message' => "SPL {$overtime->employee->full_name} berhasil ditolak.",

@@ -1,216 +1,185 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Atur Ulang Kata Sandi - TalentaHR</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,400,0,0" />
     <style>
-        @keyframes blob {
-            0% {
-                transform: translate(0px, 0px) scale(1);
-            }
-
-            33% {
-                transform: translate(30px, -50px) scale(1.1);
-            }
-
-            66% {
-                transform: translate(-20px, 20px) scale(0.9);
-            }
-
-            100% {
-                transform: translate(0px, 0px) scale(1);
-            }
-        }
-
-        .animate-blob {
-            animation: blob 7s infinite;
-        }
-
-        .animation-delay-2000 {
-            animation-delay: 2s;
-        }
-
-        .animation-delay-4000 {
-            animation-delay: 4s;
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #eef2f6;
+            background-image: radial-gradient(#d1d5db 1px, transparent 1px);
+            background-size: 32px 32px;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
         }
     </style>
 </head>
+<body class="h-screen w-screen flex items-center justify-center p-4 sm:p-8">
 
-<body class="bg-[#0B3D2E] min-h-screen flex items-center justify-center p-6 relative overflow-hidden font-sans">
 
-    {{-- Animated Background Blobs --}}
-    <div
-        class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-[#2B7A55] rounded-full mix-blend-multiply filter blur-[100px] opacity-70 animate-blob">
-    </div>
-    <div
-        class="absolute top-[20%] right-[-10%] w-96 h-96 bg-[#1D5F42] rounded-full mix-blend-multiply filter blur-[100px] opacity-70 animate-blob animation-delay-2000">
-    </div>
-    <div
-        class="absolute bottom-[-20%] left-[20%] w-96 h-96 bg-[#5C7166] rounded-full mix-blend-multiply filter blur-[100px] opacity-70 animate-blob animation-delay-4000">
-    </div>
+    <div class="w-full max-w-[1200px] h-full max-h-[800px] bg-white rounded-[2rem] shadow-[0_30px_80px_-20px_rgba(8,122,82,0.25)] flex flex-col lg:flex-row overflow-hidden relative z-10 border border-white/50">
 
-    <div x-data="{ mounted: false }" x-init="setTimeout(() => mounted = true, 100)"
-        class="w-full max-w-5xl rounded-[2rem] overflow-hidden flex flex-col md:flex-row-reverse shadow-2xl relative z-10 border border-white/20 transform transition-all duration-1000"
-        :class="mounted ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0'">
 
-        {{-- LEFT PANEL / FORM (Cream / Glass) --}}
-        <div
-            class="w-full md:w-1/2 bg-[#F9F6EE]/90 backdrop-blur-xl p-10 lg:p-14 flex flex-col justify-center relative">
+        <div class="hidden lg:flex lg:w-1/2 bg-[#0B3D2E] p-12 flex-col justify-center items-center relative">
 
-            <div class="flex flex-col mb-8 transform transition-all duration-700 delay-100"
-                :class="mounted ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'">
-                <h1 class="text-2xl font-extrabold text-[#0B3D2E] tracking-tight">HRIS System</h1>
-                <span class="text-[11px] font-bold text-gray-400 tracking-[0.15em] uppercase mt-0.5">TalentaHR</span>
+            <div class="text-center mb-12 z-10">
+                <h1 class="text-4xl font-bold text-white mb-2 tracking-tight">TalentaHR</h1>
+                <p class="text-emerald-100/80 text-sm">Sistem Informasi SDM Terpadu</p>
             </div>
 
-            <div class="mb-8 transform transition-all duration-700 delay-200"
-                :class="mounted ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'">
-                <h2 class="text-3xl font-bold text-gray-900 mb-2">Buat Kata Sandi Baru</h2>
-                <p class="text-gray-600 text-sm leading-relaxed">Silakan masukkan kata sandi baru Anda untuk mendapatkan
-                    kembali akses ke akun.</p>
+
+            <div class="w-full max-w-sm relative z-10">
+                <svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-auto drop-shadow-2xl">
+
+                    <path d="M50 150 C50 80, 120 50, 200 50 C280 50, 350 100, 350 180 C350 260, 260 280, 180 280 C100 280, 50 220, 50 150 Z" fill="#065A3D" opacity="0.6"/>
+
+
+                    <rect x="130" y="90" width="140" height="130" rx="12" fill="#ffffff" stroke="#043927" stroke-width="2"/>
+                    <rect x="130" y="90" width="140" height="30" rx="12" fill="#e2e8f0" stroke="#043927" stroke-width="2"/>
+
+
+                    <rect x="165" y="150" width="70" height="50" rx="8" fill="#0B3D2E"/>
+
+                    <path d="M178 150 L178 135 Q200 115 222 135 L222 150" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round"/>
+
+                    <circle cx="200" cy="170" r="8" fill="white"/>
+                    <rect x="197" y="170" width="6" height="12" rx="2" fill="white"/>
+
+
+                    <rect x="95" y="110" width="25" height="4" rx="2" fill="#4ade80" opacity="0.6"/>
+                    <rect x="95" y="122" width="18" height="4" rx="2" fill="#4ade80" opacity="0.4"/>
+
+
+                    <rect x="280" y="110" width="25" height="4" rx="2" fill="#4ade80" opacity="0.6"/>
+                    <rect x="280" y="122" width="18" height="4" rx="2" fill="#4ade80" opacity="0.4"/>
+
+
+                    <rect x="256" y="60" width="80" height="30" rx="15" fill="#f59e0b"/>
+                    <circle cx="271" cy="75" r="8" fill="#ffffff"/>
+                    <path d="M268 75 L270 77 L274 73" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <rect x="284" y="73" width="40" height="4" rx="2" fill="#ffffff"/>
+
+
+                    <rect x="64" y="58" width="70" height="28" rx="14" fill="#065A3D"/>
+                    <circle cx="78" cy="72" r="7" fill="white" opacity="0.2"/>
+                    <rect x="90" y="70" width="34" height="4" rx="2" fill="white" opacity="0.7"/>
+                </svg>
             </div>
-            <form method="POST" action="{{ route('password.update') }}"
-                class="space-y-5 transform transition-all duration-700 delay-300"
-                :class="mounted ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'">
-                @csrf
 
-                <input type="hidden" name="token" value="{{ $token }}">
-
-                {{-- EMAIL --}}
-                <div>
-                    <label for="email" class="block text-xs font-semibold text-gray-700 mb-1">Email Kerja</label>
-                    <div class="relative">
-                        <input type="email" id="email" name="email" readonly value="{{ $email ?? old('email') }}"
-                            class="w-full pl-4 pr-4 py-3 bg-gray-200/50 backdrop-blur-sm border border-gray-300 rounded-xl focus:outline-none text-gray-500 cursor-not-allowed transition text-sm">
+            <div class="mt-10 w-full max-w-sm relative z-10 space-y-4">
+                <div class="flex items-center gap-3 bg-[#065A3D]/40 p-3 rounded-lg border border-white/5">
+                    <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined text-white text-[18px]">lock_reset</span>
                     </div>
-                    @error('email')
-                    <p class="text-rose-500 text-xs mt-1">{{ $message }}</p> @enderror
-                </div>
-
-                {{-- PASSWORD BARU --}}
-                <div x-data="{ show: false }">
-                    <label for="password" class="block text-xs font-semibold text-gray-700 mb-1">Kata Sandi Baru <span
-                            class="text-[#0B3D2E]">*</span></label>
-                    <div class="relative">
-                        <input :type="show ? 'text' : 'password'" id="password" name="password" required
-                            placeholder="••••••••"
-                            class="w-full pl-4 pr-10 py-3 bg-white/60 backdrop-blur-sm border border-white/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0B3D2E]/50 focus:border-[#0B3D2E] focus:bg-white transition text-sm">
-                        <button type="button" @click="show = !show"
-                            class="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-gray-600 transition">
-                            <span class="material-symbols-outlined text-[16px]"
-                                x-text="show ? 'visibility_off' : 'visibility'"></span>
-                        </button>
-                    </div>
-                    @error('password')
-                    <p class="text-rose-500 text-xs mt-1">{{ $message }}</p> @enderror
-                </div>
-
-                {{-- KONFIRMASI PASSWORD --}}
-                <div x-data="{ show: false }">
-                    <label for="password_confirmation" class="block text-xs font-semibold text-gray-700 mb-1">Konfirmasi
-                        Kata Sandi <span class="text-[#0B3D2E]">*</span></label>
-                    <div class="relative">
-                        <input :type="show ? 'text' : 'password'" id="password_confirmation"
-                            name="password_confirmation" required placeholder="••••••••"
-                            class="w-full pl-4 pr-10 py-3 bg-white/60 backdrop-blur-sm border border-white/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0B3D2E]/50 focus:border-[#0B3D2E] focus:bg-white transition text-sm">
-                        <button type="button" @click="show = !show"
-                            class="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-gray-600 transition">
-                            <span class="material-symbols-outlined text-[16px]"
-                                x-text="show ? 'visibility_off' : 'visibility'"></span>
-                        </button>
+                    <div>
+                        <h4 class="text-white text-sm font-semibold">Keamanan Akun Terjaga</h4>
+                        <p class="text-emerald-100/70 text-xs mt-0.5">Kata sandi baru dienkripsi & disimpan dengan aman.</p>
                     </div>
                 </div>
-
-                {{-- SUBMIT --}}
-                <button type="submit"
-                    class="w-full bg-[#0B3D2E] hover:bg-[#154A34] text-white font-medium py-3 rounded-full transition shadow-lg shadow-[#0B3D2E]/30 mt-4">
-                    Simpan Kata Sandi Baru
-                </button>
-            </form>
+                <div class="flex items-center gap-3 bg-[#065A3D]/40 p-3 rounded-lg border border-white/5">
+                    <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined text-white text-[18px]">verified_user</span>
+                    </div>
+                    <div>
+                        <h4 class="text-white text-sm font-semibold">Verifikasi Berlapis</h4>
+                        <p class="text-emerald-100/70 text-xs mt-0.5">Akses hanya dapat diubah melalui email terdaftar.</p>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        {{-- RIGHT PANEL / ILLUSTRATION (White / Glass) --}}
-        <div
-            class="w-full md:w-1/2 bg-white/80 backdrop-blur-xl p-10 lg:p-14 flex flex-col justify-between relative overflow-hidden hidden md:flex">
 
-            {{-- Quote Section --}}
-            <div class="relative z-10 transform transition-all duration-700 delay-300"
-                :class="mounted ? 'translate-x-0 opacity-100' : 'translate-x-8 opacity-0'">
-                <span class="material-symbols-outlined text-4xl text-[#0B3D2E] mb-4 block">password</span>
-                <h3 class="text-2xl font-bold text-gray-900 mb-3">Akses Kembali Akun Anda</h3>
-                <p class="text-base font-medium text-gray-600 leading-relaxed mb-6">
-                    Gunakan kombinasi kata sandi yang kuat (huruf, angka, dan simbol) untuk menjaga keamanan data
-                    manajemen SDM dan perusahaan Anda.
+        <div class="w-full lg:w-1/2 p-10 md:p-16 flex flex-col justify-center bg-white relative">
+
+
+            <div class="lg:hidden flex items-center gap-2 text-[#0B3D2E] mb-8">
+                <span class="text-xl font-bold tracking-tight">TalentaHR</span>
+            </div>
+
+            <div class="mb-8">
+                <div class="inline-flex items-center justify-center w-14 h-14 bg-emerald-50 rounded-2xl mb-6">
+                    </div>
+                <h2 class="text-4xl font-bold text-gray-900 mb-3">Buat Kata Sandi Baru</h2>
+                <p class="text-gray-500 text-sm leading-relaxed">
+                    Masukkan kata sandi baru yang kuat untuk mendapatkan kembali akses ke akun TalentaHR Anda.
                 </p>
             </div>
 
-            {{-- Mockup Icon / Illustration (Buildings) --}}
-            <div class="absolute bottom-[-10%] right-[-10%] w-[120%] h-[60%] opacity-80 pointer-events-none transform transition-all duration-1000 delay-500 origin-bottom"
-                :class="mounted ? 'scale-100 opacity-80' : 'scale-90 opacity-0'">
-                <svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg"
-                    class="w-full h-full drop-shadow-xl text-[#0B3D2E]">
-                    <g stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"
-                        stroke-linejoin="round">
-                        <path d="M 50 200 L 50 120 L 100 100 L 100 200" fill="#D7E8DD" />
-                        <path d="M 100 100 L 150 120 L 150 200" fill="#EAF4EE" />
-                        <path d="M 100 100 L 100 200" />
-                        <line x1="60" y1="130" x2="80" y2="122" />
-                        <line x1="60" y1="150" x2="80" y2="142" />
-                        <line x1="60" y1="170" x2="80" y2="162" />
+            <form method="POST" action="{{ route('password.update') }}" class="space-y-6">
+                @csrf
+                <input type="hidden" name="token" value="{{ $token }}">
 
-                        <path d="M 140 200 L 140 50 L 220 20 L 220 200" fill="white" />
-                        <path d="M 220 20 L 260 40 L 260 200" fill="#F9F6EE" />
-                        <path d="M 220 20 L 220 200" />
-                        <line x1="160" y1="60" x2="160" y2="80" stroke="#F6C58A" stroke-width="4" />
-                        <line x1="180" y1="55" x2="180" y2="75" stroke="#F6C58A" stroke-width="4" />
-                        <line x1="200" y1="50" x2="200" y2="70" stroke="#F6C58A" stroke-width="4" />
-                        <line x1="160" y1="100" x2="160" y2="120" stroke="#F6C58A" stroke-width="4" />
-                        <line x1="180" y1="95" x2="180" y2="115" stroke="#F6C58A" stroke-width="4" />
-                        <line x1="200" y1="90" x2="200" y2="110" stroke="#F6C58A" stroke-width="4" />
-                        <line x1="160" y1="140" x2="160" y2="160" stroke="#F6C58A" stroke-width="4" />
-                        <line x1="180" y1="135" x2="180" y2="155" stroke="#F6C58A" stroke-width="4" />
-                        <line x1="200" y1="130" x2="200" y2="150" stroke="#F6C58A" stroke-width="4" />
 
-                        <path d="M 250 200 L 250 80 L 320 60 L 320 200" fill="#EAF4EE" />
-                        <path d="M 320 60 L 370 80 L 370 200" fill="#D7E8DD" />
-                        <path d="M 320 60 L 320 200" />
-                        <line x1="270" y1="95" x2="300" y2="85" />
-                        <line x1="270" y1="125" x2="300" y2="115" />
-                        <line x1="270" y1="155" x2="300" y2="145" />
-                        <line x1="270" y1="185" x2="300" y2="175" />
+                <div>
+                    <label for="email" class="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-2">Email Kerja</label>
+                    <input type="email" id="email" name="email" readonly
+                           value="{{ $email ?? old('email') }}"
+                           class="w-full px-5 py-4 bg-gray-100 border border-gray-200 rounded-lg text-gray-500 cursor-not-allowed text-sm shadow-sm">
+                    @error('email')
+                        <p class="text-red-500 text-xs mt-1.5 font-medium">{{ $message }}</p>
+                    @enderror
+                </div>
 
-                        <path d="M 120 200 L 120 150 L 170 120 L 170 200" fill="#F8B195" />
-                        <path d="M 170 120 L 210 140 L 210 200" fill="#F6C58A" />
-                        <path d="M 170 120 L 170 200" />
 
-                        <circle cx="100" cy="180" r="15" fill="white" />
-                        <path d="M 100 195 L 100 200" />
-                        <path d="M 100 180 L 95 175" />
-                        <path d="M 100 180 L 105 175" />
-                        <circle cx="310" cy="170" r="20" fill="white" />
-                        <path d="M 310 190 L 310 200" />
-                        <path d="M 310 170 L 300 160" />
-                        <path d="M 310 170 L 320 160" />
-                        <circle cx="350" cy="185" r="12" fill="white" />
-                        <path d="M 350 197 L 350 200" />
-                        <path d="M 350 185 L 345 180" />
-                    </g>
-                </svg>
+                <div x-data="{ show: false }">
+                    <label for="password" class="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-2">
+                        Kata Sandi Baru <span class="text-red-400">*</span>
+                    </label>
+                    <div class="relative">
+                        <input :type="show ? 'text' : 'password'" id="password" name="password" required
+                               placeholder="••••••••"
+                               class="w-full pl-5 pr-12 py-4 bg-gray-50/50 border border-gray-200 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#0B3D2E] focus:ring-1 focus:ring-[#0B3D2E] focus:bg-white transition text-sm tracking-widest shadow-sm">
+                        <button type="button" @click="show = !show"
+                                class="absolute inset-y-0 right-4 flex items-center text-gray-400 hover:text-[#0B3D2E] transition">
+                            <span class="material-symbols-outlined text-[20px]" x-text="show ? 'visibility_off' : 'visibility'"></span>
+                        </button>
+                    </div>
+                    @error('password')
+                        <p class="text-red-500 text-xs mt-1.5 font-medium">{{ $message }}</p>
+                    @enderror
+                </div>
+
+
+                <div x-data="{ show: false }">
+                    <label for="password_confirmation" class="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-2">
+                        Konfirmasi Kata Sandi <span class="text-red-400">*</span>
+                    </label>
+                    <div class="relative">
+                        <input :type="show ? 'text' : 'password'" id="password_confirmation"
+                               name="password_confirmation" required
+                               placeholder="••••••••"
+                               class="w-full pl-5 pr-12 py-4 bg-gray-50/50 border border-gray-200 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#0B3D2E] focus:ring-1 focus:ring-[#0B3D2E] focus:bg-white transition text-sm tracking-widest shadow-sm">
+                        <button type="button" @click="show = !show"
+                                class="absolute inset-y-0 right-4 flex items-center text-gray-400 hover:text-[#0B3D2E] transition">
+                            <span class="material-symbols-outlined text-[20px]" x-text="show ? 'visibility_off' : 'visibility'"></span>
+                        </button>
+                    </div>
+                </div>
+
+
+                <button type="submit"
+                        class="w-full bg-[#0B3D2E] hover:bg-[#065A3D] text-white font-bold py-4 rounded-lg mt-4 text-sm transition flex justify-center items-center gap-2 group shadow-md hover:shadow-lg">
+                    Simpan Kata Sandi Baru
+                    <span class="material-symbols-outlined text-[18px] transform group-hover:translate-x-1 transition">arrow_forward</span>
+                </button>
+            </form>
+
+            <div class="text-center text-sm text-gray-500 mt-8">
+                Ingat kata sandi Anda?
+                <a href="{{ route('login') }}" class="text-[#0B3D2E] font-semibold hover:underline transition ml-1">
+                    Kembali Masuk
+                </a>
             </div>
         </div>
-
     </div>
 
 </body>
-
 </html>

@@ -1,34 +1,32 @@
 <div class="relative" x-data="notificationDropdown()" x-init="fetchNotifications()" @click.outside="open = false">
 
-    {{-- TOMBOL NOTIFIKASI --}}
+
     <button @click="open = !open"
         class="relative p-2 text-on-surface-variant/60 hover:text-primary transition-colors focus:outline-none rounded-full hover:bg-black/5">
         <span class="material-symbols-outlined text-[24px]">notifications</span>
-
-        {{-- Badge Unread dengan animasi --}}
         <span x-show="unreadCount > 0" x-cloak class="absolute top-1.5 right-1.5 flex h-2.5 w-2.5">
             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-error opacity-75"></span>
             <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-error ring-2 ring-white"></span>
         </span>
     </button>
 
-    {{-- DROPDOWN PANEL --}}
+
     <div x-show="open" x-cloak x-transition:enter="transition ease-out duration-200"
         x-transition:enter-start="opacity-0 scale-95 translate-y-2"
         x-transition:enter-end="opacity-100 scale-100 translate-y-0"
         x-transition:leave="transition ease-in duration-150"
         x-transition:leave-start="opacity-100 scale-100 translate-y-0"
         x-transition:leave-end="opacity-0 scale-95 translate-y-2"
-        class="absolute right-0 mt-3 w-[340px] sm:w-[380px] bg-white rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.12)] border border-black/5 z-50 overflow-hidden"
+        class="absolute right-0 mt-3 w-[340px] sm:w-[380px] bg-white rounded-md shadow-[0_12px_40px_rgba(0,0,0,0.12)] border border-black/5 z-50 overflow-hidden"
         style="display: none;">
 
-        {{-- HEADER --}}
+
         <div
             class="px-5 py-4 flex items-center justify-between border-b border-black/5 bg-gradient-to-r from-surface-container/50 to-transparent">
             <div class="flex items-center gap-2">
-                <h3 class="text-sm font-bold text-on-surface">Notifikasi</h3>
+                <h3 class="text-sm font-medium text-on-surface">Notifikasi</h3>
                 <span x-show="unreadCount > 0" x-text="unreadCount + ' Baru'"
-                    class="bg-primary/10 text-primary text-[10px] font-bold px-2 py-0.5 rounded-full"></span>
+                    class="bg-primary/10 text-primary text-[10px] font-medium px-2 py-0.5 rounded-full"></span>
             </div>
             <button x-show="unreadCount > 0" @click="markAllRead()"
                 class="text-[11px] font-semibold text-primary hover:text-primary/70 transition-colors">
@@ -36,31 +34,29 @@
             </button>
         </div>
 
-        {{-- DAFTAR NOTIFIKASI --}}
+
         <div class="max-h-[360px] overflow-y-auto divide-y divide-black/5 custom-scrollbar">
 
-            <!-- Jika Notifikasi Kosong -->
+
             <template x-if="notifications.length === 0">
                 <div class="px-5 py-8 text-center">
-                    <span
-                        class="material-symbols-outlined text-[32px] text-black/10 block mb-2">notifications_paused</span>
                     <p class="text-xs font-semibold text-on-surface-variant/60">Tidak ada notifikasi baru.</p>
                 </div>
             </template>
 
-            <!-- Looping Notifikasi Dinamis -->
+
             <template x-for="(notif, index) in notifications" :key="notif.id">
                 <a href="#" @click.prevent="readAndRedirect(notif.id, notif.data.url)"
                     class="flex gap-4 px-5 py-4 hover:bg-black/[0.02] transition-colors bg-primary/[0.02] relative group">
 
-                    <!-- Icon Dinamis (bisa disesuaikan jika ingin warna berbeda, sementara pakai warna primary default) -->
+
                     <div
                         class="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
                         <span class="material-symbols-outlined text-[20px]">notifications_active</span>
                     </div>
 
                     <div class="flex-1 min-w-0 pr-4">
-                        <p class="text-xs font-bold text-on-surface mb-0.5 group-hover:text-primary transition-colors"
+                        <p class="text-xs font-medium text-on-surface mb-0.5 group-hover:text-primary transition-colors"
                             x-text="notif.data.title"></p>
                         <p class="text-[11px] text-on-surface-variant/70 leading-relaxed truncate"
                             x-text="notif.data.message"></p>
@@ -74,10 +70,10 @@
             </template>
         </div>
 
-        {{-- FOOTER --}}
+
         <div class="p-3 border-t border-black/5 bg-surface-container/20 text-center">
             <a href="{{ route('notifications.index') }}"
-                class="inline-block text-xs font-bold text-primary hover:text-primary/80 transition-colors py-1">
+                class="inline-block text-xs font-medium text-primary hover:text-primary/80 transition-colors py-1">
                 Lihat semua riwayat
             </a>
         </div>
@@ -142,7 +138,7 @@
             formatDate(dateStr) {
                 const d = new Date(dateStr);
                 const now = new Date();
-                const diff = (now - d) / 1000; // selisih dalam detik
+                const diff = (now - d) / 1000; 
 
                 if (diff < 60) return 'Baru saja';
                 if (diff < 3600) return Math.floor(diff / 60) + ' menit yang lalu';

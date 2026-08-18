@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\OvertimeRequest;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use App\Notifications\GeneralNotification;
 
 class OvertimeController extends Controller
 {
@@ -34,13 +35,13 @@ class OvertimeController extends Controller
             'notes' => 'required|string|max:500',
         ]);
 
-        // FIX: gunakan createFromFormat dan hitung selisih dengan abs()
-        // supaya tidak bergantung pada perilaku parameter kedua
-        // diffInMinutes() yang berubah antara Carbon 2 dan Carbon 3.
+
+
+
         $start = Carbon::createFromFormat('H:i', $data['start_time']);
         $end = Carbon::createFromFormat('H:i', $data['end_time']);
 
-        // Jaga-jaga untuk lembur yang melewati tengah malam
+
         if ($end->lessThanOrEqualTo($start)) {
             $end->addDay();
         }
@@ -60,6 +61,14 @@ class OvertimeController extends Controller
             'salary_snapshot' => $employee->basic_salary,
             'status' => 'pending_spv',
         ]);
+
+        if ($employee->supervisor) {
+            $employee->supervisor->notify(new GeneralNotification(
+                'Pengajuan Lembur Baru',
+                $employee->full_name . ' mengajukan lembur.',
+                '/supervisor/persetujuan/lembur' 
+            ));
+        }
 
         return response()->json([
             'message' => 'Pengajuan lembur berhasil dikirim, menunggu approval Supervisor.',

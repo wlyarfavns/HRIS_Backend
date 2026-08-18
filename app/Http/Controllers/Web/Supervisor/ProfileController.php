@@ -11,9 +11,7 @@ use Illuminate\Validation\Rule;
 
 class ProfileController extends Controller
 {
-    /**
-     * Tampilkan halaman profil dengan data asli (User login + Employee terkait).
-     */
+
     public function index(Request $request)
     {
         $user     = $request->user();
@@ -21,9 +19,9 @@ class ProfileController extends Controller
             ->where('user_id', $user->id)
             ->first();
 
-        // FIX: gunakan null-safe operator (?->) di setiap akses relasi/atribut
-        // employee, supaya tidak throw "Attempt to read property on null"
-        // saat user (mis. supervisor "Anton") belum punya record Employee.
+
+
+
         $userData = [
             'name'         => $user->name,
             'email'        => $user->email,
@@ -36,18 +34,18 @@ class ProfileController extends Controller
             'join_date'    => $employee?->join_date
                                 ? Carbon::parse($employee->join_date)->translatedFormat('d F Y')
                                 : '-',
-            // FIX: default harus '' (bukan '-'), karena <select> di form hanya
-            // punya opsi Laki-laki/Perempuan. Kalau default '-' tidak cocok
-            // opsi manapun, browser menampilkan opsi pertama secara visual
-            // tapi x-model tetap '-' → lolos ke request → gagal validasi
-            // "in:Laki-laki,Perempuan" walau tampilan terlihat sudah terisi.
+
+
+
+
+
             'gender'       => match ($employee?->gender) {
                                 'P' => 'Perempuan',
                                 'L' => 'Laki-laki',
                                 default => '',
                             },
             'birth_place'  => $employee?->birth_place ?? '-',
-            // format Y-m-d supaya kompatibel dengan <input type="date">
+
             'birth_date'   => $employee?->birth_date ? Carbon::parse($employee->birth_date)->format('Y-m-d') : '',
             'address'      => $employee?->address ?? '-',
             'bank_name'    => $employee?->bank_name ?? '-',
@@ -58,10 +56,7 @@ class ProfileController extends Controller
         return view('supervisor.profile', compact('userData'));
     }
 
-    /**
-     * Update data diri & kontak. Menyentuh tabel users (name, email)
-     * dan employees (kalau supervisor punya profil kepegawaian).
-     */
+
     public function updateProfile(Request $request)
     {
         $user     = $request->user();
@@ -100,9 +95,7 @@ class ProfileController extends Controller
         ]);
     }
 
-    /**
-     * Update password akun, wajib verifikasi password lama dulu.
-     */
+
     public function updatePassword(Request $request)
     {
         $user = $request->user();

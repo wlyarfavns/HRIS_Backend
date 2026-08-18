@@ -91,7 +91,7 @@ class PayrollExport implements
     {
         $lastRow = $this->payrolls->count() + 1;
 
-        // Header
+
         $sheet->getStyle('A1:G1')->getFont()->setBold(true);
         $sheet->getStyle('A1:G1')->getFill()
             ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
@@ -101,12 +101,12 @@ class PayrollExport implements
         $sheet->getStyle('A1:G1')->getAlignment()
             ->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
 
-        // Border seluruh tabel
+
         $sheet->getStyle("A1:G{$lastRow}")->getBorders()
             ->getAllBorders()
             ->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
 
-        // Freeze header
+
         $sheet->freezePane('A2');
 
         return [];

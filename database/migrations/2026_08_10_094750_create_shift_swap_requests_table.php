@@ -19,7 +19,7 @@ return new class extends Migration
             $table->foreignId('to_shift_assignment_id')->constrained('shift_assignments')->cascadeOnDelete();
 
             $table->text('reason')->nullable();
-            $table->boolean('peer_approved')->default(false); // pihak kedua sudah setuju
+            $table->boolean('peer_approved')->default(false); 
             $table->enum('status', ['pending_peer', 'pending_spv', 'approved', 'rejected'])->default('pending_spv');
 
             $table->foreignId('approved_by')->nullable()->constrained('users')->nullOnDelete();

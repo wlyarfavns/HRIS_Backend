@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ReimbursementActionRequest;
 use App\Models\Reimbursement;
 use Illuminate\Http\Request;
+use App\Notifications\SystemNotification;
 
 class ReimbursementController extends Controller
 {
@@ -29,7 +30,7 @@ class ReimbursementController extends Controller
             });
         }
 
-        $claims = $query->latest('claim_date')->get();
+        $claims = $query->latest('claim_date')->paginate(10)->withQueryString();
 
         $stats = [
             [
@@ -61,7 +62,7 @@ class ReimbursementController extends Controller
 
     public function verify(ReimbursementActionRequest $request, Reimbursement $reimbursement)
     {
-        // Scoping ke company yang sama dengan HR yang login — cegah cross-company access
+
         abort_unless($reimbursement->company_id === auth()->user()->company_id, 404);
 
         abort_unless($reimbursement->status === Reimbursement::STATUS_PENDING_HR, 400, 'Klaim tidak dalam status Pending HR.');
@@ -72,6 +73,14 @@ class ReimbursementController extends Controller
                 'hr_reviewed_by' => auth()->id(),
                 'hr_reviewed_at' => now(),
             ]);
+
+            if ($reimbursement->employee && $reimbursement->employee->user) {
+                $reimbursement->employee->user->notify(new SystemNotification(
+                    'Selamat Reimbursse Anda Berhasil',
+                    'Klaim reimbursement Anda telah divalidasi HR dan sedang diteruskan ke tim Finance untuk pencairan.',
+                    'info'
+                ));
+            }
 
             return response()->json([
                 'message' => 'Klaim berhasil diverifikasi & diteruskan ke Finance!',
@@ -85,6 +94,14 @@ class ReimbursementController extends Controller
             'hr_reviewed_at' => now(),
             'rejection_reason' => $request->rejection_reason,
         ]);
+
+        if ($reimbursement->employee && $reimbursement->employee->user) {
+            $reimbursement->employee->user->notify(new SystemNotification(
+                'Reimbursement Ditolak',
+                'Klaim reimbursement Anda telah ditolak oleh HR. Alasan: ' . ($request->rejection_reason ?? 'Tidak ada alasan.'),
+                'error'
+            ));
+        }
 
         return response()->json([
             'message' => 'Klaim berhasil ditolak',

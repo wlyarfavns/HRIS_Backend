@@ -23,7 +23,7 @@ class LoginController extends Controller
 
             $user = Auth::user();
 
-            // 1. Penanganan Login untuk API / Mobile (Jangan diubah)
+
             if ($request->expectsJson()) {
 
                 $token = $user->createToken('company-token')->plainTextToken;
@@ -40,7 +40,7 @@ class LoginController extends Controller
                 ]);
             }
 
-            // 2. Penanganan Login 
+
             if ($user->hasRole('company')) {
                 return redirect()->route('admin.dashboard');
             } elseif ($user->hasRole('hr')) {
@@ -51,11 +51,11 @@ class LoginController extends Controller
                 return redirect()->route('supervisor.dashboard'); 
             }
 
-            // Fallback default jika role tidak memiliki dashboard spesifik
+
             return redirect('/dashboard');
         }
 
-        // Jika Login Gagal (API)
+
         if ($request->expectsJson()) {
             return response()->json([
                 'success' => false,
@@ -63,7 +63,7 @@ class LoginController extends Controller
             ], 401);
         }
 
-        // Jika Login Gagal (WEB)
+
         return back()
             ->withErrors([
                 'email' => 'Email atau password salah.'
@@ -73,20 +73,20 @@ class LoginController extends Controller
 
     public function destroy(Request $request)
     {
-        // Hapus token API jika ada
+
         if ($request->user() && method_exists($request->user(), 'currentAccessToken') && $request->user()->currentAccessToken()) {
             $request->user()->currentAccessToken()->delete();
         }
 
         Auth::logout();
 
-        // Hapus session Web
+
         if ($request->hasSession()) {
             $request->session()->invalidate();
             $request->session()->regenerateToken();
         }
 
-        // Response untuk API
+
         if ($request->expectsJson()) {
             return response()->json([
                 'success' => true,
@@ -94,7 +94,7 @@ class LoginController extends Controller
             ], 200);
         }
 
-        // Response untuk Web
+
         return redirect('/');
     }
 

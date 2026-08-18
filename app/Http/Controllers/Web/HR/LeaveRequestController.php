@@ -9,13 +9,11 @@ use App\Models\LeaveRequest;
 use App\Models\LeaveBalance;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use App\Notifications\GeneralNotification;
 
 class LeaveRequestController extends Controller
 {
-    /**
-     * Karyawan ajukan cuti dari mobile → langsung pending_spv
-     * (menunggu persetujuan Supervisor terlebih dahulu).
-     */
+
     public function store(StoreLeaveRequest $request)
     {
         $validated = $request->validated();
@@ -28,10 +26,15 @@ class LeaveRequestController extends Controller
             ], 404);
         }
 
-        // Hitung total_days di server — jangan percaya nilai dari client
+
         $start = Carbon::parse($validated['start_date']);
         $end = Carbon::parse($validated['end_date']);
         $totalDays = $start->diffInDays($end) + 1;
+
+        $attachmentPath = null;
+        if ($request->hasFile('attachment')) {
+            $attachmentPath = $request->file('attachment')->store('leave_attachments', 'public');
+        }
 
         $leaveRequest = LeaveRequest::create([
             'employee_id' => $employee->id,
@@ -40,8 +43,17 @@ class LeaveRequestController extends Controller
             'end_date' => $validated['end_date'],
             'total_days' => $totalDays,
             'reason' => $validated['reason'] ?? null,
-            'status' => 'pending_spv', // ← Masuk ke antrian Supervisor dulu
+            'attachment' => $attachmentPath,
+            'status' => 'pending_spv', 
         ]);
+
+        if ($employee->supervisor) {
+            $employee->supervisor->notify(new GeneralNotification(
+                'Pengajuan Cuti Baru',
+                $employee->full_name . ' mengajukan cuti.',
+                '/supervisor/persetujuan/cuti'
+            ));
+        }
 
         return response()->json([
             'message' => 'Pengajuan cuti berhasil dikirim. Menunggu persetujuan Supervisor.',
@@ -49,9 +61,7 @@ class LeaveRequestController extends Controller
         ], 201);
     }
 
-    /**
-     * Index — HR lihat semua, karyawan lihat miliknya sendiri.
-     */
+
     public function index(Request $request)
     {
         $user = $request->user();
@@ -87,10 +97,7 @@ class LeaveRequestController extends Controller
         return response()->json(['balances' => $balances, 'requests' => $requests]);
     }
 
-    /**
-     * API approve — dipakai HR via API (mobile HR / postman).
-     * Hanya bisa approve jika sudah di tahap pending_hr.
-     */
+
     public function approve(Request $request, $id)
     {
         $user = $request->user();
@@ -147,7 +154,13 @@ class LeaveRequestController extends Controller
         $employee = $request->user()->employee;
         abort_unless($employee, 404, 'Data karyawan tidak ditemukan.');
 
-        $leaveRequest = LeaveRequest::where('employee_id', $employee->id)->findOrFail($id);
+        $leaveRequest = LeaveRequest::where('employee_id', $employee->id)->find($id);
+
+        if (!$leaveRequest) {
+            return response()->json([
+                'message' => 'Pengajuan cuti tidak ditemukan atau sudah dibatalkan.'
+            ], 404);
+        }
 
         if ($leaveRequest->status !== 'pending_spv') {
             return response()->json([

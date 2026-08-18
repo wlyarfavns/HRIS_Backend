@@ -23,8 +23,8 @@ class DisbursementController extends Controller
             ->where('company_id', $companyId)
             ->whereIn('status', [PayrollBatch::STATUS_EXPORTED, PayrollBatch::STATUS_DISBURSED])
             ->orderByDesc('period_start')
-            ->get()
-            ->map(function ($batch) {
+            ->paginate(10)->withQueryString()
+            ->through(function ($batch) {
                 return [
                     'id'          => $batch->id,
                     'period'      => $batch->period_start->translatedFormat('F Y'),

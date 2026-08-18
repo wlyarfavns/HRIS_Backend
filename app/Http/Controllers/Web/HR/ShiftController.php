@@ -18,13 +18,13 @@ class ShiftController extends Controller
     {
         $companyId = $this->resolveCompanyId($request);
 
-        // Minggu aktif: default minggu berjalan, bisa navigasi via ?week_start=YYYY-MM-DD
+
         $weekStart = $request->filled('week_start')
             ? Carbon::parse($request->week_start)->startOfWeek(UnitValue::MONDAY)
             : Carbon::now()->startOfWeek(UnitValue::MONDAY);
         $weekEnd = $weekStart->copy()->endOfWeek(UnitValue::SUNDAY);
 
-        // 1. Master shift + jumlah karyawan yang assigned minggu ini per jenis shift
+
         $shiftTypes = ShiftType::where('company_id', $companyId)->orderBy('id')->get();
         $countsByType = ShiftAssignment::where('company_id', $companyId)
             ->whereBetween('date', [$weekStart->toDateString(), $weekEnd->toDateString()])
@@ -45,21 +45,22 @@ class ShiftController extends Controller
             ];
         });
 
-        // 2. Label hari untuk header tabel
+
         $labels = collect();
         for ($i = 0; $i < 7; $i++) {
             $d = $weekStart->copy()->addDays($i);
             $labels->push(['day' => $d->translatedFormat('l'), 'date' => $d->translatedFormat('d M'), 'iso' => $d->toDateString()]);
         }
 
-        // 3. Roster: semua karyawan aktif + assignment mereka minggu ini
-        // NOTE: kolom 'is_active' tidak ada di tabel employees kamu — filter dihapus.
-        // Kalau kamu punya kolom status lain (mis. 'employment_status' = 'active'),
-        // tambahkan lagi filternya di sini, contoh:
-        // ->where('employment_status', 'active')
+
+
+
+
+
         $employees = Employee::with('department', 'position')
             ->where('company_id', $companyId)
-            ->get();
+            ->paginate(10)
+            ->withQueryString();
 
         $assignments = ShiftAssignment::with('shiftType')
             ->where('company_id', $companyId)
@@ -87,7 +88,7 @@ class ShiftController extends Controller
             ];
         });
 
-        // 4. Pengajuan tukar shift (pending & yang baru diproses minggu ini)
+
         $swapRequests = ShiftSwapRequest::with(['fromEmployee', 'toEmployee', 'fromAssignment.shiftType', 'toAssignment.shiftType'])
             ->where('company_id', $companyId)
             ->latest()
@@ -111,7 +112,7 @@ class ShiftController extends Controller
                 ];
             });
 
-        $pendingSpvCount = $swapRequests->where('status_raw', 'pending_spv')->count();
+        $pendingHrCount = $swapRequests->where('status_raw', 'pending_hr')->count();
 
         $company = \App\Models\Company::find($companyId);
 
@@ -122,18 +123,16 @@ class ShiftController extends Controller
             'mapName' => $mapName,
             'labels' => $labels,
             'swapRequests' => $swapRequests,
-            'pendingSpvCount' => $pendingSpvCount,
+            'pendingHrCount' => $pendingHrCount,
             'weekStart' => $weekStart,
             'weekEnd' => $weekEnd,
             'departments' => \App\Models\Department::where('company_id', $companyId)->pluck('name'),
             'company' => $company,
+            'employees' => $employees,
         ]);
     }
 
-    /**
-     * Terapkan satu jenis shift ke banyak karyawan sekaligus untuk rentang tanggal.
-     * Menimpa (overwrite) assignment yang sudah ada di rentang tersebut — sesuai "Overlap Shift Guard".
-     */
+
     public function bulkAssign(Request $request)
     {
         $request->validate([
@@ -163,9 +162,7 @@ class ShiftController extends Controller
             ->with('success', 'Jadwal shift berhasil diterapkan ke ' . count($request->employee_ids) . ' karyawan!');
     }
 
-    /**
-     * Ubah shift satu karyawan pada satu tanggal (klik cell di tabel roster).
-     */
+
     public function updateCell(Request $request)
     {
         $request->validate([
@@ -186,6 +183,8 @@ class ShiftController extends Controller
 
     public function approveSwap(Request $request, ShiftSwapRequest $swap)
     {
+        abort_unless($swap->status === 'pending_hr', 422, 'Pengajuan belum disetujui SPV atau sudah diproses.');
+
         $fromAssignment = $swap->fromAssignment;
         $toAssignment = $swap->toAssignment;
 
@@ -222,6 +221,8 @@ class ShiftController extends Controller
 
     public function rejectSwap(Request $request, ShiftSwapRequest $swap)
     {
+        abort_unless($swap->status === 'pending_hr', 422, 'Pengajuan belum disetujui SPV atau sudah diproses.');
+
         $swap->update([
             'status' => 'rejected',
             'approved_by' => $request->user()->id,
@@ -231,10 +232,7 @@ class ShiftController extends Controller
         return back()->with('success', 'Pengajuan tukar shift ditolak.');
     }
 
-    /**
-     * Ambil nama karyawan dengan aman, apa pun nama kolomnya di tabel `employees` kamu.
-     * Cek berurutan: name -> full_name -> first_name+last_name -> fallback '-'.
-     */
+
     private function resolveEmployeeName(Employee $e): string
     {
         if (!empty($e->name)) {
@@ -247,9 +245,7 @@ class ShiftController extends Controller
         return $combined !== '' ? $combined : ('Karyawan #' . $e->id);
     }
 
-    /**
-     * Update pengaturan radius geofencing & toleransi keterlambatan langsung dari halaman Shift.
-     */
+
     public function updateGeofencing(Request $request)
     {
         $request->validate([

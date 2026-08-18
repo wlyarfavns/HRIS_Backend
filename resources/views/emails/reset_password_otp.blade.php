@@ -23,13 +23,13 @@
         <div class="content">
             <p>Halo,</p>
             <p>Kami menerima permintaan untuk mengatur ulang (*reset*) password akun Anda. Berikut adalah kode <i>One-Time Password</i> (OTP) Anda:</p>
-            
+
             <div class="otp-container">
                 <div class="otp-box">{{ $otpCode }}</div>
             </div>
-            
+
             <p>Kode ini hanya berlaku selama <strong>5 menit</strong>.</p>
-            
+
             <div class="warning">
                 Jika Anda tidak merasa meminta reset password, abaikan email ini. Akun Anda tetap aman.
             </div>

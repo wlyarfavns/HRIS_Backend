@@ -16,7 +16,7 @@ return new class extends Migration
             $table->date('date');
             $table->timestamps();
 
-            // Blueprint validation: 1 karyawan max 1 shift aktif per hari
+
             $table->unique(['employee_id', 'date']);
             $table->index(['company_id', 'date']);
         });

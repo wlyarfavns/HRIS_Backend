@@ -9,7 +9,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('employees', function (Blueprint $table) {
-            // Menambahkan foreign key ke tabel employees itu sendiri
+
             $table->foreignId('supervisor_id')->nullable()->constrained('employees')->nullOnDelete();
         });
     }

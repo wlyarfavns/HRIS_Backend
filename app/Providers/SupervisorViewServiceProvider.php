@@ -14,9 +14,9 @@ class SupervisorViewServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
-        // Composer ini jalan setiap kali layouts.supervisor dirender —
-        // jadi badge notifikasi & info user di sidebar/topbar selalu up-to-date
-        // di SEMUA halaman supervisor, bukan cuma di dashboard.
+
+
+
         View::composer('layouts.supervisor', function ($view) {
             $user = Auth::user();
 

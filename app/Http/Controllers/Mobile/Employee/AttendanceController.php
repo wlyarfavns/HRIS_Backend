@@ -21,13 +21,13 @@ class AttendanceController extends Controller
             ->where('date', $today)
             ->first();
 
-        // Ambil shift assignment hari ini (dipakai untuk tampilan jam kerja)
+
         $assignment = \App\Models\ShiftAssignment::with('shiftType')
             ->where('employee_id', $employee->id)
             ->where('date', $today)
             ->first();
 
-        // Susun data shift — pakai shift assignment kalau ada, fallback ke jam standar company
+
         $shiftData = null;
         if ($assignment && $assignment->shiftType) {
             $shiftData = [
@@ -55,7 +55,7 @@ class AttendanceController extends Controller
                 ->where('status', 'approved')
                 ->first();
 
-            // Kalau hari ini shift libur (is_off), tidak perlu cek batas waktu
+
             if (!$leave && !($shiftData['is_off'] ?? false)) {
                 $standardInTimeStr = $assignment
                     ? substr($assignment->shiftType->start_time, 0, 8)
@@ -67,7 +67,7 @@ class AttendanceController extends Controller
                 if (now()->greaterThan($maxTolerableTime)) {
                     $isPastTimeLimit = true;
 
-                    // BARU: catat sebagai Tidak Hadir (Alpha) ke database, sekali saja
+
                     $attendance = Attendance::create([
                         'company_id' => $company->id,
                         'employee_id' => $employee->id,
@@ -75,7 +75,7 @@ class AttendanceController extends Controller
                         'date' => $today,
                         'time_in' => null,
                         'time_out' => null,
-                        'status' => Attendance::STATUS_ABSENT, // 'alpha' — sesuai constant di model
+                        'status' => Attendance::STATUS_ABSENT, 
                     ]);
                 }
             }
@@ -183,7 +183,7 @@ class AttendanceController extends Controller
             ], 403);
         }
 
-        // Kalau ada assignment, pakai jam mulai shift-nya. Kalau tidak ada, fallback ke jam standar company.
+
         $standardInTimeStr = $assignment
             ? substr($assignment->shiftType->start_time, 0, 8)
             : $company->standard_in_time;
@@ -226,7 +226,7 @@ class AttendanceController extends Controller
         $attendance = Attendance::create([
             'company_id' => $company->id,
             'employee_id' => $employee->id,
-            'shift_assignment_id' => $assignment?->id, // BARU — lihat catatan migration di bawah
+            'shift_assignment_id' => $assignment?->id, 
             'date' => $today,
             'time_in' => now()->toTimeString(),
             'photo_in' => $photoPath,
@@ -244,9 +244,7 @@ class AttendanceController extends Controller
             'data' => $attendance
         ], 201);
     }
-    /**
-     * Karyawan mengajukan izin / sakit / cuti (dengan lampiran opsional, mis. surat dokter)
-     */
+
     public function submitLeave(Request $request)
     {
         $request->validate([
@@ -299,24 +297,19 @@ class AttendanceController extends Controller
         return $earthRadius * $c;
     }
 
-    /**
-     * Mengambil ringkasan absensi minggu ini dan statistik bulanan/tahunan
-     */
+
     public function summary(Request $request)
     {
         $employee = $request->user()->employee;
 
-        // 1. Hitung Absensi Minggu Ini
+
         $startOfWeek = Carbon::now()->startOfWeek()->toDateString();
         $endOfWeek = Carbon::now()->endOfWeek()->toDateString();
 
-        $attendances = Attendance::where('employee_id', $employee->id)
-            ->whereBetween('date', [$startOfWeek, $endOfWeek])
-            ->get();
+        $weeklyCalendar = (new \App\Services\AttendanceService())->generateAttendanceCalendar($employee, $startOfWeek, $endOfWeek);
 
-        // 2. Hitung Sisa Cuti Tahun Ini
+
         $currentYear = now()->year;
-        // Pastikan Anda sudah mengimpor App\Models\LeaveBalance di atas file ini jika belum
         $leaveBalances = \App\Models\LeaveBalance::where('employee_id', $employee->id)
             ->where('year', $currentYear)
             ->get();
@@ -325,34 +318,30 @@ class AttendanceController extends Controller
         $leaveUsed = $leaveBalances->sum('used_quota');
         $leaveBalance = max($leaveQuota - $leaveUsed, 0);
 
-        // 3. Hitung Total Lembur Bulan Ini 
-        // Asumsi Anda memiliki model App\Models\Overtime. Sesuaikan nama model dan kolom jika berbeda.
+
         $overtimeHours = 0;
-        if (class_exists(\App\Models\Overtime::class)) {
-            $overtimeHours = \App\Models\Overtime::where('employee_id', $employee->id)
-                ->where('status', 'approved') // asumsikan hanya menghitung yang disetujui
+        if (class_exists(\App\Models\OvertimeRequest::class)) {
+            $overtimeHours = \App\Models\OvertimeRequest::where('employee_id', $employee->id)
+                ->whereIn('status', ['approved_spv', 'locked']) 
                 ->whereMonth('date', now()->month)
                 ->whereYear('date', now()->year)
-                ->sum('duration'); // Sesuaikan kolom durasi (contoh: 'duration' atau 'hours')
+                ->sum('hours');
         }
 
         return response()->json([
             'success' => true,
             'data' => [
-                'present' => $attendances->where('status', Attendance::STATUS_PRESENT)->count(),
-                'late' => $attendances->where('status', Attendance::STATUS_LATE)->count(),
-                'permit' => $attendances->where('status', Attendance::STATUS_PERMIT)->count(),
-                'sick' => $attendances->where('status', Attendance::STATUS_SAKIT)->count(),
-                // Tambahkan dua field ini agar dibaca oleh Flutter
+                'present' => $weeklyCalendar->whereIn('status', ['Hadir', 'Terlambat'])->count(),
+                'late' => $weeklyCalendar->where('status', 'Terlambat')->count(),
+                'permit' => $weeklyCalendar->where('status', 'Izin Pribadi')->count(),
+                'sick' => $weeklyCalendar->where('status', 'Sakit')->count(),
+                'alpha' => $weeklyCalendar->where('status', 'Alpha')->count(),
                 'leave_balance' => $leaveBalance,
                 'overtime_hours' => $overtimeHours,
             ]
         ], 200);
     }
 
-    /**
-     * Mengambil riwayat absensi terbaru (Limit 10)
-     */
 
     public function checkAttendanceStatus(Request $request, AttendanceStatusService $service)
     {
@@ -380,21 +369,91 @@ class AttendanceController extends Controller
             ? Carbon::parse($request->month . '-01')
             : Carbon::now();
 
-        $history = Attendance::where('employee_id', $employee->id)
-            ->whereBetween('date', [
-                $month->copy()->startOfMonth()->toDateString(),
-                $month->copy()->endOfMonth()->toDateString(),
-            ])
-            ->orderBy('date', 'desc')
-            ->get(['date', 'time_in', 'time_out', 'status']);
+        $start = $month->copy()->startOfMonth()->toDateString();
+        $end = $month->copy()->endOfMonth()->toDateString();
+
+        $history = (new \App\Services\AttendanceService())->generateAttendanceCalendar($employee, $start, $end);
 
         return response()->json([
             'success' => true,
-            'data' => $history,
+            'data' => $history->toArray(),
             'meta' => [
                 'month' => $month->format('Y-m'),
                 'days_in_month' => $month->daysInMonth,
             ],
         ]);
+    }
+
+    public function statistics(Request $request)
+    {
+        $employee = $request->user()->employee;
+        $currentYear = now()->year;
+        $currentMonth = now()->month;
+
+
+        $leaveBalances = \App\Models\LeaveBalance::where('employee_id', $employee->id)
+            ->where('year', $currentYear)
+            ->get();
+        $leaveQuota = $leaveBalances->sum(fn($b) => $b->initial_quota + $b->carried_forward_quota);
+        $leaveUsed = $leaveBalances->sum('used_quota');
+        $leaveBalance = max($leaveQuota - $leaveUsed, 0);
+
+
+        $overtimeThisMonth = 0;
+        if (class_exists(\App\Models\OvertimeRequest::class)) {
+            $overtimeThisMonth = \App\Models\OvertimeRequest::where('employee_id', $employee->id)
+                ->whereIn('status', ['approved_spv', 'locked'])
+                ->whereYear('date', $currentYear)
+                ->whereMonth('date', $currentMonth)
+                ->sum('hours');
+        }
+
+
+        $startYear = Carbon::create($currentYear, 1, 1)->toDateString();
+        $endYear = Carbon::create($currentYear, 12, 31)->toDateString();
+        $yearlyCalendar = (new \App\Services\AttendanceService())->generateAttendanceCalendar($employee, $startYear, $endYear);
+
+        $thisMonthCalendar = $yearlyCalendar->filter(fn($c) => Carbon::parse($c['date'])->month == $currentMonth);
+        $lateThisMonth = $thisMonthCalendar->where('status', 'Terlambat')->count();
+        $presentThisMonth = $thisMonthCalendar->whereIn('status', ['Hadir', 'Terlambat'])->count();
+
+
+        $monthlyStats = [];
+        $months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+
+        for ($i = 1; $i <= 12; $i++) {
+            $monthlyAttendances = $yearlyCalendar->filter(fn($c) => Carbon::parse($c['date'])->month == $i);
+            $hadir = $monthlyAttendances->whereIn('status', ['Hadir', 'Terlambat'])->count();
+            $telat = $monthlyAttendances->where('status', 'Terlambat')->count();
+            $izin = $monthlyAttendances->where('status', 'Izin Pribadi')->count();
+            $sakit = $monthlyAttendances->where('status', 'Sakit')->count();
+
+            $cuti = $monthlyAttendances->whereNotIn('status', ['Hadir', 'Terlambat', 'Alpha', 'Libur', 'Izin Pribadi', 'Sakit'])->count();
+
+            $monthlyStats[] = [
+                'month' => $months[$i - 1],
+                'hadir' => $hadir,
+                'terlambat' => $telat,
+                'cuti' => $cuti + $izin + $sakit, 
+            ];
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'dashboard' => [
+                    'sisa_cuti' => $leaveBalance,
+                    'lembur_jam' => $overtimeThisMonth,
+                    'terlambat_kali' => $lateThisMonth,
+                ],
+                'detail' => [
+                    'kehadiran_hari' => $presentThisMonth,
+                    'terlambat_kali' => $lateThisMonth,
+                    'sisa_cuti' => $leaveBalance,
+                    'lembur_jam' => $overtimeThisMonth,
+                    'bulanan' => $monthlyStats,
+                ]
+            ]
+        ], 200);
     }
 }

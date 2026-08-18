@@ -2,238 +2,217 @@
 
 @section('title', 'Dashboard Supervisor')
 @section('page-title', 'Dashboard Supervisor')
-@section('page-desc', 'Pantau kehadiran tim, performansi pengajuan, dan persetujuan yang menunggu kamu.')
-
-@php
-    // $stats, $team, $teamBadge, $pending, $weeklyAttendance, $slaStats
-    // semuanya dikirim dari SupervisorDashboardController@index — tidak ada data dummy lagi.
-    // Fallback ke array kosong kalau variabel entah kenapa tidak terkirim (mis. route salah/cache lama),
-    // supaya blade tidak crash dan lebih mudah ketahuan datanya kosong daripada error 500.
-    $stats = $stats ?? [];
-    $team = $team ?? [];
-    $teamBadge = $teamBadge ?? [];
-    $pending = $pending ?? [];
-    $weeklyAttendance = $weeklyAttendance ?? [];
-    $slaStats = $slaStats ?? ['rate' => 0, 'approved' => 0, 'pending' => 0, 'rejected' => 0];
-
-    $totalTeam = count($team);
-    $hadirCount = collect($team)->whereIn('status', ['Hadir', 'Terlambat'])->count();
-
-    // Titik-titik untuk polyline SVG chart mingguan, dari data asli $weeklyAttendance (persen 0-100)
-    $chartPoints = collect($weeklyAttendance)->values();
-    $svgCoords = $chartPoints->map(function ($pct, $i) use ($chartPoints) {
-        $x = $chartPoints->count() > 1 ? 10 + ($i * (280 / max($chartPoints->count() - 1, 1))) : 10;
-        $y = 90 - (($pct / 100) * 75); // 90 = baseline, 75 = tinggi area chart
-        return round($x, 1) . ' ' . round($y, 1);
-    });
-    $areaPath = 'M ' . $svgCoords->implode(' L ') . " L 290 95 L 10 95 Z";
-    $linePath = 'M ' . $svgCoords->implode(' L ');
-    $lastPoint = $svgCoords->last();
-    $lastPct = $chartPoints->last();
-
-    // Sudut jarum gauge SLA: 0% -> 0deg, 100% -> 180deg (semi-circle), lalu offset -90deg utk transform CSS
-    $gaugeDeg = (($slaStats['rate'] ?? 0) / 100) * 180 - 90;
-@endphp
+@section('page-desc', 'Ringkasan performa tim, persetujuan, dan kehadiran hari ini.')
 
 @section('content')
+<div class="space-y-8">
 
-<div class="space-y-6">
 
-    {{-- STAT ROW --}}
-    <div class="grid grid-cols-4 gap-5">
-        @foreach ($stats as $idx => $s)
-            <div class="card-flat rounded-2xl p-5 flex flex-col justify-between animate-dash-card dash-delay-{{ $idx + 1 }} hover:shadow-md transition">
-                <div class="flex items-center justify-between mb-3">
-                    <div class="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                        <span class="material-symbols-outlined text-[20px]">{{ $s['icon'] }}</span>
-                    </div>
-                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant/60 font-mono-data">
-                        {{ $s['trend'] }}
-                    </span>
-                </div>
-                <div>
-                    <p class="text-3xl font-extrabold font-mono-data text-on-surface leading-tight">{{ $s['value'] }}</p>
-                    <p class="text-xs font-bold text-on-surface-variant/50 uppercase tracking-wide mt-1">{{ $s['label'] }}</p>
-                </div>
-            </div>
-        @endforeach
-    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 
-    {{-- VISUAL CHARTS GRID --}}
-    <div class="grid grid-cols-2 gap-5">
+        <a href="{{ route('supervisor.team.index') }}" class="block bg-[#0B3D2E] rounded-xl p-6 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 border border-transparent">
+            <p class="text-xs font-semibold uppercase tracking-wider text-emerald-100 mb-1">Anggota Tim</p>
+            <p class="text-4xl font-bold text-white">{{ $stats[0]['value'] }}</p>
+            <p class="text-xs text-emerald-200 mt-2">Lihat tim </p>
+        </a>
 
-        {{-- 1. TEAM PRODUCTIVITY & ATTENDANCE LINE CHART --}}
-        <div class="card-flat rounded-2xl p-6 flex flex-col justify-between animate-dash-card dash-delay-3 hover:shadow-md transition">
-            <div class="flex items-center justify-between mb-2">
-                <div>
-                    <h3 class="text-base font-bold text-on-surface">Kehadiran &amp; Produktivitas Tim</h3>
-                    <p class="text-xs text-on-surface-variant/50">Tren konsistensi kehadiran tim kamu</p>
-                </div>
-                <select class="text-xs bg-surface-container border border-black/5 rounded-lg px-2.5 py-1 text-on-surface font-semibold focus:outline-none cursor-pointer">
-                    <option>Bulan Ini</option>
-                    <option>3 Bulan Terakhir</option>
-                </select>
-            </div>
+        <a href="{{ route('supervisor.attendance.report') }}" class="block bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md hover:-translate-y-1 hover:border-emerald-200 transition-all duration-300">
+            <p class="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Hadir Hari Ini</p>
+            <p class="text-4xl font-bold text-gray-800">{{ $stats[1]['value'] }}</p>
+            <p class="text-xs text-emerald-600 mt-2">Laporan Kehadiran </p>
+        </a>
 
-            <div class="flex items-baseline gap-3 my-2">
-                <span class="text-3xl font-extrabold font-mono-data text-on-surface">{{ number_format($lastPct ?? 0, 1, ',', '.') }}%</span>
-            </div>
+        <a href="{{ route('supervisor.approvals.leave') }}" class="block bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md hover:-translate-y-1 hover:border-emerald-200 transition-all duration-300">
+            <p class="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Menunggu Persetujuan</p>
+            <p class="text-4xl font-bold text-gray-800">{{ $stats[2]['value'] }}</p>
+            <p class="text-xs text-emerald-600 mt-2">Cuti & Lembur </p>
+        </a>
 
-            <div class="relative mt-2 mb-1">
-                @if ($chartPoints->count() > 1)
-                    <svg viewBox="0 0 300 100" class="w-full h-28 overflow-visible">
-                        <defs>
-                            <linearGradient id="spvLineGrad" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="0%" stop-color="#10b981" stop-opacity="0.25"/>
-                                <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
-                            </linearGradient>
-                        </defs>
-                        <path d="{{ $areaPath }}" fill="url(#spvLineGrad)"/>
-                        <path class="animate-line-draw" d="{{ $linePath }}" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round"/>
-                        <circle cx="{{ explode(' ', $lastPoint)[0] }}" cy="{{ explode(' ', $lastPoint)[1] }}" r="5" fill="#10b981" stroke="#ffffff" stroke-width="2.5"/>
-                    </svg>
-                @else
-                    <p class="text-xs text-on-surface-variant/50 py-8 text-center">Belum cukup data presensi bulan ini.</p>
-                @endif
-            </div>
-
-            <div class="flex justify-between text-[11px] font-mono-data text-on-surface-variant/50 border-t border-black/5 pt-2">
-                @for ($w = 1; $w <= max($chartPoints->count(), 1); $w++)
-                    <span>Mgg {{ $w }}</span>
-                @endfor
-            </div>
-        </div>
-
-        {{-- 2. APPROVAL SLA GAUGE --}}
-        <div class="card-flat rounded-2xl p-6 flex flex-col justify-between animate-dash-card dash-delay-4 hover:shadow-md transition">
-            <div class="flex items-center justify-between mb-2">
-                <div>
-                    <h3 class="text-base font-bold text-on-surface">SLA Respon Persetujuan</h3>
-                    <p class="text-xs text-on-surface-variant/50">Tingkat kecepatan approval SPV, 30 hari terakhir</p>
-                </div>
-                <button class="text-on-surface-variant/40 hover:text-on-surface">
-                    <span class="material-symbols-outlined text-[20px]">more_horiz</span>
-                </button>
-            </div>
-
-            <div class="grid grid-cols-12 gap-4 items-center my-1">
-                {{-- SVG Semi-Circle Gauge --}}
-                <div class="col-span-6 flex flex-col items-center relative">
-                    <svg viewBox="0 0 100 60" class="w-40 h-24 overflow-visible">
-                        <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#e2e8f0" stroke-width="11" stroke-linecap="round"/>
-                        <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#10b981" stroke-width="11" stroke-linecap="round"
-                              stroke-dasharray="{{ round(($slaStats['rate'] ?? 0) / 100 * 125.6, 1) }} 125.6"/>
-                        <g style="transform: rotate({{ $gaugeDeg }}deg); transform-origin: 50px 50px;">
-                            <line x1="50" y1="50" x2="50" y2="16" stroke="#191c1d" stroke-width="3.5" stroke-linecap="round"/>
-                            <circle cx="50" cy="50" r="5" fill="#191c1d"/>
-                        </g>
-                    </svg>
-                    <div class="text-center -mt-3">
-                        <span class="text-2xl font-extrabold font-mono-data text-on-surface block">{{ $slaStats['rate'] ?? 0 }}%</span>
-                        <span class="text-[11px] text-on-surface-variant/50 font-medium">kecepatan respon</span>
-                    </div>
-                </div>
-
-                {{-- Legend Stats --}}
-                <div class="col-span-6 space-y-2.5 text-xs">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0"></span>
-                            <span class="text-on-surface-variant/70">Disetujui</span>
-                        </div>
-                        <span class="font-bold font-mono-data text-on-surface">{{ $slaStats['approved'] ?? 0 }}</span>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-300 shrink-0"></span>
-                            <span class="text-on-surface-variant/70">Pending SPV</span>
-                        </div>
-                        <span class="font-bold font-mono-data text-on-surface">{{ $slaStats['pending'] ?? 0 }}</span>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <span class="w-2.5 h-2.5 rounded-full bg-rose-400 shrink-0"></span>
-                            <span class="text-on-surface-variant/70">Ditolak</span>
-                        </div>
-                        <span class="font-bold font-mono-data text-on-surface">{{ $slaStats['rejected'] ?? 0 }}</span>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <a href="{{ route('supervisor.attendance.report') }}" class="block bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md hover:-translate-y-1 hover:border-emerald-200 transition-all duration-300">
+            <p class="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Sedang Cuti / Izin</p>
+            <p class="text-4xl font-bold text-gray-800">{{ $stats[3]['value'] }}</p>
+            <p class="text-xs text-emerald-600 mt-2">Lihat Kehadiran </p>
+        </a>
 
     </div>
 
-    {{-- TIM HARI INI & PERSETUJUAN --}}
-    <div class="grid grid-cols-3 gap-5 animate-dash-card dash-delay-5">
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
 
-        {{-- STATUS TIM HARI INI --}}
-        <div class="col-span-2 card-flat rounded-2xl overflow-hidden">
-            <div class="px-6 py-4 border-b border-black/5 flex items-center justify-between">
-                <div>
-                    <h2 class="text-base font-bold text-on-surface">Status Tim Hari Ini</h2>
-                    <p class="text-xs text-on-surface-variant/50 mt-0.5">Ringkasan kehadiran anggota tim kamu</p>
-                </div>
-                <span class="text-xs font-mono-data font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
-                    {{ $hadirCount }} / {{ $totalTeam }} Hadir
-                </span>
-            </div>
 
-            <div class="divide-y divide-black/5">
-                @forelse ($team as $t)
-                    <div class="px-6 py-3.5 flex items-center justify-between hover:bg-surface-container/40 transition">
-                        <div class="flex items-center gap-3">
-                            <img src="https://i.pravatar.cc/32?img={{ $t['avatar'] }}" class="w-8 h-8 rounded-full border border-black/10 object-cover" alt="{{ $t['name'] }}">
-                            <p class="font-bold text-on-surface text-xs">{{ $t['name'] }}</p>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <span class="text-xs font-mono-data text-on-surface-variant/50">{{ $t['time'] }}</span>
-                            <span class="text-[11px] font-bold px-2.5 py-1 rounded-full {{ $teamBadge[$t['status']] ?? 'bg-surface-container text-on-surface-variant' }}">{{ $t['status'] }}</span>
-                        </div>
+        <div class="xl:col-span-2 space-y-8">
+            <div class="bg-white rounded-md border border-gray-100 shadow-sm overflow-hidden flex flex-col">
+                <div class="px-8 py-6 border-b border-gray-100 bg-gray-50/50 flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-[20px] text-gray-700">pending_actions</span>
                     </div>
-                @empty
-                    <p class="px-6 py-6 text-xs text-on-surface-variant/50 text-center">Belum ada anggota tim terdaftar.</p>
-                @endforelse
-            </div>
-        </div>
+                    <h3 class="text-lg font-medium text-gray-800">Tugas Persetujuan (Menunggu)</h3>
+                </div>
 
-        {{-- MENUNGGU PERSETUJUAN --}}
-        <div class="card-flat rounded-2xl overflow-hidden flex flex-col justify-between">
-            <div>
-                <div class="px-6 py-4 border-b border-black/5 flex items-center justify-between">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left whitespace-nowrap">
+                        <thead class="bg-gray-50 border-b border-gray-100">
+                            <tr class="text-[11px] font-medium text-gray-500 uppercase tracking-widest">
+                                <th class="px-8 py-4">Karyawan</th>
+                                <th class="px-6 py-4">Jenis</th>
+                                <th class="px-6 py-4">Detail</th>
+                                <th class="px-8 py-4 text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 text-gray-700">
+                            @if(isset($pending) && $pending->count() > 0)
+                                @foreach($pending as $p)
+                                <tr class="hover:bg-gray-50 transition group">
+                                    <td class="px-8 py-4">
+                                        <div class="flex items-center gap-3">
+                                            <img :src="'https://i.pravatar.cc/36?img=' + {{ $p['avatar'] }}" class="w-10 h-10 rounded-full object-cover shrink-0 ring-2 ring-gray-50" alt="">
+                                            <span class="font-medium text-sm text-gray-800 group-hover:text-[#0B3D2E] transition-colors">{{ $p['name'] }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <span class="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-md bg-gray-100 text-gray-600 border border-gray-200">
+                                            {{ $p['type'] }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-xs  text-gray-500">{{ $p['detail'] }}</td>
+                                    <td class="px-8 py-4 text-center">
+                                        <a href="{{ route($p['route'] ?? 'supervisor.dashboard') }}" class="inline-flex items-center gap-1 bg-gray-50 text-[#0B3D2E] text-xs font-medium px-4 py-2 rounded-md hover:bg-[#0B3D2E] hover:text-white transition shadow-sm border border-gray-200">
+                                            Review
+                                        </a>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            @else
+                                <tr>
+                                    <td colspan="4" class="px-8 py-12 text-center text-sm text-gray-500">
+                                        <div class="flex flex-col items-center gap-2">
+                                            Tidak ada pengajuan yang perlu direview
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endif
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+
+            @if(isset($slaStats))
+            <div class="bg-white rounded-md border border-gray-100 shadow-sm p-8">
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-[20px] text-[#0B3D2E]">speed</span>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-800">Tingkat Respons Persetujuan (SLA)</h3>
+                </div>
+
+                <div class="space-y-6">
                     <div>
-                        <h2 class="text-base font-bold text-on-surface">Menunggu Persetujuan</h2>
-                        <p class="text-xs text-on-surface-variant/50 mt-0.5">Status "Pending SPV"</p>
+                        <div class="flex justify-between items-center text-sm font-medium mb-3">
+                            <span class="text-gray-500">Tingkat Persetujuan Tepat Waktu</span>
+                            <span class="text-[#0B3D2E] font-semibold text-lg">{{ $slaStats['rate'] }}%</span>
+                        </div>
+                        <div class="w-full bg-gray-100 rounded-full h-3 shadow-sm overflow-hidden">
+                            <div class="bg-[#0B3D2E] h-full rounded-full transition-all duration-500" style="width: {{ $slaStats['rate'] }}%"></div>
+                        </div>
                     </div>
-                    <span class="w-6 h-6 rounded-full bg-amber-500 text-white font-mono-data text-xs font-bold flex items-center justify-center">
-                        {{ count($pending) }}
-                    </span>
+
+                    <div class="grid grid-cols-2 gap-6 p-5 bg-gray-50 rounded-md border border-gray-100">
+                        <div>
+                            <span class="block text-[11px] font-medium text-gray-500 uppercase tracking-widest mb-1.5">Disetujui / Ditolak</span>
+                            <span class="font-semibold  text-gray-800 text-lg">{{ $slaStats['approved'] + $slaStats['rejected'] }} <span class="text-xs text-gray-500 font-sans font-medium">Pengajuan</span></span>
+                        </div>
+                        <div>
+                            <span class="block text-[11px] font-medium text-gray-500 uppercase tracking-widest mb-1.5">Masih Tertunda</span>
+                            <span class="font-semibold  text-gray-700 text-lg">{{ $slaStats['pending'] }} <span class="text-xs text-gray-500 font-sans font-medium">Pengajuan</span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endif
+        </div>
+
+
+        <div class="xl:col-span-1 space-y-8">
+            <div class="bg-white rounded-md border border-gray-100 shadow-sm overflow-hidden flex flex-col h-[500px]">
+                <div class="px-6 py-5 border-b border-gray-100 bg-gray-50/50 shrink-0">
+                    <h3 class="text-base font-medium text-gray-800">Kehadiran Tim Hari Ini</h3>
+                    <p class="text-xs text-gray-500 mt-1">Status presensi anggota tim</p>
                 </div>
 
-                <div class="divide-y divide-black/5">
-                    @forelse ($pending as $p)
-                        <a href="{{ route($p['route']) }}" class="px-6 py-3.5 flex items-center gap-3 hover:bg-emerald-50/50 transition block">
-                            <img src="https://i.pravatar.cc/28?img={{ $p['avatar'] }}" class="w-7 h-7 rounded-full object-cover shrink-0 border border-black/10" alt="{{ $p['name'] }}">
-                            <div class="min-w-0 flex-1">
-                                <p class="text-xs font-bold text-on-surface truncate">{{ $p['name'] }}</p>
-                                <p class="text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md inline-block my-0.5 border border-emerald-200/60">{{ $p['type'] }}</p>
-                                <p class="text-[11px] text-on-surface-variant/50 truncate">{{ $p['detail'] }}</p>
+                <div class="flex-1 overflow-y-auto p-2 custom-scrollbar">
+                    @if(isset($team) && $team->count() > 0)
+                        <div class="space-y-1">
+                        @foreach($team as $m)
+                        <div class="flex items-center justify-between p-4 hover:bg-gray-50 rounded-md transition">
+                            <div class="flex items-center gap-3">
+                                <img :src="'https://i.pravatar.cc/32?img=' + {{ $m['avatar'] }}" class="w-8 h-8 rounded-full object-cover shrink-0 ring-2 ring-gray-100" alt="">
+                                <div>
+                                    <p class="font-medium text-sm text-gray-800 leading-tight">{{ $m['name'] }}</p>
+                                    <p class="text-[11px] text-gray-500 mt-0.5 ">{{ $m['time'] }}</p>
+                                </div>
                             </div>
-                            <span class="material-symbols-outlined text-on-surface-variant/40 text-[18px] shrink-0">chevron_right</span>
-                        </a>
-                    @empty
-                        <p class="px-6 py-6 text-xs text-on-surface-variant/50 text-center">Tidak ada pengajuan yang menunggu.</p>
-                    @endforelse
+                            <div>
+                                @php
+                                    $bClass = 'bg-gray-100 text-gray-600 border-gray-200';
+                                    if ($m['status'] === 'Hadir') $bClass = 'bg-gray-50 text-[#0B3D2E] border-gray-200';
+                                    elseif ($m['status'] === 'Terlambat') $bClass = 'bg-gray-50 text-gray-700 border-gray-200';
+                                    elseif (str_contains($m['status'], 'Izin') || str_contains($m['status'], 'Cuti')) $bClass = 'bg-violet-50 text-violet-700 border-violet-100';
+                                    elseif ($m['status'] === 'Belum Presensi') $bClass = 'bg-gray-50 text-gray-700 border-gray-200';
+                                @endphp
+                                <span class="text-[10px] font-medium px-2.5 py-1 rounded-md border {{ $bClass }}">
+                                    {{ $m['status'] }}
+                                </span>
+                            </div>
+                        </div>
+                        @endforeach
+                        </div>
+                    @else
+                        <div class="flex flex-col items-center justify-center h-full">
+                            <p class="text-sm font-medium text-gray-500">Belum ada anggota tim.</p>
+                        </div>
+                    @endif
                 </div>
             </div>
 
-            <div class="px-6 py-3.5 bg-surface-container border-t border-black/5 text-center">
-                <a href="{{ route('supervisor.approvals.leave') }}" class="text-xs font-bold text-primary hover:text-emerald-700 transition inline-flex items-center gap-1">
-                    Lihat semua pengajuan tim &rarr;
-                </a>
+
+            <div class="bg-white rounded-md border border-gray-100 shadow-sm overflow-hidden">
+                <div class="px-6 py-5 border-b border-gray-100 bg-gray-50/50">
+                    <h3 class="text-base font-medium text-gray-800">Pintasan Supervisor</h3>
+                </div>
+                <div class="p-4 space-y-3">
+                    <a href="{{ route('supervisor.attendance.report') }}" class="flex items-center gap-3 p-4 rounded-md bg-white border border-gray-200 hover:border-[#0B3D2E] shadow-sm transition group">
+                        <div class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-[16px] text-[#0B3D2E]">description</span>
+                        </div>
+                        <span class="font-medium text-sm text-gray-700 group-hover:text-[#0B3D2E]">Laporan Kehadiran Tim</span>
+                    </a>
+                    <a href="{{ route('supervisor.approvals.shift') }}" class="flex items-center gap-3 p-4 rounded-md bg-white border border-gray-200 hover:border-[#0B3D2E] shadow-sm transition group">
+                        <div class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-[16px] text-gray-700">swap_horiz</span>
+                        </div>
+                        <span class="font-medium text-sm text-gray-700 group-hover:text-[#0B3D2E]">Persetujuan Tukar Shift</span>
+                    </a>
+                </div>
             </div>
+
         </div>
     </div>
 
 </div>
 
+<style>
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #e5e7eb;
+    border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #d1d5db;
+}
+</style>
 @endsection

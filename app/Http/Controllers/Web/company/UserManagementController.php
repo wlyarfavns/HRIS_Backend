@@ -86,7 +86,7 @@ class UserManagementController extends Controller
                 'password' => Hash::make($request->password),
             ]);
 
-            // Map roles
+
             $roleMap = [
                 'Super Admin' => 'company',
                 'HR Admin' => 'hr',
@@ -200,12 +200,11 @@ class UserManagementController extends Controller
             return redirect()->back()->withErrors(['error' => 'Akun Super Admin tidak boleh dihapus.']);
         }
 
-        // Hapus pengguna
+
         $user->delete();
 
         return redirect()->route('admin.users.index')->with('success', 'Pengguna berhasil dihapus!');
     }
-
 
     public function indexWeb(Request $request)
     {
@@ -214,7 +213,7 @@ class UserManagementController extends Controller
         $query = User::where('company_id', $companyId)
             ->role(['hr', 'finance', 'supervisor']);
 
-        // 2. FITUR PENCARIAN (Search)
+
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -236,7 +235,7 @@ class UserManagementController extends Controller
             }
         }
 
-        $users = $query->get();
+        $users = $query->paginate(10)->withQueryString();
 
         $roles = [
             ['name' => 'HR Admin', 'users' => User::role('hr')->where('company_id', $companyId)->count(), 'icon' => 'badge'],
@@ -262,7 +261,7 @@ class UserManagementController extends Controller
     {
         $user = User::findOrFail($id);
 
-        // Ambil role pertama yang dimiliki user ini
+
         $userRole = $user->roles->first() ? $user->roles->first()->name : 'employee';
 
         $displayRoleMap = [

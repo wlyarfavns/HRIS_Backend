@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 
 class PositionController extends Controller
 {
-    
+
     public function index(Request $request)
     {
         $positions = Position::with('department')
@@ -47,7 +47,7 @@ public function store(Request $request)
 
 public function show(Request $request, Position $position)
     {
-        
+
         if ($position->company_id !== $request->user()->company_id) {
             return response()->json([
                 'success' => false,

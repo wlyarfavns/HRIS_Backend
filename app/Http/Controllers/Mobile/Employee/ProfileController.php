@@ -13,7 +13,6 @@ class ProfileController extends Controller
     {
         $user = $request->user();
 
-
         $employee = $user->employee()
             ->with(['company', 'department', 'position'])
             ->first();
@@ -53,7 +52,7 @@ class ProfileController extends Controller
         $user = $request->user();
         $employee = $user->employee;
 
-        // Validasi input dari Flutter
+
         $request->validate([
             'name' => 'required|string|max:255',
             'birth_place' => 'nullable|string',
@@ -67,12 +66,12 @@ class ProfileController extends Controller
         try {
             \Illuminate\Support\Facades\DB::beginTransaction();
 
-            // 1. Update tabel users
+
             $user->update([
                 'name' => $request->name,
             ]);
 
-            // 2. Update tabel employees
+
             if ($employee) {
                 $employee->update([
                     'full_name' => $request->name,
@@ -106,7 +105,7 @@ class ProfileController extends Controller
     {
         $user = $request->user();
 
-        // 1. Validasi input yang masuk
+
         $request->validate([
             'current_password' => 'required|string',
             'new_password' => [
@@ -119,15 +118,15 @@ class ProfileController extends Controller
             ],
         ]);
 
-        // 2. CEK KECOCOKAN PASSWORD LAMA
+
         if (!Hash::check($request->current_password, $user->password)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Kata sandi saat ini tidak cocok.'
-            ], 400); // Mengembalikan status 400 Bad Request
+            ], 400); 
         }
 
-        // 3. JIKA COCOK, UPDATE PASSWORD BARU
+
         try {
             $user->update([
                 'password' => Hash::make($request->new_password)

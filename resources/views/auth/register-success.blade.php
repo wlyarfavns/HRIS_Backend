@@ -40,9 +40,9 @@
 
 <body class="bg-[#0d3b2e] min-h-screen flex items-center justify-center p-4">
 
-    <div class="w-full max-w-3xl bg-[#fffdf9] rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row relative">
+    <div class="w-full max-w-3xl bg-[#fffdf9] rounded-md shadow-sm overflow-hidden flex flex-col md:flex-row relative">
 
-        {{-- MAIN SECTION --}}
+
         <div class="w-full md:w-[64%] p-9 md:p-10">
 
             <div class="flex items-center gap-2 mb-8">
@@ -91,16 +91,16 @@
             </p>
         </div>
 
-        {{-- PERFORATION (vertical, desktop) --}}
+
         <div class="perforation-v hidden md:block relative w-0 border-l-2 border-dashed border-gray-200">
             <div class="notch" style="top: -13px;"></div>
             <div class="notch" style="bottom: -13px;"></div>
         </div>
 
-        {{-- PERFORATION (horizontal, mobile) --}}
+
         <div class="perforation-h hidden border-t-2 border-dashed border-gray-200 mx-9"></div>
 
-        {{-- STUB SECTION --}}
+
         <div class="w-full md:w-[36%] bg-[#f8f6f0] p-8 flex flex-col justify-between">
 
             <div>

@@ -11,14 +11,14 @@ class StructureController extends Controller
 {
     public function index(Request $request)
     {
-        // Default to company_id 1 if not logged in (for local testing without auth)
+
         $companyId = $request->user() ? $request->user()->company_id : 1;
 
-        // Fetch actual data
+
         $departments = Department::where('company_id', $companyId)
             ->withCount('employees')
             ->get();
-        
+
         $jobGrades = JobGrade::where('company_id', $companyId)->get();
 
         return view('hr.struktur.index', compact('departments', 'jobGrades'));
@@ -36,7 +36,7 @@ class StructureController extends Controller
             'company_id' => $companyId,
             'name' => $request->name,
             'code' => strtoupper(substr($request->name, 0, 3)),
-            'description' => $request->head ?? null, // Use description to store head temporarily if needed
+            'description' => $request->head ?? null, 
         ]);
 
         return redirect()->route('hr.structure.index')->with('success', 'Departemen baru berhasil ditambahkan!');
@@ -51,7 +51,7 @@ class StructureController extends Controller
 
         $companyId = $request->user() ? $request->user()->company_id : 1;
 
-        // Extract integer from grade (e.g. "JG-1" -> 1)
+
         preg_match('/\d+/', $request->grade, $matches);
         $level = isset($matches[0]) ? (int) $matches[0] : 1;
 
@@ -61,7 +61,7 @@ class StructureController extends Controller
             'level' => $level,
             'default_allowance' => 0, 
         ]);
-        
+
         return redirect()->route('hr.structure.index')->with('success', 'Job Grade baru berhasil ditambahkan!');
     }
 }

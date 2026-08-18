@@ -41,7 +41,7 @@ class AttendanceController extends Controller
         } else {
             $actualClockIn = $request->actual_clock_in ? Carbon::parse($request->actual_clock_in) : null;
             $actualClockOut = $request->actual_clock_out ? Carbon::parse($request->actual_clock_out) : null;
-            
+
             $expectedClockIn = $request->expected_clock_in ? Carbon::parse($request->expected_clock_in) : null;
             $expectedClockOut = $request->expected_clock_out ? Carbon::parse($request->expected_clock_out) : null;
 

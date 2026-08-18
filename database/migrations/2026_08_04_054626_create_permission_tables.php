@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    
+
     public function up(): void
     {
         $teams = config('permission.teams');
@@ -19,7 +19,7 @@ return new class extends Migration
         throw_if($teams && empty($columnNames['team_foreign_key'] ?? null), Exception::class, 'Error: team_foreign_key on config/permission.php not loaded. Run [php artisan config:clear] and try again.');
 
         Schema::create($tableNames['permissions'], static function (Blueprint $table) {
-            
+
             $table->bigIncrements('id'); 
             $table->string('name');       
             $table->string('guard_name'); 
@@ -29,7 +29,7 @@ return new class extends Migration
         });
 
         Schema::create($tableNames['roles'], static function (Blueprint $table) use ($teams, $columnNames) {
-            
+
             $table->bigIncrements('id'); 
             if ($teams || config('permission.testing')) { 
                 $table->unsignedBigInteger($columnNames['team_foreign_key'])->nullable();

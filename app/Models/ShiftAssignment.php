@@ -4,9 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-/**
- * @property \Carbon\Carbon $date
- */
 class ShiftAssignment extends Model
 {
     protected $fillable = [

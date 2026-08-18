@@ -9,6 +9,7 @@ use App\Models\LeaveType;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use App\Notifications\SystemNotification;
 
 class LeaveController extends Controller
 {
@@ -16,7 +17,7 @@ class LeaveController extends Controller
     {
         $companyId = $request->user()->company_id;
 
-        // Pending = hanya yang sudah disetujui SPV, menunggu HR
+
         $pending = LeaveRequest::forCompany($companyId)
             ->where('status', 'pending_hr')
             ->count();
@@ -45,17 +46,15 @@ class LeaveController extends Controller
         $leaveRequests = LeaveRequest::with(['employee.department', 'employee.position', 'leaveType', 'approver'])
             ->forCompany($companyId)
             ->latest()
-            ->get();
+            ->paginate(10)
+            ->withQueryString();
 
         $leaveTypes = LeaveType::where('company_id', $companyId)->get();
 
         return view('hr.persetujuan.cuti', compact('stats', 'leaveRequests', 'leaveTypes'));
     }
 
-    /**
-     * HR approve — hanya bisa jika status pending_hr
-     * (sudah melewati Supervisor).
-     */
+
     public function approve(Request $request, $id)
     {
         $companyId    = $request->user()->company_id;
@@ -101,14 +100,20 @@ class LeaveController extends Controller
             'approved_at' => now(),
         ]);
 
+        if ($leaveRequest->employee && $leaveRequest->employee->user) {
+            $leaveRequest->employee->user->notify(new SystemNotification(
+                'Pengajuan Cuti Disetujui',
+                'Pengajuan cuti Anda untuk tanggal ' . Carbon::parse($leaveRequest->start_date)->translatedFormat('d M Y') . ' telah disetujui oleh HR.',
+                'success'
+            ));
+        }
+
         return back()->with('success',
             "Pengajuan cuti {$leaveRequest->employee->full_name} berhasil disetujui oleh HR."
         );
     }
 
-    /**
-     * HR tolak — bisa tolak di tahap pending_hr.
-     */
+
     public function reject(Request $request, $id)
     {
         $request->validate([
@@ -118,8 +123,23 @@ class LeaveController extends Controller
         $companyId    = $request->user()->company_id;
         $leaveRequest = LeaveRequest::forCompany($companyId)->findOrFail($id);
 
-        if (!in_array($leaveRequest->status, ['pending_hr', 'pending_spv'])) {
-            return back()->with('error', 'Pengajuan ini sudah diproses sebelumnya.');
+        if ($leaveRequest->status === 'rejected') {
+            return back()->with('error', 'Pengajuan ini sudah dibatalkan/ditolak sebelumnya.');
+        }
+
+
+        if ($leaveRequest->status === 'approved') {
+            $leaveType = $leaveRequest->leaveType;
+            if ($leaveType && $leaveType->is_quota_based) {
+                $year = Carbon::parse($leaveRequest->start_date)->year;
+                $balance = LeaveBalance::where('employee_id', $leaveRequest->employee_id)
+                    ->where('leave_type_id', $leaveRequest->leave_type_id)
+                    ->where('year', $year)->first();
+
+                if ($balance) {
+                    $balance->decrement('used_quota', $leaveRequest->total_days);
+                }
+            }
         }
 
         $leaveRequest->update([
@@ -128,6 +148,14 @@ class LeaveController extends Controller
             'approved_at'      => now(),
             'rejection_reason' => $request->rejection_reason,
         ]);
+
+        if ($leaveRequest->employee && $leaveRequest->employee->user) {
+            $leaveRequest->employee->user->notify(new SystemNotification(
+                'Pengajuan Cuti Ditolak/Dibatalkan',
+                'Pengajuan cuti Anda untuk tanggal ' . Carbon::parse($leaveRequest->start_date)->translatedFormat('d M Y') . ' telah dibatalkan atau ditolak oleh HR.',
+                'error'
+            ));
+        }
 
         return back()->with('success',
             "Pengajuan cuti {$leaveRequest->employee->full_name} berhasil ditolak."

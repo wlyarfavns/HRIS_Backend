@@ -96,4 +96,80 @@ class DepartmentController extends Controller
             'message'=>'Department berhasil dihapus.'
         ]);
     }
+
+    public function indexWeb(Request $request)
+    {
+        $companyId = $request->user()->company_id;
+        $departments = Department::where('company_id', $companyId)
+            ->withCount('employees')
+            ->with(['employees' => function($q) {
+                $q->select('id', 'department_id', 'full_name', 'employee_id');
+            }])
+            ->paginate(10);
+
+
+        $defaultDepartments = [
+            'Information Technology (IT)',
+            'Human Resources (HR)',
+            'Finance & Accounting',
+            'Marketing & Sales',
+            'Operations',
+            'Customer Service',
+            'Research & Development',
+            'Legal'
+        ];
+
+
+        $existingDeptNames = Department::where('company_id', $companyId)->pluck('name')->toArray();
+        $availableDepartments = array_diff($defaultDepartments, $existingDeptNames);
+
+        return view('admin.perusahaan.struktur-organisasi', [
+            'departments' => $departments,
+            'defaultDepartments' => $availableDepartments
+        ]);
+    }
+
+    public function storeWeb(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:100',
+        ]);
+
+        $companyId = $request->user()->company_id;
+
+
+        $exists = Department::where('company_id', $companyId)
+            ->where('name', $request->name)
+            ->exists();
+
+        if ($exists) {
+            return redirect()->back()->with('error', 'Departemen tersebut sudah ada.');
+        }
+
+        Department::create([
+            'company_id' => $companyId,
+            'name' => $request->name,
+            'code' => strtoupper(substr(str_replace(' ', '', $request->name), 0, 4)),
+        ]);
+
+        return redirect()->route('admin.org-structure.index')->with('success', 'Departemen berhasil ditambahkan.');
+    }
+
+    public function destroyWeb(Request $request, $id)
+    {
+        $department = Department::findOrFail($id);
+
+        abort_if(
+            $department->company_id != $request->user()->company_id,
+            403
+        );
+
+        if ($department->employees()->count() > 0) {
+            return redirect()->back()->with('error', 'Departemen tidak dapat dihapus karena masih memiliki anggota.');
+        }
+
+        $department->delete();
+
+        return redirect()->route('admin.org-structure.index')->with('success', 'Departemen berhasil dihapus.');
+    }
 }

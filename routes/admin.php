@@ -24,7 +24,9 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
         Route::get('/perusahaan/{id}/edit', [CompanyProfileController::class, 'editWeb'])->name('company.edit');
         Route::put('/perusahaan/update', [CompanyProfileController::class, 'updateWeb'])->name('company.update');
 
-        Route::get('/struktur-organisasi', fn() => view('admin.perusahaan.struktur-organisasi'))->name('org-structure.index');
+        Route::get('/struktur-organisasi', [\App\Http\Controllers\Web\company\DepartmentController::class, 'indexWeb'])->name('org-structure.index');
+        Route::post('/struktur-organisasi', [\App\Http\Controllers\Web\company\DepartmentController::class, 'storeWeb'])->name('org-structure.store');
+        Route::delete('/struktur-organisasi/{id}', [\App\Http\Controllers\Web\company\DepartmentController::class, 'destroyWeb'])->name('org-structure.destroy');
 
         Route::get('/keamanan', fn() => view('admin.keamanan.index'))->name('security.index');
 

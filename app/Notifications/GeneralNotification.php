@@ -22,7 +22,7 @@ class GeneralNotification extends Notification
 
     public function via($notifiable)
     {
-        return ['database']; // Hanya simpan ke database
+        return ['database']; 
     }
 
     public function toArray($notifiable)

@@ -9,6 +9,6 @@
         <span>{{ $slot }}</span>
     </span>
     @if($badge)
-        <span class="bg-brand-gold/20 text-primary text-[10px] font-bold px-1.5 py-0.5 rounded">{{ $badge }}</span>
+        <span class="bg-brand-gold/20 text-primary text-[10px] font-medium px-1.5 py-0.5 rounded">{{ $badge }}</span>
     @endif
 </a>

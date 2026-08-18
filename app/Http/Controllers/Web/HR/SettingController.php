@@ -11,10 +11,10 @@ class SettingController extends Controller
 {
     public function index()
     {
-        // Hardcode company ID = 1 for demo purposes
+
         $companyId = 1;
         $company = Company::findOrFail($companyId);
-        
+
         $leaveTypes = LeaveType::where('company_id', $companyId)->get();
 
         if ($leaveTypes->isEmpty()) {
@@ -22,7 +22,7 @@ class SettingController extends Controller
             LeaveType::create(['company_id' => $companyId, 'name' => 'Sakit', 'is_quota_based' => false, 'requires_attachment' => true]);
             LeaveType::create(['company_id' => $companyId, 'name' => 'Izin Pribadi', 'is_quota_based' => true, 'default_quota' => 3, 'requires_attachment' => false]);
             LeaveType::create(['company_id' => $companyId, 'name' => 'Cuti Melahirkan', 'is_quota_based' => false, 'requires_attachment' => true]);
-            
+
             $leaveTypes = LeaveType::where('company_id', $companyId)->get();
         }
 

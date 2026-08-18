@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Web\Supervisor;
 use App\Http\Controllers\Controller;
 use App\Models\OvertimeRequest;
 use Illuminate\Http\Request;
+use App\Models\User;
+use App\Notifications\GeneralNotification;
+use App\Notifications\SystemNotification;
 
 class OvertimeApprovalController extends Controller
 {
@@ -21,7 +24,7 @@ class OvertimeApprovalController extends Controller
                 ->where('supervisor_id', $supervisor->id)
             )
             ->latest('date')
-            ->get();
+            ->paginate(10)->withQueryString();
 
         $history = OvertimeRequest::with('employee')
             ->where('company_id', $companyId)
@@ -32,11 +35,10 @@ class OvertimeApprovalController extends Controller
             )
             ->where('approved_by', $supervisor->id)
             ->latest('approved_at')
-            ->limit(10)
-            ->get();
+            ->paginate(10)->withQueryString();
 
         $stats = [
-            'pending_review' => $pending->count(),
+            'pending_review' => $pending->total(),
             'today_overtime' => OvertimeRequest::where('company_id', $companyId)
                 ->whereHas('employee', fn ($q) => $q->where('supervisor_id', $supervisor->id))
                 ->whereDate('date', today())->count(),
@@ -65,6 +67,23 @@ class OvertimeApprovalController extends Controller
             ),
         ]);
 
+        $hrUsers = User::role('hr')->where('company_id', $request->user()->company_id)->get();
+        foreach ($hrUsers as $hrUser) {
+            $hrUser->notify(new GeneralNotification(
+                'Persetujuan Lembur (Menunggu HR)',
+                "Supervisor telah menyetujui pengajuan lembur {$overtime->employee->full_name}. Silakan tinjau dan proses penggajian lembur.",
+                route('hr.approvals.overtime') 
+            ));
+        }
+
+        if ($overtime->employee && $overtime->employee->user) {
+            $overtime->employee->user->notify(new SystemNotification(
+                'Lembur Disetujui SPV',
+                'Pengajuan lembur Anda telah disetujui Supervisor dan diteruskan ke HR.',
+                'info'
+            ));
+        }
+
         return redirect()->route('supervisor.approvals.overtime')
             ->with('success', 'SPL berhasil disetujui & diteruskan ke HR Operations.');
     }
@@ -83,14 +102,19 @@ class OvertimeApprovalController extends Controller
             'rejection_reason' => $data['reason'] ?? 'Ditolak oleh Supervisor',
         ]);
 
+        if ($overtime->employee && $overtime->employee->user) {
+            $overtime->employee->user->notify(new SystemNotification(
+                'Lembur Ditolak',
+                'Pengajuan lembur Anda telah ditolak oleh Supervisor. Alasan: ' . ($data['reason'] ?? 'Tidak ada alasan.'),
+                'error'
+            ));
+        }
+
         return redirect()->route('supervisor.approvals.overtime')
             ->with('success', 'SPL ditolak.');
     }
 
-    /**
-     * Pastikan SPL yang mau diproses memang milik anak buah supervisor
-     * yang sedang login (cegah IDOR: approve/reject SPL tim lain).
-     */
+
     private function authorizeOwnership(Request $request, OvertimeRequest $overtime): void
     {
         $supervisor = $request->user();

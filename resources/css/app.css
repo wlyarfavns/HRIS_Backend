@@ -6,7 +6,7 @@
 @source '../**/*.js';
 
 @theme {
-    --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-sans: 'Outfit', system-ui, -apple-system, sans-serif;
     --font-mono-data: 'IBM Plex Mono', ui-monospace, monospace;
 
     --color-primary: #0B3D2E;
@@ -34,7 +34,7 @@
 
 /* Custom Base & Utility Classes */
 body {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Outfit', sans-serif;
 }
 
 .font-mono-data {

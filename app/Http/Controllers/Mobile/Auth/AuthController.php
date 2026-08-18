@@ -77,10 +77,7 @@ class AuthController extends Controller
         ]);
     }
 
-    /**
-     * LANGKAH 1 — Karyawan submit email, sistem kirim kode OTP 6 digit.
-     * Email BELUM disimpan permanen di sini — baru disimpan setelah verifyOtp() berhasil.
-     */
+
     public function sendActivationOtp(Request $request)
     {
         $user = $request->user();
@@ -94,7 +91,7 @@ class AuthController extends Controller
         }
 
         $request->validate([
-            // Email unik PER company (bukan unik global), sesuai isolasi multi-tenant
+
             'email' => [
                 'required',
                 'email',
@@ -103,7 +100,7 @@ class AuthController extends Controller
             'phone' => 'nullable|string|max:20',
         ]);
 
-        // --- TAMBAHKAN LOGIKA PENCEGAH SPAM (COOLDOWN 5 MENIT) DI SINI ---
+
         $existingOtp = EmailOtp::where('user_id', $user->id)->latest()->first();
 
         if ($existingOtp && now()->lessThan($existingOtp->expires_at)) {
@@ -111,15 +108,14 @@ class AuthController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Kode OTP masih aktif. Silakan tunggu ' . ceil($remaining / 60) . ' menit lagi untuk meminta kode baru.'
-            ], 429); // 429 Too Many Requests
+            ], 429); 
         }
-        // -----------------------------------------------------------------
 
-        // Generate kode OTP 6 digit
+
         $otpCode = (string) random_int(100000, 999999);
 
         DB::transaction(function () use ($user, $request, $otpCode) {
-            // Hapus OTP lama milik user ini (kalau ada), supaya cuma 1 yang aktif
+
             EmailOtp::where('user_id', $user->id)->delete();
 
             EmailOtp::create([
@@ -139,10 +135,7 @@ class AuthController extends Controller
         ], 200);
     }
 
-    /**
-     * LANGKAH 2 — Karyawan submit kode OTP.
-     * Baru di sini email benar-benar disimpan ke users & employees, dan status diaktifkan.
-     */
+
     public function verifyActivationOtp(Request $request)
     {
         $request->validate([
@@ -206,7 +199,7 @@ class AuthController extends Controller
             ]);
 
             $otp->update(['verified_at' => now()]);
-            // OTP sudah terpakai — hapus supaya tidak bisa dipakai ulang
+
             $otp->delete();
 
             DB::commit();

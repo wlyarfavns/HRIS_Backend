@@ -1,4 +1,4 @@
-{{-- admin/modul/finance.blade.php --}}
+
 @extends('layouts.admin')
 
 @section('title', 'Modul Finance')
@@ -15,16 +15,16 @@
 @endphp
 
 @section('content')
-    <div class="card-flat rounded-2xl overflow-hidden">
+    <div class="card-flat rounded-md overflow-hidden">
         <div class="px-6 py-4 border-b border-black/5">
-            <h2 class="text-base font-bold text-on-surface">Fitur Modul Finance</h2>
+            <h2 class="text-base font-medium text-on-surface">Fitur Modul Finance</h2>
             <p class="text-xs text-on-surface-variant/50 mt-0.5">Perubahan di sini memengaruhi jumlah tahap approval yang tampil di halaman HR &amp; Finance terkait.</p>
         </div>
         <div class="divide-y divide-black/5">
             @foreach ($features as $f)
                 <div class="px-6 py-4 flex items-center justify-between">
                     <div>
-                        <p class="text-sm font-bold text-on-surface">{{ $f['label'] }}</p>
+                        <p class="text-sm font-medium text-on-surface">{{ $f['label'] }}</p>
                         <p class="text-xs text-on-surface-variant/50 mt-0.5">{{ $f['desc'] }}</p>
                     </div>
                     <button type="button"
@@ -36,3 +36,4 @@
         </div>
     </div>
 @endsection
+

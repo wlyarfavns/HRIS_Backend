@@ -28,7 +28,7 @@ return [
     ],
 
     'column_names' => [
-        
+
         'role_pivot_key' => null, 
         'permission_pivot_key' => null, 
 

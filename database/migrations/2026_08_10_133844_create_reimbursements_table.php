@@ -13,14 +13,14 @@ return new class extends Migration
             $table->foreignId('company_id')->constrained()->cascadeOnDelete();
             $table->foreignId('employee_id')->constrained()->cascadeOnDelete();
 
-            $table->string('category');           // Bensin & Parkir Client, dll
+            $table->string('category');           
             $table->text('description')->nullable();
             $table->decimal('amount', 15, 2);
             $table->string('receipt_path')->nullable();
 
             $table->date('claim_date');
 
-            // Alur: pending_spv -> pending_hr -> pending_finance -> approved / rejected
+
             $table->enum('status', [
                 'pending_spv',
                 'pending_hr',

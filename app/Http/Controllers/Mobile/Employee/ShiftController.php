@@ -8,6 +8,8 @@ use App\Models\ShiftAssignment;
 use App\Models\ShiftSwapRequest;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use App\Notifications\GeneralNotification;
+use App\Models\User;
 
 class ShiftController extends Controller
 {
@@ -25,9 +27,7 @@ class ShiftController extends Controller
         return response()->json(['success' => true, 'data' => $peers]);
     }
 
-    /**
-     * GET /mobile/shift-exchange — riwayat pengajuan tukar shift (masuk & keluar) milik saya.
-     */
+
     public function index(Request $request)
     {
         $employee = $request->user()->employee;
@@ -99,7 +99,6 @@ class ShiftController extends Controller
                 'message' => 'Rekan yang dipilih sudah memiliki jadwal lain di tanggal ' . $fromAssignment->date->translatedFormat('d M Y') . ', tidak bisa menukar ke tanggal tersebut.'
             ], 422);
         }
-        // ──────────────────────────────────────────────────────────────────────
 
         $swap = ShiftSwapRequest::create([
             'company_id' => $employee->company_id,
@@ -112,6 +111,14 @@ class ShiftController extends Controller
             'status' => 'pending_spv',
         ]);
 
+        if ($employee->supervisor) {
+            $employee->supervisor->notify(new GeneralNotification(
+                'Pengajuan Tukar Shift Baru',
+                $employee->full_name . ' mengajukan pertukaran shift dengan ' . ShiftAssignment::find($request->to_assignment_id)->employee->full_name . '.',
+                route('supervisor.approvals.shift') 
+            ));
+        }
+
         return response()->json([
             'success' => true,
             'message' => 'Pengajuan tukar shift terkirim, menunggu persetujuan HR.',
@@ -119,37 +126,27 @@ class ShiftController extends Controller
         ]);
     }
 
-    /**
-     * POST /mobile/shift-exchange/{swap}/peer-approve — rekan menyetujui, lanjut ke atasan.
-     */
-    // public function peerApprove(Request $request, ShiftSwapRequest $swap)
-    // {
-    //     $employee = $request->user()->employee;
 
-    //     if ($swap->to_employee_id !== $employee->id) {
-    //         return response()->json(['success' => false, 'message' => 'Anda tidak berwenang atas pengajuan ini.'], 403);
-    //     }
-    //     if ($swap->status !== 'pending_peer') {
-    //         return response()->json(['success' => false, 'message' => 'Pengajuan sudah diproses.'], 422);
-    //     }
 
-    //     $swap->update(['peer_approved' => true, 'status' => 'pending_spv']);
 
-    //     return response()->json(['success' => true, 'message' => 'Disetujui, menunggu persetujuan atasan.', 'data' => $swap]);
-    // }
 
-    // public function peerReject(Request $request, ShiftSwapRequest $swap)
-    // {
-    //     $employee = $request->user()->employee;
 
-    //     if ($swap->to_employee_id !== $employee->id) {
-    //         return response()->json(['success' => false, 'message' => 'Anda tidak berwenang atas pengajuan ini.'], 403);
-    //     }
 
-    //     $swap->update(['status' => 'rejected']);
 
-    //     return response()->json(['success' => true, 'message' => 'Pengajuan tukar shift ditolak.']);
-    // }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     public function mySchedule(Request $request)
     {
@@ -160,7 +157,7 @@ class ShiftController extends Controller
 
         if ($request->filled('employee_id')) {
             $employee = Employee::where('id', $request->employee_id)
-                ->where('company_id', $me->company_id) // guard lintas company
+                ->where('company_id', $me->company_id) 
                 ->first();
             if (!$employee) {
                 return response()->json(['success' => false, 'message' => 'Karyawan tidak ditemukan.'], 404);

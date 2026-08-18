@@ -9,18 +9,13 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Web\Auth\LoginController;
 use App\Http\Controllers\Web\Auth\RegisterCompanyController;
 use App\Http\Controllers\Web\company\UserManagementController;
-use App\Http\Controllers\Web\HR\DepartmentController;
+use App\Http\Controllers\Web\company\DepartmentController;
 use App\Http\Controllers\Web\HR\PositionController;
 use App\Http\Controllers\Mobile\Employee\EmployeeController;
 use App\Http\Controllers\Web\company\DashboardController;
-use App\Http\Controllers\Web\HR\CompanySettingsController;
 use App\Http\Controllers\Web\Shared\NotificationController;
 use App\Http\Controllers\Web\Auth\PasswordResetController;
-/*
-|--------------------------------------------------------------------------
-| Public Routes (WEB)
-|--------------------------------------------------------------------------
-*/
+
 Route::redirect('/', '/login');
 Route::get('/register', [RegisterCompanyController::class, 'create'])->name('register');
 Route::post('/register', [RegisterCompanyController::class, 'store'])->name('register.store');
@@ -30,9 +25,10 @@ Route::post('/login', [LoginController::class, 'store'])->name('login.store');
 
 Route::get('/lupa-kata-sandi', [PasswordResetController::class, 'requestForm'])->name('password.request');
 Route::post('/lupa-kata-sandi', [PasswordResetController::class, 'sendResetLink'])->name('password.email');
+Route::get('/lupa-kata-sandi/otp', [PasswordResetController::class, 'verifyOtpForm'])->name('password.verify.form');
+Route::post('/lupa-kata-sandi/otp', [PasswordResetController::class, 'processOtp'])->name('password.verify');
 Route::get('/atur-ulang-sandi/{token}', [PasswordResetController::class, 'resetForm'])->name('password.reset');
 Route::post('/atur-ulang-sandi', [PasswordResetController::class, 'updatePassword'])->name('password.update');
-
 
 Route::middleware('auth')->group(function () {
 
@@ -46,19 +42,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/notifikasi/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.readAll');
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | Hak Akses: HR (Master Data SDM)
-    |--------------------------------------------------------------------------
-    */
     Route::middleware('role:hr')->group(function () {
         Route::apiResource('departments', DepartmentController::class);
         Route::apiResource('positions', PositionController::class);
         Route::apiResource('employees', EmployeeController::class);
-        Route::put('/hr/company-settings/attendance', [CompanySettingsController::class, 'updateAttendanceRules']);
     });
-
-
 
 });
 

@@ -91,7 +91,7 @@ return redirect()->route('register.success')->with([
 
 public function success()
     {
-        
+
         if (!session('company_name')) {
             return redirect()->route('register');
         }

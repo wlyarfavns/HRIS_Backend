@@ -6,66 +6,95 @@
 
 @section('content')
 
-    {{-- STAT ROW --}}
-    {{-- Ubah menjadi grid-cols-3 agar 3 kartu tersisa membagi ruang dengan rata --}}
-    <div class="grid grid-cols-3 gap-5">
-        <div class="card-flat rounded-2xl p-5">
-            <div class="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                <span class="material-symbols-outlined text-primary text-[20px]">domain</span>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+        <div class="bg-white rounded-md p-6 border border-gray-200">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-gray-500 font-medium text-sm">Status Perusahaan</h3>
+                <div class="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-500">
+                    <span class="material-symbols-outlined text-[18px]">domain</span>
+                </div>
             </div>
-            <p class="text-2xl font-extrabold font-mono-data text-on-surface leading-none">{{ $companyData->status }}</p>
-            <p class="text-xs font-bold text-on-surface-variant/50 uppercase tracking-wide mt-2">Status Perusahaan</p>
+            <div class="flex items-end gap-2">
+                <span class="text-3xl font-medium text-gray-800 capitalize">{{ $companyData->status }}</span>
+                <span class="text-emerald-500 text-xs font-medium mb-1 flex items-center gap-1">
+                    Aktif
+                </span>
+            </div>
         </div>
-        <div class="card-flat rounded-2xl p-5">
-            <div class="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                <span class="material-symbols-outlined text-primary text-[20px]">groups</span>
+
+
+        <div class="bg-white rounded-md p-6 border border-gray-200">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-gray-500 font-medium text-sm">Total Karyawan</h3>
+                <div class="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-500">
+                    <span class="material-symbols-outlined text-[18px]">groups</span>
+                </div>
             </div>
-            <p class="text-2xl font-extrabold font-mono-data text-on-surface leading-none">{{ number_format($companyData->employees) }}</p>
-            <p class="text-xs font-bold text-on-surface-variant/50 uppercase tracking-wide mt-2">Total Karyawan</p>
+            <div class="flex items-end gap-2">
+                <span class="text-3xl font-medium  text-gray-800">{{ number_format($companyData->employees) }}</span>
+                <span class="text-gray-400 text-xs font-medium mb-1 flex items-center gap-1">
+                    Terdaftar
+                </span>
+            </div>
         </div>
-        <div class="card-flat rounded-2xl p-5">
-            <div class="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                <span class="material-symbols-outlined text-primary text-[20px]">location_city</span>
+
+
+        <div class="bg-white rounded-md p-6 border border-gray-200">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-gray-500 font-medium text-sm">Lokasi Utama</h3>
+                <div class="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-500">
+                    <span class="material-symbols-outlined text-[18px]">location_city</span>
+                </div>
             </div>
-            <p class="text-xl font-extrabold text-on-surface leading-tight truncate">{{ $companyData->city }}</p>
-            <p class="text-xs font-bold text-on-surface-variant/50 uppercase tracking-wide mt-2">Lokasi Utama</p>
+            <div class="flex items-end gap-2">
+                <span class="text-2xl font-medium text-gray-800 truncate">{{ $companyData->city }}</span>
+            </div>
         </div>
     </div>
 
-    {{-- PROFIL CARD --}}
-    <div class="card-flat rounded-2xl overflow-hidden mt-6">
 
-        <div class="px-6 py-4 border-b border-black/5 flex items-center justify-between gap-4 flex-wrap">
+    <div class="bg-white rounded-md p-8 mt-8 border border-gray-200">
+
+        <div class="flex items-center justify-between mb-8 pb-4 border-b border-gray-100 flex-wrap gap-4">
             <div>
-                <h2 class="text-base font-bold text-on-surface">Data Perusahaan</h2>
-                <p class="text-xs text-on-surface-variant/50 mt-0.5">Identitas resmi perusahaan yang terdaftar di sistem</p>
+                <h3 class="text-base font-medium text-gray-800">Data Perusahaan</h3>
+                <p class="text-xs text-gray-500 mt-1">Identitas resmi perusahaan yang terdaftar di sistem</p>
             </div>
 
             <a href="{{ route('admin.company.edit', $companyData->id) }}"
-               class="bg-primary hover:brightness-110 text-white text-xs font-bold px-4 py-2.5 rounded-lg flex items-center gap-1.5 whitespace-nowrap transition">
+               class="bg-[#0B3D2E] hover:bg-[#043927] text-white text-xs font-medium px-5 py-2.5 rounded-lg flex items-center gap-1.5 whitespace-nowrap transition shadow-sm">
                 <span class="material-symbols-outlined text-[16px]">edit</span>
                 Edit Profil
             </a>
         </div>
 
-        {{-- Tata letak form diseimbangkan ke dalam grid 2 kolom yang rapi --}}
-        <div class="p-6 grid grid-cols-2 gap-x-8 gap-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
             <div>
-                <p class="text-xs font-bold text-on-surface-variant/50 uppercase tracking-wide">Nama Perusahaan</p>
-                <p class="text-sm font-semibold text-on-surface mt-1">{{ $companyData->name }}</p>
+                <p class="text-[11px] font-medium text-gray-400 uppercase tracking-wide">Nama Perusahaan</p>
+                <div class="mt-2 p-4 bg-gray-50 rounded-md border border-gray-100">
+                    <p class="text-sm font-medium text-gray-800">{{ $companyData->name }}</p>
+                </div>
             </div>
             <div>
-                <p class="text-xs font-bold text-on-surface-variant/50 uppercase tracking-wide">Email Perusahaan</p>
-                <p class="text-sm font-semibold text-on-surface mt-1">{{ $companyData->email }}</p>
+                <p class="text-[11px] font-medium text-gray-400 uppercase tracking-wide">Email Perusahaan</p>
+                <div class="mt-2 p-4 bg-gray-50 rounded-md border border-gray-100">
+                    <p class="text-sm font-medium text-gray-800">{{ $companyData->email }}</p>
+                </div>
             </div>
-            
+
             <div>
-                <p class="text-xs font-bold text-on-surface-variant/50 uppercase tracking-wide">Alamat Lengkap & Provinsi</p>
-                <p class="text-sm font-semibold text-on-surface mt-1">{{ $companyData->address }}</p>
+                <p class="text-[11px] font-medium text-gray-400 uppercase tracking-wide">Alamat Lengkap & Provinsi</p>
+                <div class="mt-2 p-4 bg-gray-50 rounded-md border border-gray-100 min-h-[60px]">
+                    <p class="text-sm font-medium text-gray-700 leading-relaxed">{{ $companyData->address }}</p>
+                </div>
             </div>
             <div>
-                <p class="text-xs font-bold text-on-surface-variant/50 uppercase tracking-wide">Kode Pos</p>
-                <p class="text-sm font-semibold text-on-surface mt-1 font-mono-data">{{ $companyData->postal_code }}</p>
+                <p class="text-[11px] font-medium text-gray-400 uppercase tracking-wide">Kode Pos</p>
+                <div class="mt-2 p-4 bg-gray-50 rounded-md border border-gray-100">
+                    <p class="text-sm font-medium text-gray-800 ">{{ $companyData->postal_code }}</p>
+                </div>
             </div>
         </div>
     </div>

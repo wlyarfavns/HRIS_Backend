@@ -17,7 +17,7 @@ class ExportController extends Controller
         $batches = PayrollBatch::where('company_id', $request->user()->company_id)
             ->whereIn('status', [PayrollBatch::STATUS_APPROVED_FINANCE, PayrollBatch::STATUS_EXPORTED])
             ->withCount('payrolls')->withSum('payrolls', 'net_salary')
-            ->with(['bankExports', 'approvedBy'])->get();
+            ->with(['bankExports', 'approvedBy'])->paginate(10)->withQueryString();
 
         return view('finance.export.index', compact('batches'));
     }

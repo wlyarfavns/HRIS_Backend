@@ -6,8 +6,9 @@ use App\Http\Controllers\Web\Supervisor\LeaveApprovalController;
 use App\Http\Controllers\Web\Supervisor\OvertimeApprovalController;
 use App\Http\Controllers\Web\Supervisor\ReimbursementApprovalController;
 use App\Http\Controllers\Web\Supervisor\SupervisorDashboardController;
+use App\Http\Controllers\Web\Supervisor\ShiftApprovalController;
+use App\Http\Controllers\Web\Supervisor\TeamController;
 use App\Http\Controllers\Web\Shared\ProfileController;
-
 
 Route::prefix('supervisor')->name('supervisor.')->middleware(['auth', 'role:supervisor'])->group(function () {
     Route::get('/dashboard', [SupervisorDashboardController::class, 'index'])
@@ -21,8 +22,15 @@ Route::prefix('supervisor')->name('supervisor.')->middleware(['auth', 'role:supe
     Route::post('/persetujuan/lembur/{overtime}/reject', [OvertimeApprovalController::class, 'reject'])->name('approvals.overtime.reject');
     Route::get('/persetujuan/reimbursement', [ReimbursementApprovalController::class, 'index'])->name('approvals.reimbursement');
     Route::patch('/persetujuan/reimbursement/{reimbursement}/action', [ReimbursementApprovalController::class, 'action'])->name('approvals.reimbursement.action');
-    // MENGARAH KE CONTROLLER BARU
+
+    Route::get('/persetujuan/shift', [ShiftApprovalController::class, 'index'])->name('approvals.shift');
+    Route::post('/persetujuan/shift/{swap}/approve', [ShiftApprovalController::class, 'approve'])->name('approvals.shift.approve');
+    Route::post('/persetujuan/shift/{swap}/reject', [ShiftApprovalController::class, 'reject'])->name('approvals.shift.reject');
+
+
     Route::get('/laporan-kehadiran', [AttendanceReportController::class, 'index'])->name('attendance.report');
+
+    Route::get('/tim', [TeamController::class, 'index'])->name('team.index');
 
     Route::get('/profil', [ProfileController::class, 'index'])->name('profile');
     Route::patch('/profil', [ProfileController::class, 'update'])->name('profile.update');

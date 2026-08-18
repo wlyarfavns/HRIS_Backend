@@ -12,41 +12,52 @@ class AttendanceReportController extends Controller
 {
     public function index(Request $request)
     {
-        // 1. Ambil data akun (User) yang sedang login (yaitu Anton)
+
         $user = $request->user();
 
-        // KODE ABORT(403) SUDAH DIHAPUS DARI SINI
 
-        // 2. Ambil parameter bulan dari URL, jika kosong gunakan bulan saat ini
+
         $filterMonth = $request->input('month', now()->format('Y-m'));
         $parsedDate = Carbon::parse($filterMonth);
         $year = $parsedDate->year;
         $month = $parsedDate->month;
 
-        // 3. Tarik data bawahan (seperti Santosi) yang supervisor_id-nya sama dengan ID Anton di tabel users
+
         $team = Employee::where('supervisor_id', $user->id)
-            ->with(['attendances' => function ($query) use ($year, $month) {
-                $query->whereYear('date', $year)
-                      ->whereMonth('date', $month);
-            }])
-            ->get();
+            ->paginate(10)
+            ->withQueryString();
 
-        // 4. Format data untuk ditampilkan di view
-        $teamRecap = $team->map(function ($member) {
-            $attendances = $member->attendances;
 
-            $tepatWaktu = $attendances->where('status', Attendance::STATUS_PRESENT)->count();
-            $terlambat = $attendances->where('status', Attendance::STATUS_LATE)->count();
-            $izinSakit = $attendances->whereIn('status', [Attendance::STATUS_PERMIT, Attendance::STATUS_SAKIT])->count();
-            
-            // Hadir total adalah gabungan tepat waktu dan terlambat
+        $teamRecap = $team->through(function ($member) use ($year, $month) {
+
+            $startOfMonth = Carbon::create($year, $month, 1)->toDateString();
+            $endOfMonth = Carbon::create($year, $month, 1)->endOfMonth()->toDateString();
+
+            $attendances = (new \App\Services\AttendanceService())->generateAttendanceCalendar($member, $startOfMonth, $endOfMonth);
+
+            $tepatWaktu = $attendances->where('status', 'Hadir')->count();
+            $terlambat = $attendances->where('status', 'Terlambat')->count();
+
+
+            $izin = $attendances->filter(fn($a) => stripos($a['status'], 'izin') !== false)->count();
+            $sakit = $attendances->filter(fn($a) => stripos($a['status'], 'sakit') !== false || stripos($a['status'], 'sick') !== false)->count();
+            $cuti = $attendances->filter(function($a) {
+                $s = strtolower($a['status']);
+                return !in_array($s, ['hadir', 'terlambat', 'alpha', 'libur']) && strpos($s, 'izin') === false && strpos($s, 'sakit') === false;
+            })->count();
+
+            $alpha = $attendances->where('status', 'Alpha')->count();
+            $libur = $attendances->where('status', 'Libur')->count();
+
+
             $hadirTotal = $tepatWaktu + $terlambat;
 
-            // Asumsi standar hari kerja efektif dalam sebulan
-            $totalWorkingDays = 22; 
-            
-            // Hitung persentase
-            $persentase = $totalWorkingDays > 0 ? round(($hadirTotal / $totalWorkingDays) * 100) : 0;
+
+            $totalDays = Carbon::create($year, $month, 1)->daysInMonth;
+            $totalWorkingDays = max($totalDays - $libur, 1); 
+
+
+            $persentase = round(($hadirTotal / $totalWorkingDays) * 100);
             $persentase = $persentase > 100 ? 100 : $persentase;
 
             return [
@@ -55,7 +66,10 @@ class AttendanceReportController extends Controller
                 'avatar' => $member->id, 
                 'hadir' => $hadirTotal,
                 'terlambat' => $terlambat,
-                'izin' => $izinSakit,
+                'izin' => $izin,
+                'sakit' => $sakit,
+                'cuti' => $cuti,
+                'alpha' => $alpha,
                 'persentase' => $persentase
             ];
         });

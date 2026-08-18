@@ -9,20 +9,14 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class PayrollController extends Controller
 {
-    /**
-     * Riwayat slip gaji milik karyawan yang sedang login.
-     * GET /mobile/payroll/history
-     */
+
     public function history(Request $request)
     {
         $employee = $request->user()->employee;
         abort_unless($employee, 404, 'Profil karyawan tidak ditemukan untuk akun ini.');
 
-        // PERBAIKAN: Hanya ambil payroll yang Batch-nya sudah memiliki tanggal pencairan (Completed/Disbursed)
+
         $payrolls = Payroll::where('employee_id', $employee->id)
-            ->whereHas('payrollBatch', function ($query) {
-                $query->whereNotNull('disbursed_at'); 
-            })
             ->orderByDesc('period_start')
             ->get();
 
@@ -32,27 +26,21 @@ class PayrollController extends Controller
             'period_start' => $p->period_start->toDateString(),
             'period_end' => $p->period_end->toDateString(),
             'net_salary' => (float) $p->net_salary,
-            'status' => 'Disbursed', // Kita paksa labelnya jadi disbursed karena sudah difilter
+            'status' => 'Disbursed', 
         ]);
 
         return response()->json(['success' => true, 'data' => $data]);
     }
 
-    /**
-     * Slip gaji paling baru (untuk kartu ringkasan di halaman utama Payroll).
-     * GET /mobile/payroll/latest
-     */
+
     public function latest(Request $request)
     {
         $employee = $request->user()->employee;
         abort_unless($employee, 404, 'Profil karyawan tidak ditemukan untuk akun ini.');
 
-        // PERBAIKAN: Hanya ambil slip terbaru yang sudah benar-benar dicairkan
+
         $payroll = Payroll::with('payrollBatch')
             ->where('employee_id', $employee->id)
-            ->whereHas('payrollBatch', function ($query) {
-                $query->whereNotNull('disbursed_at');
-            })
             ->orderByDesc('period_start')
             ->first();
 
@@ -73,21 +61,15 @@ class PayrollController extends Controller
         ]);
     }
 
-    /**
-     * Detail satu slip gaji — hanya milik karyawan yang login
-     * GET /mobile/payroll/{id}
-     */
+
     public function show(Request $request, $id)
     {
         $employee = $request->user()->employee;
         abort_unless($employee, 404, 'Profil karyawan tidak ditemukan untuk akun ini.');
 
-        // PERBAIKAN: Pastikan ID yang diminta memang sudah dicairkan
+
         $payroll = Payroll::with(['employee.department', 'employee.position', 'details.salaryComponent'])
             ->where('employee_id', $employee->id)
-            ->whereHas('payrollBatch', function ($query) {
-                $query->whereNotNull('disbursed_at');
-            })
             ->findOrFail($id);
 
         $earnings = $payroll->details->where('type', 'earning')
@@ -118,20 +100,15 @@ class PayrollController extends Controller
         ]);
     }
 
-    /**
-     * Unduh PDF Slip Gaji
-     */
+
     public function downloadSlip(Request $request, $id)
     {
         $employee = $request->user()->employee;
         abort_unless($employee, 404, 'Profil karyawan tidak ditemukan untuk akun ini.');
 
-        // PERBAIKAN: Pastikan hanya bisa download jika sudah dicairkan
+
         $payroll = Payroll::with(['employee.department', 'employee.position', 'details.salaryComponent', 'company'])
             ->where('employee_id', $employee->id)
-            ->whereHas('payrollBatch', function ($query) {
-                $query->whereNotNull('disbursed_at');
-            })
             ->findOrFail($id);
 
         $earnings = $payroll->details->where('type', 'earning')

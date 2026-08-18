@@ -59,108 +59,109 @@
     }
 }">
 
-    {{-- STAT ROW --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         @foreach ($stats as $s)
-            <div class="bg-white rounded-2xl p-5 border border-black/5 shadow-sm space-y-2 relative overflow-hidden">
-                <div class="flex items-center justify-between mb-1">
-                    <p class="text-xs font-bold text-on-surface-variant/60 uppercase tracking-wide">{{ $s['label'] }}</p>
-                    <span class="material-symbols-outlined text-[20px] text-on-surface-variant/40">{{ $s['icon'] }}</span>
+            <div class="bg-white rounded-md p-6 border border-gray-100 shadow-sm relative overflow-hidden group hover:border-[#0B3D2E]/30 transition-colors">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-[20px] text-gray-500">{{ $s['icon'] }}</span>
+                    </div>
+                    <span class="text-[11px] font-medium text-gray-400 uppercase tracking-wider">{{ $s['label'] }}</span>
                 </div>
-                <p class="text-2xl font-extrabold font-mono {{ $s['color'] }} leading-none">{{ $s['value'] }}</p>
+                <p class="text-3xl font-semibold  {{ $s['color'] }} leading-none mb-2">{{ $s['value'] }}</p>
+                <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-gray-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity "></div>
             </div>
         @endforeach
     </div>
 
-    {{-- TABLE REIMBURSEMENT --}}
-    <div class="bg-white rounded-2xl border border-black/5 shadow-sm overflow-hidden mt-6">
-        <div class="px-6 py-4 border-b border-black/5 flex items-center justify-between gap-4 flex-wrap">
+
+    <div class="bg-white rounded-md border border-gray-100 shadow-sm overflow-hidden mb-8">
+        <div class="px-8 py-6 border-b border-gray-100 flex items-center justify-between gap-4 flex-wrap bg-gray-50/50">
             <div>
-                <h2 class="text-base font-bold text-on-surface">Daftar Verifikasi Klaim Reimbursement</h2>
-                <p class="text-xs text-on-surface-variant/60 mt-0.5">Klaim tampil di sini setelah diverifikasi Supervisor &amp; HR Operations</p>
+                <h2 class="text-lg font-medium text-gray-800">Daftar Verifikasi Klaim Reimbursement</h2>
+                <p class="text-xs text-gray-500 mt-1">Klaim tampil di sini setelah diverifikasi Supervisor &amp; HR Operations</p>
             </div>
 
-            <div class="flex items-center gap-2.5">
+            <div class="flex items-center gap-3">
                 <div class="relative">
-                    <span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant/40 text-[18px]">search</span>
-                    <input type="text" placeholder="Cari nama atau kategori..."
-                           class="w-56 pl-9 pr-3 py-2 bg-surface-variant/10 rounded-xl text-xs border border-black/10
-                                  focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition">
+                    <input type="text" placeholder="Cari klaim..."
+                           class="w-64 pl-10 pr-4 py-2.5 bg-white rounded-md text-sm border border-gray-200
+                                  focus:outline-none focus:ring-2 focus:ring-[#0B3D2E]/20 focus:border-[#0B3D2E] transition shadow-sm">
                 </div>
             </div>
         </div>
 
         <div class="overflow-x-auto">
-            <table class="w-full text-sm text-left border-collapse">
-                <thead>
-                    <tr class="bg-surface-variant/20 border-b border-black/5 text-on-surface-variant/70 text-[11px] font-bold uppercase tracking-wider">
-                        <th class="px-6 py-3.5 min-w-[200px]">Karyawan</th>
-                        <th class="px-4 py-3.5 min-w-[220px]">Kategori Pengeluaran</th>
-                        <th class="px-4 py-3.5 text-right min-w-[120px]">Nominal</th>
-                        <th class="px-4 py-3.5 min-w-[130px]">Bukti Struk</th>
-                        <th class="px-4 py-3.5 min-w-[180px]">Riwayat Verifikasi</th>
-                        <th class="px-4 py-3.5 min-w-[140px]">Status</th>
-                        <th class="px-6 py-3.5 text-center min-w-[170px]">Aksi Finance</th>
+            <table class="w-full text-sm text-left">
+                <thead class="bg-gray-50 border-b border-gray-100">
+                    <tr class="text-[11px] font-medium text-gray-500 uppercase tracking-widest">
+                        <th class="px-8 py-4">Karyawan</th>
+                        <th class="px-6 py-4">Kategori Pengeluaran</th>
+                        <th class="px-6 py-4 text-right">Nominal</th>
+                        <th class="px-6 py-4">Bukti Struk</th>
+                        <th class="px-6 py-4">Riwayat Verifikasi</th>
+                        <th class="px-6 py-4">Status</th>
+                        <th class="px-8 py-4 text-center">Aksi Finance</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-black/5 text-xs">
+                <tbody class="divide-y divide-gray-100 text-gray-700">
                     @forelse ($claims as $c)
-                        <tr class="hover:bg-primary/5 transition">
-                            <td class="px-6 py-3.5">
+                        <tr class="hover:bg-gray-50 transition group">
+                            <td class="px-8 py-4">
                                 <div class="flex items-center gap-3">
                                     <img src="https://ui-avatars.com/api/?background=E9F3EF&color=0B3D2E&name={{ urlencode($c->employee->full_name ?? '-') }}"
-                                         class="w-9 h-9 rounded-full object-cover shrink-0 border border-black/10"
+                                         class="w-10 h-10 rounded-full object-cover shrink-0 ring-2 ring-gray-50"
                                          alt="{{ $c->employee->full_name ?? '-' }}">
                                     <div>
-                                        <p class="font-bold text-on-surface text-xs leading-tight">{{ $c->employee->full_name ?? '-' }}</p>
-                                        <p class="text-[10px] font-mono text-on-surface-variant/50 mt-0.5">
+                                        <p class="font-medium text-gray-800 text-sm group-hover:text-[#0B3D2E] transition-colors">{{ $c->employee->full_name ?? '-' }}</p>
+                                        <p class="text-[11px]  text-gray-500 mt-0.5">
                                             {{ $c->employee->employee_id ?? '-' }} · {{ $c->employee->department->name ?? '-' }}
                                         </p>
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-4 py-3.5">
-                                <p class="text-xs font-bold text-on-surface">{{ $c->category }}</p>
-                                <p class="text-[11px] text-on-surface-variant/60 line-clamp-1 mt-0.5">{{ $c->description }}</p>
+                            <td class="px-6 py-4">
+                                <p class="text-sm font-medium text-gray-800">{{ $c->category }}</p>
+                                <p class="text-[11px] text-gray-500 line-clamp-1 mt-0.5">{{ $c->description }}</p>
                             </td>
-                            <td class="px-4 py-3.5 text-right font-mono font-extrabold text-xs text-primary">
+                            <td class="px-6 py-4 text-right  font-semibold text-[#0B3D2E] text-sm">
                                 Rp{{ number_format($c->amount, 0, ',', '.') }}
                             </td>
-                            <td class="px-4 py-3.5">
+                            <td class="px-6 py-4">
                                 <button type="button" @click="openReceipt(@js($c))"
-                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-black/10 bg-surface-variant/10 hover:bg-primary/10 hover:border-primary/30 text-xs font-semibold text-primary transition whitespace-nowrap">
+                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-200 text-xs font-semibold text-gray-600 hover:text-[#0B3D2E] transition whitespace-nowrap shadow-sm">
                                     <span class="material-symbols-outlined text-[16px]">receipt_long</span>
                                     Lihat Struk
                                 </button>
                             </td>
-                            <td class="px-4 py-3.5">
-                                <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-on-surface-variant/80">
+                            <td class="px-6 py-4">
+                                <span class="inline-flex items-center gap-1.5 text-xs font-medium text-gray-600">
                                     @if ($c->spv)
-                                        <span class="material-symbols-outlined text-[16px] text-emerald-600">check_circle</span>
+                                        <span class="material-symbols-outlined text-[16px] text-[#0B3D2E]">check_circle</span>
                                         Disetujui {{ $c->spv->name }}
                                     @else
-                                        <span class="material-symbols-outlined text-[16px] text-on-surface-variant/40">hourglass_empty</span>
                                         -
                                     @endif
                                 </span>
                             </td>
-                            <td class="px-4 py-3.5">
-                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap
-                                    {{ $c->status === 'pending_finance' ? 'bg-amber-50 text-amber-800 border border-amber-200' : ($c->status === 'approved' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-rose-50 text-rose-800 border border-rose-200') }}">
+                            <td class="px-6 py-4">
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-[11px] font-medium whitespace-nowrap
+                                    {{ $c->status === 'pending_finance' ? 'bg-gray-50 text-gray-700 border border-gray-200' : ($c->status === 'approved' ? 'bg-gray-50 text-[#0B3D2E] border border-gray-200' : 'bg-gray-50 text-gray-700 border border-gray-200') }}">
                                     <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
                                     {{ $c->status_label }}
                                 </span>
                             </td>
-                            <td class="px-6 py-3.5 text-center">
+                            <td class="px-8 py-4 text-center">
                                 @if ($c->status === 'pending_finance')
                                     <button type="button" @click="openReceipt(@js($c))"
-                                            class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-primary hover:bg-primary-dark text-white text-xs font-bold transition shadow-xs whitespace-nowrap">
+                                            class="inline-flex items-center gap-1.5 px-4 py-2 rounded-md bg-[#0B3D2E] hover:bg-[#043927] text-white text-xs font-medium transition shadow-sm whitespace-nowrap">
                                         <span class="material-symbols-outlined text-[16px]">verified</span>
                                         Verifikasi &amp; Cairkan
                                     </button>
                                 @else
-                                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-semibold whitespace-nowrap">
-                                        <span class="material-symbols-outlined text-[16px] text-emerald-600">check_circle</span>
+                                    <span class="inline-flex items-center gap-1.5 px-4 py-2 rounded-md bg-gray-50 text-emerald-800 border border-gray-200 text-xs font-medium whitespace-nowrap">
+                                        <span class="material-symbols-outlined text-[16px] text-[#0B3D2E]">check_circle</span>
                                         Disetujui
                                     </span>
                                 @endif
@@ -168,83 +169,86 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="px-6 py-10 text-center text-on-surface-variant/50 text-xs">
-                                Belum ada klaim yang menunggu verifikasi Finance.
+                            <td colspan="7" class="px-8 py-12 text-center text-gray-500 text-sm">
+                                <div class="flex flex-col items-center gap-2">
+                                    Belum ada klaim yang menunggu verifikasi Finance.
+                                </div>
                             </td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
+        <div class="mt-4 px-6 pb-6">
+            {{ $claims->links() }}
+        </div>
     </div>
 
-    {{-- MODAL VERIFIKASI & PRATINJAU STRUK --}}
+
     <div x-show="showReceiptModal" x-cloak
-         class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"
+         class="fixed inset-0 bg-gray-900/60  z-50 flex items-center justify-center p-4"
          @click.self="showReceiptModal = false">
-        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-150" x-show="selectedClaim">
-            <div class="flex items-center justify-between border-b border-black/5 pb-3">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                        <span class="material-symbols-outlined text-[20px]">account_balance_wallet</span>
-                    </div>
+        <div class="bg-white rounded-md max-w-lg w-full p-8 shadow-sm space-y-6 animate-in fade-in zoom-in duration-200 border border-gray-100" x-show="selectedClaim">
+            <div class="flex items-center justify-between border-b border-gray-100 pb-4">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-full bg-gray-50 text-[#0B3D2E] flex items-center justify-center">
+                        </div>
                     <div>
-                        <h3 class="text-base font-bold text-on-surface">Verifikasi Reimbursement Finance</h3>
-                        <p class="text-xs text-on-surface-variant/60" x-text="selectedClaim ? selectedClaim.employee.full_name + ' · ' + selectedClaim.category : ''"></p>
+                        <h3 class="text-lg font-medium text-gray-800">Verifikasi Reimbursement Finance</h3>
+                        <p class="text-xs text-gray-500" x-text="selectedClaim ? selectedClaim.employee.full_name + ' · ' + selectedClaim.category : ''"></p>
                     </div>
                 </div>
-                <button type="button" @click="showReceiptModal = false" class="text-on-surface-variant/40 hover:text-on-surface">
+                <button type="button" @click="showReceiptModal = false" class="text-gray-400 hover:text-gray-800 w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center transition">
                     <span class="material-symbols-outlined">close</span>
                 </button>
             </div>
 
-            <div class="space-y-3.5 text-xs">
-                <div class="p-4 rounded-xl bg-surface-variant/10 border border-black/5 flex items-center justify-between">
+            <div class="space-y-4 text-sm">
+                <div class="p-5 rounded-md bg-gray-50 border border-gray-200 flex items-center justify-between">
                     <div>
-                        <p class="text-on-surface-variant/60">Nominal Transfer</p>
-                        <p class="text-xl font-extrabold font-mono text-primary mt-0.5"
+                        <p class="text-gray-500 font-medium text-xs">Nominal Transfer</p>
+                        <p class="text-2xl font-semibold  text-[#0B3D2E] mt-1"
                            x-text="selectedClaim ? 'Rp' + Number(selectedClaim.amount).toLocaleString('id-ID') : ''"></p>
                     </div>
-                    <span class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-200"
+                    <span class="text-[11px] font-medium px-3 py-1.5 rounded-md bg-gray-50 text-gray-700 border border-gray-200"
                           x-text="selectedClaim ? selectedClaim.status_label : ''"></span>
                 </div>
 
-                <div class="border border-dashed border-black/20 rounded-xl p-4 bg-white flex flex-col items-center justify-center gap-2 text-center">
-                    <span class="material-symbols-outlined text-[36px] text-primary/60">receipt_long</span>
+                <div class="border-2 border-dashed border-gray-200 rounded-md p-6 bg-white flex flex-col items-center justify-center gap-3 text-center">
                     <div>
-                        <p class="font-bold text-on-surface" x-text="selectedClaim ? (selectedClaim.receipt_path ? selectedClaim.receipt_path.split('/').pop() : 'Tidak ada berkas') : ''"></p>
-                        <p class="text-[11px] text-on-surface-variant/60 mt-0.5">Format file PDF/JPG terenkripsi &amp; terverifikasi digital</p>
+                        <p class="font-medium text-gray-800" x-text="selectedClaim ? (selectedClaim.receipt_path ? selectedClaim.receipt_path.split('/').pop() : 'Tidak ada berkas') : ''"></p>
+                        <p class="text-[11px] text-gray-500 mt-1">Format file PDF/JPG terenkripsi &amp; terverifikasi digital</p>
                     </div>
                     <a :href="selectedClaim ? selectedClaim.receipt_url : '#'" target="_blank"
                        x-show="selectedClaim && selectedClaim.receipt_url"
-                       class="mt-1 text-xs font-bold text-primary hover:underline">Unduh Berkas Asli</a>
+                       class="mt-2 text-xs font-medium text-[#0B3D2E] hover:underline bg-gray-50 px-4 py-2 rounded-md border border-gray-200 transition">Cek Berkas</a>
                 </div>
 
                 <div>
-                    <label class="font-bold text-on-surface-variant/60 uppercase text-[10px] block mb-1">Rincian Keperluan Pengeluaran</label>
-                    <p class="p-3 rounded-xl border border-black/5 bg-surface-variant/10 text-on-surface" x-text="selectedClaim ? selectedClaim.description : ''"></p>
+                    <label class="font-medium text-gray-400 uppercase tracking-wide text-[11px] block mb-2">Rincian Keperluan Pengeluaran</label>
+                    <p class="p-4 rounded-md border border-gray-200 bg-gray-50 text-gray-700 leading-relaxed" x-text="selectedClaim ? selectedClaim.description : ''"></p>
                 </div>
 
-                {{-- FORM ALASAN PENOLAKAN --}}
+
                 <div x-show="rejecting" x-cloak>
-                    <label class="font-bold text-rose-700 uppercase text-[10px] block mb-1">Alasan Penolakan</label>
+                    <label class="font-medium text-gray-700 uppercase tracking-wide text-[11px] block mb-2">Alasan Penolakan</label>
                     <textarea x-model="rejectReason" rows="2"
-                              class="w-full p-3 rounded-xl border border-rose-200 bg-rose-50 text-on-surface text-xs focus:outline-none focus:ring-2 focus:ring-rose-200"
+                              class="w-full p-4 rounded-md border border-gray-200 bg-gray-50 text-gray-800 text-sm focus:outline-none focus:border-gray-200 focus:ring-2 focus:ring-red-200/50 transition"
                               placeholder="Jelaskan alasan penolakan klaim ini..."></textarea>
                 </div>
             </div>
 
-            <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-black/5">
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
                 <button type="button" @click="showReceiptModal = false" :disabled="processing"
-                        class="px-4 py-2 rounded-xl border border-black/10 text-xs font-bold text-on-surface-variant/70 hover:bg-black/5 transition">
+                        class="px-5 py-2.5 rounded-md border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 transition shadow-sm disabled:opacity-50">
                     Batal
                 </button>
                 <button type="button" @click="submitAction('reject')" :disabled="processing"
-                        class="px-4 py-2 rounded-xl border border-rose-200 text-rose-700 bg-rose-50 hover:bg-rose-100 text-xs font-semibold transition disabled:opacity-50">
+                        class="px-5 py-2.5 rounded-md border border-gray-200 text-gray-700 bg-gray-50 hover:bg-gray-50 text-sm font-medium transition shadow-sm disabled:opacity-50">
                     <span x-text="rejecting ? 'Kirim Penolakan' : 'Tolak Klaim'"></span>
                 </button>
                 <button type="button" @click="submitAction('approve')" :disabled="processing" x-show="!rejecting"
-                        class="px-5 py-2 rounded-xl bg-primary text-white text-xs font-bold hover:bg-primary-dark shadow-sm flex items-center gap-1.5 transition disabled:opacity-50">
+                        class="px-6 py-2.5 rounded-md bg-[#0B3D2E] text-white text-sm font-medium hover:bg-[#043927] shadow-sm flex items-center gap-2 transition disabled:opacity-50">
                     <span class="material-symbols-outlined text-[16px]">check</span>
                     Verifikasi &amp; Masukkan Disbursement
                 </button>
@@ -252,23 +256,23 @@
         </div>
     </div>
 
-    <!-- TOAST NOTIFICATION -->
+
     <div x-show="toast.show" x-transition:enter="transition ease-out duration-300"
          x-transition:enter-start="opacity-0 translate-y-4 scale-95"
          x-transition:enter-end="opacity-100 translate-y-0 scale-100"
          x-transition:leave="transition ease-in duration-200"
          x-transition:leave-start="opacity-100 translate-y-0 scale-100"
          x-transition:leave-end="opacity-0 translate-y-4 scale-95"
-         class="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-2xl shadow-2xl text-white font-medium text-xs border border-emerald-500/30 backdrop-blur-md"
+         class="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-4 rounded-md shadow-sm font-medium text-sm border "
          :class="{
-             'bg-[#0B3D2E] text-white': toast.type === 'success' || toast.type === 'info',
-             'bg-rose-950 border-rose-500/30 text-white': toast.type === 'error'
+             'bg-[#0B3D2E] border-gray-200/30 text-white': toast.type === 'success' || toast.type === 'info',
+             'bg-gray-50 border-gray-200/30 text-white': toast.type === 'error'
          }"
          style="display: none;">
         <span class="material-symbols-outlined text-[20px]"
-              :class="toast.type === 'error' ? 'text-rose-400' : 'text-emerald-400'"
+              :class="toast.type === 'error' ? 'text-white' : 'text-emerald-100'"
               x-text="toast.type === 'error' ? 'error' : (toast.type === 'info' ? 'info' : 'check_circle')"></span>
-        <span x-text="toast.message" class="text-xs font-semibold"></span>
+        <span x-text="toast.message" class="font-medium"></span>
     </div>
 
 </div>

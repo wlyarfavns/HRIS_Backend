@@ -10,12 +10,6 @@ use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-/**
- * Export rekap payroll periode berjalan ke XLSX.
- * Dipakai oleh PayrollController@exportXlsx.
- *
- * Butuh package: composer require maatwebsite/excel
- */
 class PayrollRecapExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize, WithStyles
 {
     protected int $companyId;
@@ -29,9 +23,7 @@ class PayrollRecapExport implements FromCollection, WithHeadings, WithMapping, S
         $this->endDate = $endDate;
     }
 
-    /**
-     * Ambil data payroll periode ini beserta relasi yang dibutuhkan.
-     */
+
     public function collection()
     {
         return Payroll::with(['employee.department'])
@@ -56,9 +48,7 @@ class PayrollRecapExport implements FromCollection, WithHeadings, WithMapping, S
         ];
     }
 
-    /**
-     * @param Payroll $payroll
-     */
+
     public function map($payroll): array
     {
         return [
@@ -73,9 +63,7 @@ class PayrollRecapExport implements FromCollection, WithHeadings, WithMapping, S
         ];
     }
 
-    /**
-     * Bold header row.
-     */
+
     public function styles(Worksheet $sheet)
     {
         return [

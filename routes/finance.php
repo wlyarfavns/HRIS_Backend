@@ -8,9 +8,8 @@ use App\Http\Controllers\Web\Finance\DisbursementController;
 use App\Http\Controllers\Web\Finance\DashboardController;
 use App\Http\Controllers\Web\Shared\ProfileController;
 
-
 Route::middleware(['auth', 'role:finance'])->prefix('finance')->name('finance.')->group(function () {
-    // routes/finance.php
+
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/reimbursement', [ReimbursementController::class, 'index'])->name('reimbursement.index');

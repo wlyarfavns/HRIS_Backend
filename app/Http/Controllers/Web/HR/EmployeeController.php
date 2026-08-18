@@ -44,7 +44,6 @@ class EmployeeController extends Controller
         ]);
     }
 
-
     public function showWeb(Request $request, $id)
     {
         $companyId = $request->user()->company_id;
@@ -65,7 +64,7 @@ class EmployeeController extends Controller
         $leaveUsed = $leaveBalances->sum('used_quota');
         $leaveBalance = max($leaveQuota - $leaveUsed, 0);
 
-        // Riwayat kontrak dari DB
+
         $contracts = $employee->contracts()
             ->orderBy('start_date', 'asc')
             ->get()
@@ -77,7 +76,7 @@ class EmployeeController extends Controller
                 'status' => $c->status === 'Active' ? 'Berjalan' : 'Selesai',
             ]);
 
-        // Aktivitas terbaru — gabungan leave & payroll
+
         $recentActivity = collect();
 
         $employee->leaveRequests()
@@ -103,11 +102,11 @@ class EmployeeController extends Controller
             ->take(5)
             ->values();
 
-        // Dokumen terunggah
+
         $documents = [
             'Scan KTP' => (bool) $employee->ktp_file_path,
-            'Scan NPWP' => (bool) $employee->npwp,
-            'Kartu BPJS' => (bool) $employee->bpjs_number,
+            'Scan NPWP' => (bool) $employee->npwp_file_path,
+            'Kartu BPJS' => (bool) $employee->bpjs_file_path,
         ];
 
         return view('hr.karyawan.detail', compact(
@@ -203,9 +202,8 @@ class EmployeeController extends Controller
         ]);
     }
 
-    // ================================================================
-    // WEB (Blade) — Alur Onboarding HR
-    // ================================================================
+
+
 
     public function indexWeb(Request $request)
     {
@@ -226,7 +224,7 @@ class EmployeeController extends Controller
             $query->where('department_id', $request->department);
         }
 
-        $employees = $query->orderBy('created_at', 'desc')->get();
+        $employees = $query->orderBy('created_at', 'desc')->paginate(10)->withQueryString();
         $departments = Department::where('company_id', $companyId)->get();
 
         $totalEmployees = Employee::where('company_id', $companyId)->count();
@@ -274,7 +272,6 @@ class EmployeeController extends Controller
         return view('hr.karyawan.onboarding', compact('departments', 'positions', 'predictedNip', 'supervisors'));
     }
 
-
     public function storeWeb(Request $request)
     {
         $companyId = $request->user()->company_id;
@@ -302,9 +299,11 @@ class EmployeeController extends Controller
             'contract_end_date' => 'nullable|date|after:join_date',
             'basic_salary' => 'required|numeric|min:0',
             'ktp_file' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'npwp_file' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'bpjs_file' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
         ]);
 
-        // --- Generate NIP: format YYYYMM + 3 digit urut, di-scope PER COMPANY ---
+
         $joinYearMonth = Carbon::parse($request->join_date)->format('Ym');
         $lastEmployee = Employee::where('company_id', $companyId)
             ->where('employee_id', 'like', $joinYearMonth . '%')
@@ -313,8 +312,8 @@ class EmployeeController extends Controller
         $newSequence = $lastEmployee ? ((int) substr($lastEmployee->employee_id, -3)) + 1 : 1;
         $nip = $joinYearMonth . str_pad($newSequence, 3, '0', STR_PAD_LEFT);
 
-        // Email dummy internal — karyawan akan mengganti dengan email pribadi
-        // saat proses Aktivasi Akun di mobile app (OTP), bukan di sini.
+
+
         $dummyEmail = strtolower($nip) . '@internal.local';
 
         $ktpPath = null;
@@ -322,10 +321,20 @@ class EmployeeController extends Controller
             $ktpPath = $request->file('ktp_file')->store('documents/ktp', 'public');
         }
 
+        $npwpPath = null;
+        if ($request->hasFile('npwp_file')) {
+            $npwpPath = $request->file('npwp_file')->store('documents/npwp', 'public');
+        }
+
+        $bpjsPath = null;
+        if ($request->hasFile('bpjs_file')) {
+            $bpjsPath = $request->file('bpjs_file')->store('documents/bpjs', 'public');
+        }
+
         $employee = null;
 
-        \DB::transaction(function () use ($request, $companyId, $nip, $dummyEmail, $ktpPath, &$employee) {
-            // 1. Akun login — password AWAL sama dengan NIP
+        \DB::transaction(function () use ($request, $companyId, $nip, $dummyEmail, $ktpPath, $npwpPath, $bpjsPath, &$employee) {
+
             $user = User::create([
                 'company_id' => $companyId,
                 'nip' => $nip,
@@ -335,7 +344,7 @@ class EmployeeController extends Controller
             ]);
             $user->assignRole('employee');
 
-            // 2. Profil kepegawaian
+
             $employee = Employee::create([
                 'company_id' => $companyId,
                 'user_id' => $user->id,
@@ -349,6 +358,8 @@ class EmployeeController extends Controller
                 'bpjs_number' => $request->bpjs_number,
                 'basic_salary' => $request->basic_salary,
                 'ktp_file_path' => $ktpPath,
+                'npwp_file_path' => $npwpPath,
+                'bpjs_file_path' => $bpjsPath,
                 'department_id' => $request->department_id,
                 'position_id' => $request->position_id,
                 'join_date' => $request->join_date,
@@ -356,7 +367,7 @@ class EmployeeController extends Controller
                 'status' => 'active',
             ]);
 
-            // 3. Kontrak, kalau bukan PKWTT
+
             if ($request->contract_type !== 'PKWTT' && $request->filled('contract_end_date')) {
                 EmployeeContract::create([
                     'employee_id' => $employee->id,
@@ -413,7 +424,7 @@ class EmployeeController extends Controller
             'status' => 'required|in:pending,active,inactive,resigned',
             'ktp_file' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
 
-            // BARU — Data Rekening Bank
+
             'bank_name' => 'nullable|in:BCA,MANDIRI,BNI',
             'bank_account_number' => 'nullable|string|max:50',
             'bank_account_holder' => 'nullable|string|max:255',
@@ -444,14 +455,14 @@ class EmployeeController extends Controller
 
         $employee->update($data);
 
-        // Simpan/update nominal komponen gaji per karyawan
+
         foreach ($request->input('components', []) as $componentId => $amount) {
-            // Field kosong dianggap "tidak diisi" — skip, jangan timpa jadi 0
+
             if ($amount === null || $amount === '') {
                 continue;
             }
 
-            // Proteksi: pastikan komponen ini benar milik company yang sama (cegah IDOR)
+
             $validComponent = SalaryComponent::where('id', $componentId)
                 ->where('company_id', $companyId)
                 ->exists();

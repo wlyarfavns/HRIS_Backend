@@ -13,9 +13,7 @@ use Illuminate\Support\Facades\Hash;
 
 class EmployeeController extends Controller
 {
-    /**
-     * Menampilkan seluruh karyawan di company tersebut.
-     */
+
     public function index(Request $request)
     {
         $employees = Employee::with(['department', 'position'])
@@ -28,12 +26,10 @@ class EmployeeController extends Controller
         ]);
     }
 
-    /**
-     * HR Mendaftarkan Karyawan Baru (Pre-Onboarding).
-     */
+
     public function store(Request $request)
     {
-        // 1. SESUAIKAN VALIDASI: Hapus validasi password karena akan disamakan dengan NIP
+
         $request->validate([
             'full_name'         => 'required|string|max:255',
             'phone'             => 'nullable|string|max:20',
@@ -49,9 +45,9 @@ class EmployeeController extends Controller
 
         $companyId = $request->user()->company_id;
 
-        // ---------------------------------------------------------
-        // LOGIKA GENERATE NIP 18 DIGIT
-        // ---------------------------------------------------------
+
+
+
         $birthDate = Carbon::parse($request->birth_date)->format('Ymd');
         $joinDate = Carbon::parse($request->join_date)->format('Ym');
         $genderCode = $request->gender === 'L' ? '1' : '2';
@@ -63,36 +59,36 @@ class EmployeeController extends Controller
             ->first();
 
         if ($lastEmployee) {
-            // Ambil 3 digit terakhir dari NIP sebelumnya, jadikan integer, lalu tambah 1
+
             $lastSequence = (int) substr($lastEmployee->employee_id, -3);
             $newSequence = $lastSequence + 1;
         } else {
-            // Jika belum ada, mulai dari 1
+
             $newSequence = 1;
         }
 
         $sequence = str_pad($newSequence, 3, '0', STR_PAD_LEFT);
         $nip = $baseNip . $sequence;
 
-        // ---------------------------------------------------------
-        // 2. GUNAKAN DB TRANSACTION UNTUK MENYIMPAN USER & EMPLOYEE
-        // ---------------------------------------------------------
+
+
+
         DB::beginTransaction();
 
         try {
-            // A. Buat Akun Login (User) Terlebih Dahulu
+
             $user = User::create([
                 'company_id' => $companyId,
-                'nip'        => $nip, // Gunakan NIP sebagai alat login
+                'nip'        => $nip, 
                 'name'       => $request->full_name,
                 'email'      => null, 
-                'password'   => Hash::make($nip), // PASSWORD DISAMAKAN DENGAN NIP
+                'password'   => Hash::make($nip), 
             ]);
 
-            // Berikan role employee ke user tersebut
+
             $user->assignRole('employee');
 
-            // B. Buat Profil Administratif (Employee)
+
             $employee = Employee::create([
                 'company_id'            => $companyId,
                 'user_id'               => $user->id, 
@@ -129,9 +125,7 @@ class EmployeeController extends Controller
         }
     }
 
-    /**
-     * Menampilkan detail satu karyawan.
-     */
+
     public function show(Request $request, Employee $employee)
     {
         if ($employee->company_id !== $request->user()->company_id) {
@@ -144,9 +138,7 @@ class EmployeeController extends Controller
         ]);
     }
 
-    /**
-     * HR mengubah data administratif karyawan.
-     */
+
     public function update(Request $request, Employee $employee)
     {
         if ($employee->company_id !== $request->user()->company_id) {
@@ -188,22 +180,20 @@ class EmployeeController extends Controller
         ]);
     }
 
-    /**
-     * HR menghapus data Karyawan.
-     */
+
     public function destroy(Request $request, Employee $employee)
     {
         if ($employee->company_id !== $request->user()->company_id) {
             return response()->json(['success' => false, 'message' => 'Unauthorized.'], 403);
         }
 
-        // Simpan instance user sebelum employee dihapus
+
         $user = $employee->user;
 
-        // Hapus data karyawan
+
         $employee->delete();
 
-        // Hapus juga akun login-nya agar tidak menjadi data yatim (orphaned data)
+
         if ($user) {
             $user->delete();
         }

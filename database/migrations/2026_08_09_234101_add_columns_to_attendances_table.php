@@ -9,16 +9,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('attendances', function (Blueprint $table) {
-            // Status & keterlambatan
+
             if (!Schema::hasColumn('attendances', 'status')) {
                 $table->string('status')->nullable()->after('is_mock_location');
-                // isi: hadir | terlambat | izin | sakit | alpha
+
             }
             if (!Schema::hasColumn('attendances', 'late_minutes')) {
                 $table->unsignedInteger('late_minutes')->nullable()->after('status');
             }
 
-            // Data checkout (kalau belum ada semua)
+
             if (!Schema::hasColumn('attendances', 'photo_out')) {
                 $table->string('photo_out')->nullable()->after('photo_in');
             }
@@ -35,7 +35,7 @@ return new class extends Migration
                 $table->boolean('is_mock_location_out')->nullable();
             }
 
-            // Catatan bebas (opsional, dipakai HR untuk anotasi manual)
+
             if (!Schema::hasColumn('attendances', 'note')) {
                 $table->string('note')->nullable();
             }

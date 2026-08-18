@@ -2,266 +2,176 @@
 
 @section('title', 'Dashboard Finance')
 @section('page-title', 'Dashboard Finance')
-@section('page-desc', 'Ringkasan klaim penggantian biaya, persetujuan penggajian, dan pencairan dana hari ini.')
+@section('page-desc', 'Ringkasan beban penggajian, pencairan reimbursement, dan SLA verifikasi.')
 
 @section('content')
-<div class="space-y-6">
+<div class="space-y-8">
 
-    {{-- ══════════════════════════════════════════
-         CHART GRID — 2 kolom
-         ══════════════════════════════════════════ --}}
-    <div class="grid grid-cols-2 gap-5">
 
-        {{-- CARD 1: Line Chart — Reimbursement Trend --}}
-        <div class="card-flat rounded-2xl p-6 animate-dash-card dash-delay-1 hover:shadow-md transition flex flex-col">
-            <div class="flex items-start justify-between mb-1">
-                <div>
-                    <h3 class="text-base font-bold text-on-surface">Tren Klaim Reimbursement</h3>
-                    <p class="text-xs text-on-surface-variant/50 mt-0.5">Volume pengeluaran operasional 6 bulan terakhir dalam juta Rupiah</p>
-                </div>
-                <span class="inline-flex items-center gap-1 text-[11px] font-bold {{ $trendPercent <= 0 ? 'text-emerald-700 bg-emerald-50 border-emerald-200/60' : 'text-rose-700 bg-rose-50 border-rose-200/60' }} border px-2.5 py-1 rounded-full whitespace-nowrap">
-                    <span class="material-symbols-outlined text-[13px]">{{ $trendPercent <= 0 ? 'arrow_downward' : 'arrow_upward' }}</span>{{ $trendPercent }}%
-                </span>
-            </div>
-            <div class="flex items-baseline gap-2 mb-4">
-                <span class="text-3xl font-extrabold font-mono-data text-on-surface">{{ $trendTotalFormatted }}</span>
-                <span class="text-xs text-on-surface-variant/50">total bulan ini</span>
-            </div>
-            <div class="flex-1 relative" style="min-height:190px;">
-                <canvas id="finLineChart"></canvas>
-            </div>
-        </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 
-        {{-- CARD 2: Doughnut — Disbursement SLA --}}
-        <div class="card-flat rounded-2xl p-6 animate-dash-card dash-delay-2 hover:shadow-md transition flex flex-col">
-            <div class="flex items-start justify-between mb-1">
-                <div>
-                    <h3 class="text-base font-bold text-on-surface">SLA Verifikasi &amp; Pencairan</h3>
-                    <p class="text-xs text-on-surface-variant/50 mt-0.5">Tingkat ketepatan waktu pembayaran periode berjalan</p>
-                </div>
-                <button class="text-on-surface-variant/40 hover:text-on-surface transition">
-                    <span class="material-symbols-outlined text-[20px]">more_horiz</span>
-                </button>
-            </div>
+        <a href="{{ route('finance.payroll.index') }}" class="block bg-[#0B3D2E] rounded-xl p-6 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 border border-transparent">
+            <p class="text-xs font-semibold uppercase tracking-wider text-emerald-100 mb-1">Total Payroll Pending</p>
+            <p class="text-4xl font-bold text-white truncate">{{ $netPayrollFormatted ?? 'Rp 0' }}</p>
+            <p class="text-xs text-emerald-200 mt-2">Kelola Penggajian </p>
+        </a>
 
-            <div class="flex items-center gap-6 flex-1 mt-2">
-                <div class="relative shrink-0 flex items-center justify-center" style="width:170px;height:170px;">
-                    <canvas id="finDonutChart" style="width:170px;height:170px;"></canvas>
-                    <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                        <span class="text-2xl font-extrabold font-mono-data text-on-surface leading-none">{{ $slaOnTimePercent }}%</span>
-                        <span class="text-[10px] text-on-surface-variant/50 mt-0.5">Tepat Waktu</span>
-                    </div>
-                </div>
-                <div class="flex-1 space-y-3.5">
-                    <div>
-                        <div class="flex items-center justify-between text-xs mb-1.5">
-                            <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-emerald-500"></span><span class="font-semibold text-on-surface">Terverifikasi</span></div>
-                            <span class="font-bold font-mono-data">{{ $verifiedCount }}</span>
-                        </div>
-                        <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-emerald-500 rounded-full animate-bar-grow" style="width:{{ round($verifiedCount / $totalSla * 100, 1) }}%"></div></div>
-                    </div>
-                    <div>
-                        <div class="flex items-center justify-between text-xs mb-1.5">
-                            <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-amber-400"></span><span class="font-semibold text-on-surface">Pending Finance</span></div>
-                            <span class="font-bold font-mono-data">{{ $pendingCount }}</span>
-                        </div>
-                        <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-amber-400 rounded-full animate-bar-grow" style="width:{{ round($pendingCount / $totalSla * 100, 1) }}%"></div></div>
-                    </div>
-                    <div>
-                        <div class="flex items-center justify-between text-xs mb-1.5">
-                            <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-rose-400"></span><span class="font-semibold text-on-surface">Ditolak</span></div>
-                            <span class="font-bold font-mono-data">{{ $rejectedCount }}</span>
-                        </div>
-                        <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-rose-400 rounded-full animate-bar-grow" style="width:{{ round($rejectedCount / $totalSla * 100, 1) }}%"></div></div>
-                    </div>
+        <a href="{{ route('finance.reimbursement.index') }}" class="block bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md hover:-translate-y-1 hover:border-emerald-200 transition-all duration-300">
+            <p class="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Total Reimburse</p>
+            <p class="text-4xl font-bold text-gray-800 truncate">{{ $totalReimburseFormatted ?? 'Rp 0' }}</p>
+            <p class="text-xs text-emerald-600 mt-2">Kelola Pencairan </p>
+        </a>
 
-                    @if ($verifiedCount > 0)
-                    <div class="mt-1 bg-emerald-50 text-emerald-900 border border-emerald-200/70 rounded-xl px-3 py-2 text-[11px] font-medium flex items-center gap-2">
-                        <span class="material-symbols-outlined text-[15px] text-emerald-600">trending_up</span>
-                        <span>{{ $verifiedCount }} klaim telah diverifikasi bulan ini</span>
-                    </div>
-                    @endif
-                </div>
-            </div>
-        </div>
+        <a href="{{ route('finance.reimbursement.index') }}" class="block bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md hover:-translate-y-1 hover:border-emerald-200 transition-all duration-300">
+            <p class="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">SLA Verifikasi</p>
+            <p class="text-4xl font-bold text-gray-800">{{ $slaOnTimePercent ?? 0 }}%</p>
+            <p class="text-xs text-emerald-600 mt-2">Penyelesaian tepat waktu </p>
+        </a>
+
+        <a href="{{ route('finance.reimbursement.index') }}" class="block bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md hover:-translate-y-1 hover:border-emerald-200 transition-all duration-300">
+            <p class="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Menunggu Pencairan</p>
+            <p class="text-4xl font-bold text-gray-800">{{ $pendingCountLabel ?? 0 }}</p>
+            <p class="text-xs text-emerald-600 mt-2">Lihat daftar antrean </p>
+        </a>
 
     </div>
 
-    {{-- ══════════════════════════════════════════
-         PAYROLL STATUS + REIMBURSEMENT BY DEPT
-         ══════════════════════════════════════════ --}}
-    <div class="grid grid-cols-3 gap-5 animate-dash-card dash-delay-3">
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
 
-        {{-- Reimbursement per Departemen --}}
-        <div class="col-span-2 card-flat rounded-2xl p-6 flex flex-col">
-            <div class="flex items-start justify-between mb-4">
-                <div>
-                    <h3 class="text-base font-bold text-on-surface">Reimbursement per Departemen</h3>
-                    <p class="text-xs text-on-surface-variant/50 mt-0.5">Perbandingan total klaim pengeluaran per divisi bulan ini</p>
+
+        <div class="xl:col-span-2 space-y-8">
+
+
+            <div class="bg-white rounded-md border border-gray-100 shadow-sm overflow-hidden flex flex-col">
+                <div class="px-8 py-6 border-b border-gray-100 bg-gray-50/50 flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-[20px] text-[#0B3D2E]">trending_up</span>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-800">Tren Pencairan Reimbursement</h3>
+                        <p class="text-xs text-gray-500 mt-1">6 Bulan Terakhir</p>
+                    </div>
+                </div>
+
+                <div class="p-6">
+                    <div class="space-y-4">
+                        @if(isset($trendData) && count($trendData) > 0)
+                            @foreach($trendData as $idx => $val)
+                                <div class="flex justify-between items-center py-4 px-5 border border-gray-100 rounded-md hover:border-gray-200 shadow-sm transition group">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-gray-50 transition">
+                                            </div>
+                                        <span class="text-sm font-medium text-gray-700 group-hover:text-[#0B3D2E] transition">{{ $trendLabels[$idx] ?? '' }}</span>
+                                    </div>
+                                    <span class="text-base font-semibold  text-[#0B3D2E] bg-gray-50 px-4 py-2 rounded-md">{{ $val }} <span class="text-xs text-[#0B3D2E] font-sans font-medium">Juta</span></span>
+                                </div>
+                            @endforeach
+                        @else
+                            <div class="text-center py-8">
+                                <p class="text-sm font-medium text-gray-500">Data tren belum tersedia.</p>
+                            </div>
+                        @endif
+                    </div>
                 </div>
             </div>
-            <div class="flex-1 relative" style="min-height:160px;">
-                @if ($deptLabels->isEmpty())
-                    <div class="absolute inset-0 flex items-center justify-center text-xs text-on-surface-variant/40">
-                        Belum ada klaim terverifikasi pada periode ini.
+
+
+            <div class="bg-white rounded-md border border-gray-100 shadow-sm overflow-hidden flex flex-col">
+                <div class="px-8 py-6 border-b border-gray-100 bg-gray-50/50 flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-[20px] text-[#0B3D2E]">domain</span>
                     </div>
-                @else
-                    <canvas id="finDeptChart"></canvas>
-                @endif
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-800">Beban Reimbursement per Departemen</h3>
+                    </div>
+                </div>
+                <div class="p-6 space-y-4">
+                    @if(isset($deptLabels) && count($deptLabels) > 0)
+                        @foreach($deptLabels as $idx => $label)
+                        <div class="flex justify-between items-center py-4 px-5 bg-white border border-gray-100 rounded-md hover:border-gray-300 transition group">
+                            <div class="flex items-center gap-3">
+                                <span class="text-sm font-medium text-gray-700">{{ $label }}</span>
+                            </div>
+                            <span class="text-sm font-semibold  text-gray-800">{{ $deptData[$idx] }} <span class="text-xs text-gray-500 font-sans font-medium">Juta</span></span>
+                        </div>
+                        @endforeach
+                    @else
+                        <div class="text-center py-8">
+                            <p class="text-sm font-medium text-gray-500">Data departemen tidak tersedia.</p>
+                        </div>
+                    @endif
+                </div>
             </div>
+
         </div>
 
-        {{-- Quick Finance Stats --}}
-        <div class="card-flat rounded-2xl p-6 flex flex-col justify-between">
-            <div>
-                <h3 class="text-base font-bold text-on-surface mb-1">Ringkasan Keuangan</h3>
-                <p class="text-xs text-on-surface-variant/50 mb-5">Periode {{ $periodLabel }}</p>
-                <div class="space-y-4">
-                    <div class="p-3 rounded-xl bg-emerald-50 border border-emerald-200/50">
-                        <p class="text-[10px] text-emerald-700/70 font-bold uppercase tracking-wider mb-1">Gaji Bersih Bulan Ini</p>
-                        <p class="text-xl font-extrabold font-mono-data text-emerald-900">{{ $netPayrollFormatted }}</p>
+
+        <div class="xl:col-span-1 space-y-8">
+
+
+            <div class="bg-white rounded-md border border-gray-100 shadow-sm overflow-hidden flex flex-col">
+                <div class="px-6 py-5 border-b border-gray-100 bg-gray-50/50 flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-[20px] text-[#0B3D2E]">fact_check</span>
                     </div>
-                    <div class="p-3 rounded-xl bg-surface-container border border-black/5">
-                        <p class="text-[10px] text-on-surface-variant/50 font-bold uppercase tracking-wider mb-1">Total Klaim Penggantian Biaya</p>
-                        <p class="text-xl font-extrabold font-mono-data text-on-surface">{{ $totalReimburseFormatted }}</p>
+                    <h3 class="text-base font-medium text-gray-800">Status Verifikasi Pencairan</h3>
+                </div>
+
+                <div class="p-6">
+                    <div class="space-y-4 mb-6">
+                        <div class="flex justify-between items-center py-3 px-4 bg-gray-50 rounded-md border border-gray-200">
+                            <span class="font-medium text-sm text-[#0B3D2E]">Telah Dicairkan</span>
+                            <span class="font-semibold  text-base text-[#0B3D2E]">{{ $verifiedCount ?? 0 }}</span>
+                        </div>
+
+                        <div class="flex justify-between items-center py-3 px-4 bg-gray-50 rounded-md border border-gray-200">
+                            <span class="font-medium text-sm text-gray-700">Menunggu (Pending)</span>
+                            <span class="font-semibold  text-base text-gray-700">{{ $pendingCount ?? 0 }}</span>
+                        </div>
+
+                        <div class="flex justify-between items-center py-3 px-4 bg-gray-50 rounded-md border border-gray-200">
+                            <span class="font-medium text-sm text-gray-700">Ditolak</span>
+                            <span class="font-semibold  text-base text-gray-700">{{ $rejectedCount ?? 0 }}</span>
+                        </div>
                     </div>
-                    <div class="p-3 rounded-xl bg-amber-50 border border-amber-200/50">
-                        <p class="text-[10px] text-amber-700/70 font-bold uppercase tracking-wider mb-1">Menunggu Pencairan</p>
-                        <p class="text-xl font-extrabold font-mono-data text-amber-900">{{ $pendingCountLabel }} Klaim</p>
+
+                    <div class="pt-6 border-t border-gray-100">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-xs font-medium text-gray-500 uppercase tracking-widest">Total Pengajuan</span>
+                            <span class="font-semibold text-gray-800 text-lg ">{{ $totalSla ?? 0 }}</span>
+                        </div>
+                        <a href="{{ route('finance.reimbursement.index') }}" class="flex items-center justify-center gap-2 w-full py-3 bg-[#0B3D2E] text-white font-medium text-sm rounded-md hover:bg-[#043927] transition shadow-sm">
+                            Lihat Data Pending
+                            <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+                        </a>
                     </div>
                 </div>
             </div>
-            <a href="{{ route('finance.reimbursement.index') }}" class="w-full mt-4 bg-primary text-white text-xs font-bold py-2.5 rounded-xl hover:brightness-110 transition flex items-center justify-center gap-1.5">
-                <span class="material-symbols-outlined text-[16px]">payments</span>Kelola Pencairan
-            </a>
+
+
+            <div class="bg-white rounded-md border border-gray-100 shadow-sm overflow-hidden flex flex-col">
+                <div class="px-6 py-5 border-b border-gray-100 bg-gray-50/50">
+                    <h3 class="text-base font-medium text-gray-800">Akses Cepat</h3>
+                </div>
+                <div class="p-4 space-y-3">
+                    <a href="{{ route('finance.payroll.index') }}" class="flex items-center gap-4 p-4 rounded-md bg-white border border-gray-200 hover:border-[#0B3D2E] shadow-sm transition group">
+                        <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center shrink-0 group-hover:bg-gray-50 transition">
+                            <span class="material-symbols-outlined text-[20px] text-gray-700">payments</span>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700 group-hover:text-[#0B3D2E] transition">Proses Payroll</span>
+                    </a>
+
+                    <a href="#" class="flex items-center gap-4 p-4 rounded-md bg-white border border-gray-200 hover:border-[#0B3D2E] shadow-sm transition group">
+                        <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center shrink-0 group-hover:bg-gray-50 transition">
+                            <span class="material-symbols-outlined text-[20px] text-gray-700">pie_chart</span>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700 group-hover:text-[#0B3D2E] transition">Laporan Keuangan</span>
+                    </a>
+                </div>
+            </div>
+
         </div>
     </div>
 
 </div>
-
-{{-- Chart.js --}}
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    Chart.defaults.font.family = "'Inter', sans-serif";
-    Chart.defaults.color = '#94a3b8';
-
-    const trendLabels = @json($trendLabels);
-    const trendData = @json($trendData);
-    const slaData = [{{ $verifiedCount }}, {{ $pendingCount }}, {{ $rejectedCount }}];
-    const deptLabels = @json($deptLabels);
-    const deptData = @json($deptData);
-
-    // ── 1. Line Chart — Reimbursement Trend ──────────────────────────
-    const finLine = document.getElementById('finLineChart');
-    if (finLine) {
-        const g = finLine.getContext('2d').createLinearGradient(0, 0, 0, 200);
-        g.addColorStop(0, 'rgba(16,185,129,0.22)');
-        g.addColorStop(1, 'rgba(16,185,129,0)');
-        new Chart(finLine, {
-            type: 'line',
-            data: {
-                labels: trendLabels,
-                datasets: [{
-                    label: 'Klaim (Rp Juta)',
-                    data: trendData,
-                    fill: true, backgroundColor: g,
-                    borderColor: '#10b981', borderWidth: 2.5,
-                    pointBackgroundColor: '#fff', pointBorderColor: '#10b981',
-                    pointBorderWidth: 2, pointRadius: 4, pointHoverRadius: 7,
-                    pointHoverBackgroundColor: '#10b981',
-                    tension: 0.42,
-                }]
-            },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                animation: { duration: 1300, easing: 'easeInOutQuart' },
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        backgroundColor: '#0B3D2E', titleColor: '#a7f3d0', bodyColor: '#fff',
-                        borderColor: '#10b981', borderWidth: 1, padding: 10, cornerRadius: 10,
-                        callbacks: { label: c => ` Rp${c.parsed.y} Jt` }
-                    }
-                },
-                scales: {
-                    x: { grid: { display: false }, border: { display: false }, ticks: { font: { size: 11 } } },
-                    y: {
-                        grid: { color: '#f1f5f9' }, border: { display: false },
-                        ticks: { callback: v => 'Rp' + v + 'Jt', font: { size: 10 } },
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-    }
-
-    // ── 2. Doughnut — SLA Breakdown ──────────────────────────────────
-    const finDonut = document.getElementById('finDonutChart');
-    if (finDonut) {
-        new Chart(finDonut, {
-            type: 'doughnut',
-            data: {
-                labels: ['Terverifikasi', 'Pending', 'Ditolak'],
-                datasets: [{
-                    data: slaData,
-                    backgroundColor: ['#10b981', '#fbbf24', '#fca5a5'],
-                    hoverBackgroundColor: ['#059669', '#f59e0b', '#f87171'],
-                    borderWidth: 3, borderColor: '#fff'
-                }]
-            },
-            options: {
-                cutout: '72%', responsive: false,
-                animation: { animateRotate: true, duration: 1400, easing: 'easeInOutQuart' },
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        backgroundColor: '#0B3D2E', titleColor: '#a7f3d0', bodyColor: '#fff',
-                        borderColor: '#10b981', borderWidth: 1, padding: 10, cornerRadius: 10
-                    }
-                }
-            }
-        });
-    }
-
-    // ── 3. Horizontal Bar — Reimbursement by Dept ────────────────────
-    const finDept = document.getElementById('finDeptChart');
-    if (finDept && deptLabels.length > 0) {
-        new Chart(finDept, {
-            type: 'bar',
-            data: {
-                labels: deptLabels,
-                datasets: [{
-                    label: 'Total Klaim (Rp Juta)',
-                    data: deptData,
-                    backgroundColor: ['#0B3D2E', '#10b981', '#34d399', '#6ee7b7', '#a7f3d0', '#d1fae5'],
-                    borderRadius: 6,
-                    borderSkipped: false,
-                }]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true, maintainAspectRatio: false,
-                animation: { duration: 1300, easing: 'easeInOutQuart' },
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        backgroundColor: '#0B3D2E', titleColor: '#a7f3d0', bodyColor: '#fff',
-                        borderColor: '#10b981', borderWidth: 1, padding: 10, cornerRadius: 10,
-                        callbacks: { label: c => ` Rp${c.parsed.x} Jt` }
-                    }
-                },
-                scales: {
-                    x: {
-                        grid: { color: '#f1f5f9' }, border: { display: false },
-                        ticks: { callback: v => 'Rp' + v + 'Jt', font: { size: 10 } },
-                        beginAtZero: true
-                    },
-                    y: { grid: { display: false }, border: { display: false }, ticks: { font: { size: 11 } } }
-                }
-            }
-        });
-    }
-});
-</script>
 @endsection

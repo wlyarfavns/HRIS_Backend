@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,177 +7,60 @@
     <title>@yield('title', 'Dashboard Supervisor') - TalentaHR</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
-        rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-        rel="stylesheet">
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/turbolinks/5.0.0/turbolinks.js"></script>
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-
-        .font-mono-data {
-            font-family: 'IBM Plex Mono', ui-monospace, monospace;
-        }
-
-        .sidebar-border {
-            border-right: 1px solid rgba(0, 0, 0, 0.06);
-        }
-
-        .card-flat {
-            background: #ffffff;
-            border: 1px solid rgba(0, 0, 0, 0.06);
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.02);
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        [x-cloak] {
-            display: none !important;
-        }
-
-        /* Sidebar Supervisor — identitas terpisah, warna aksen sama (brand) */
-        /* Dashboard Entrance Animations & Styled Visual Widgets */
-        @keyframes dashboardFadeInUp {
-            0% {
-                opacity: 0;
-                transform: translateY(20px) scale(0.98);
-            }
-
-            100% {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
-        @keyframes gaugeRotate {
-            0% {
-                transform: rotate(-90deg);
-            }
-
-            100% {
-                transform: rotate(var(--gauge-deg, 45deg));
-            }
-        }
-
-        @keyframes barGrowHorizontal {
-            0% {
-                width: 0%;
-            }
-        }
-
-        @keyframes barGrowVertical {
-            0% {
-                height: 0%;
-            }
-        }
-
-        @keyframes strokeDraw {
-            0% {
-                stroke-dashoffset: 600;
-            }
-
-            100% {
-                stroke-dashoffset: 0;
-            }
-        }
-
-        .animate-dash-card {
-            opacity: 0;
-            animation: dashboardFadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        .dash-delay-1 {
-            animation-delay: 0.06s;
-        }
-
-        .dash-delay-2 {
-            animation-delay: 0.12s;
-        }
-
-        .dash-delay-3 {
-            animation-delay: 0.18s;
-        }
-
-        .dash-delay-4 {
-            animation-delay: 0.24s;
-        }
-
-        .dash-delay-5 {
-            animation-delay: 0.30s;
-        }
-
-        .dash-delay-6 {
-            animation-delay: 0.36s;
-        }
-
-        .animate-bar-grow {
-            animation: barGrowHorizontal 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        .animate-bar-vertical {
-            animation: barGrowVertical 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        .animate-gauge-needle {
-            transform-origin: 50px 50px;
-            animation: gaugeRotate 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-        }
-
-        .animate-line-draw {
-            stroke-dasharray: 600;
-            stroke-dashoffset: 600;
-            animation: strokeDraw 1.5s ease-out forwards;
-        }
-
-        .nav-tab.is-active {
-            background-color: rgba(11, 61, 46, 0.1);
-            color: #0B3D2E;
-            font-weight: 700;
-        }
-
-        .nav-tab:hover:not(.is-active) {
-            background-color: rgba(11, 61, 46, 0.05);
-        }
-
-        .nav-tab:not(.is-active) {
-            color: rgba(65, 73, 68, 0.8);
-        }
-
-        .nav-subtab.is-active {
-            background-color: rgba(11, 61, 46, 0.1);
-            color: #0B3D2E;
-            font-weight: 700;
-        }
-
-        .nav-subtab:hover:not(.is-active) {
-            background-color: rgba(11, 61, 46, 0.08);
-        }
-
-        .nav-subtab.is-active:hover {
-            background-color: rgba(11, 61, 46, 0.16);
-        }
-
-        .nav-subtab:not(.is-active) {
-            color: rgba(65, 73, 68, 0.7);
+        .turbolinks-progress-bar {
+            height: 3px;
+            background-color: #0B3D2E;
         }
     </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+        }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 10px; }
+
+
+        .nav-tab.is-active {
+            background-color: rgba(253, 251, 247, 0.1);
+            color: #FDFBF7;
+            font-weight: 600;
+        }
+        .nav-tab.is-active:hover { background-color: rgba(253, 251, 247, 0.15); }
+        .nav-tab:not(.is-active) { color: rgba(253, 251, 247, 0.7); }
+        .nav-tab:not(.is-active):hover { background-color: rgba(253, 251, 247, 0.05); color: #FDFBF7; }
+
+        .nav-subtab.is-active {
+            background-color: rgba(253, 251, 247, 0.1);
+            color: #FDFBF7;
+            font-weight: 600;
+        }
+        .nav-subtab.is-active:hover { background-color: rgba(253, 251, 247, 0.15); }
+        .nav-subtab:not(.is-active) { color: rgba(253, 251, 247, 0.6); }
+        .nav-subtab:not(.is-active):hover { background-color: rgba(253, 251, 247, 0.05); color: #FDFBF7; }
+
+        [x-cloak] { display: none !important; }
+    </style>
 </head>
+<body class="text-gray-800 antialiased bg-gray-50 relative">
+<div class="flex min-h-screen relative z-10">
 
-<body class="text-on-surface antialiased bg-[#F4F7F5]">
-    <div class="flex min-h-screen">
 
-        {{-- SIDEBAR SUPERVISOR — struktur & menu khusus role Supervisor --}}
-        <aside class="w-72 bg-white sidebar-border fixed h-screen flex flex-col">
-            <div class="px-8 py-6 border-b border-black/5">
-                <h1 class="text-xl font-extrabold text-primary tracking-tight leading-tight">HRIS System</h1>
-                <p class="text-[11px] font-bold text-on-surface-variant/50 uppercase tracking-widest mt-1">Modul
-                    Supervisor</p>
+        <aside class="w-64 bg-[#0B3D2E] text-[#FDFBF7] fixed h-screen flex flex-col shadow-sm z-50">
+            <div class="px-6 py-6 border-b border-white/10">
+                <h1 class="text-xl font-semibold tracking-tight leading-tight">TalentaHR</h1>
+                <p class="text-[10px] font-medium text-white/50 uppercase tracking-widest mt-1">Supervisor</p>
             </div>
 
-            <nav class="flex-1 px-4 pt-6 space-y-1 overflow-y-auto pb-8">
+            <nav class="flex-1 px-4 pt-6 space-y-1 overflow-y-auto pb-8 custom-scrollbar">
 
                 <x-nav-link route="supervisor.dashboard">
                     <span class="material-symbols-outlined text-[20px]">dashboard</span>
@@ -190,6 +72,7 @@
                     <x-nav-sublink route="supervisor.approvals.leave" badge="2">Cuti &amp; Izin</x-nav-sublink>
                     <x-nav-sublink route="supervisor.approvals.overtime">Lembur (SPL)</x-nav-sublink>
                     <x-nav-sublink route="supervisor.approvals.reimbursement">Reimbursement</x-nav-sublink>
+                    <x-nav-sublink route="supervisor.approvals.shift">Tukar Shift</x-nav-sublink>
                 </x-nav-group>
 
                 <x-nav-link route="supervisor.attendance.report">
@@ -199,16 +82,16 @@
             </nav>
         </aside>
 
-        {{-- MAIN CONTENT --}}
-        <div class="flex-1 ml-72">
 
-            {{-- TOP BAR --}}
-            <header class="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-black/5">
+        <div class="flex-1 ml-64 flex flex-col min-h-screen">
+
+
+            <header class="sticky top-0 z-40 bg-white border-b border-gray-200">
                 <div class="flex items-center justify-between px-8 py-3.5 gap-6">
                     <div class="min-w-0">
-                        <h1 class="text-lg font-bold text-on-surface">@yield('page-title', 'Dashboard')</h1>
+                        <h1 class="text-lg font-medium text-gray-800">@yield('page-title', 'Dashboard')</h1>
                         @hasSection('page-desc')
-                            <p class="text-sm text-on-surface-variant/60">@yield('page-desc')</p>
+                            <p class="text-sm text-gray-500">@yield('page-desc')</p>
                         @endif
                     </div>
 
@@ -217,43 +100,43 @@
 
                         @include('shared._topbar_notifications')
 
-                        <div class="h-5 w-px bg-black/10"></div>
+                        <div class="h-5 w-px bg-gray-200"></div>
 
-                        {{-- PROFIL + DROPDOWN — nama, role, email, avatar diambil dari user yang login --}}
+                        @php
+                            $user = auth()->user();
+                            $userName = $user->name ?? 'User';
+                            $userEmail = $user->email ?? 'email@example.com';
+                            $roleLabel = $user?->getRoleNames()->first() ?? 'Supervisor';
+                        @endphp
+
+
                         <div class="relative" x-data="{ open: false }" @click.outside="open = false">
                             <button @click="open = !open" class="flex items-center gap-3 group">
                                 <div class="text-right hidden sm:block">
-                                    <p class="text-sm font-bold text-on-surface leading-tight">
-                                        {{ auth()->user()->name ?? '-' }}</p>
-                                    <p class="text-[10px] text-on-surface-variant/60 font-bold uppercase tracking-wide">
-                                        {{ auth()->user()?->getRoleNames()->first() ?? 'Supervisor' }}
-                                    </p>
+                                    <p class="text-sm font-medium text-gray-800 leading-tight">{{ $userName }}</p>
+                                    <p class="text-[10px] text-gray-500 font-medium uppercase tracking-wide">{{ $roleLabel }}</p>
                                 </div>
-                                <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=0B3D2E&color=fff"
+                                <img src="https://ui-avatars.com/api/?name={{ urlencode($userName) }}&background=E9F3EF&color=043927"
                                     alt="Foto profil"
-                                    class="w-9 h-9 rounded-full object-cover ring-2 ring-transparent group-hover:ring-primary/20 transition">
-                                <span
-                                    class="material-symbols-outlined text-on-surface-variant/50 text-[18px] transition"
-                                    :class="open && 'rotate-180'">expand_more</span>
-                            </button>
+                                    class="w-9 h-9 rounded-full object-cover border border-gray-200 group-hover:border-[#0B3D2E] transition">
+                                </button>
 
-                            <div x-show="open" x-transition.origin.top.right
-                                class="absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-lg border border-black/5 py-2 z-30"
-                                style="display: none;">
-                                <div class="px-4 py-2 border-b border-black/5">
-                                    <p class="text-sm font-bold text-on-surface">{{ auth()->user()->name ?? '-' }}</p>
-                                    <p class="text-xs text-on-surface-variant/60">{{ auth()->user()->email ?? '-' }}</p>
+                            <div x-show="open" x-transition.origin.top.right x-cloak
+                                class="absolute right-0 mt-3 w-56 bg-white rounded-md shadow-sm border border-gray-100 py-2 z-30">
+                                <div class="px-4 py-3 border-b border-gray-100 mb-1">
+                                    <p class="text-sm font-medium text-gray-800">{{ $userName }}</p>
+                                    <p class="text-xs text-gray-500 truncate">{{ $userEmail }}</p>
                                 </div>
                                 <a href="{{ route('supervisor.profile') }}"
-                                    class="flex items-center gap-2.5 px-4 py-2 text-sm text-on-surface-variant/80 hover:bg-primary/5 hover:text-primary transition">
+                                    class="flex items-center gap-2.5 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#0B3D2E] transition cursor-pointer">
                                     <span class="material-symbols-outlined text-[18px]">account_circle</span>
                                     Profil Saya
                                 </a>
-                                <div class="border-t border-black/5 mt-1 pt-1">
+                                <div class="border-t border-gray-100 mt-1 pt-1">
                                     <form method="POST" action="{{ route('logout') }}">
                                         @csrf
                                         <button type="submit"
-                                            class="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-error hover:bg-error/5 text-left transition">
+                                            class="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 text-left transition cursor-pointer">
                                             <span class="material-symbols-outlined text-[18px]">logout</span>
                                             Keluar
                                         </button>
@@ -265,12 +148,11 @@
                 </div>
             </header>
 
-            <main class="p-8 space-y-6">
+            <main class="p-8 flex-1">
                 @yield('content')
             </main>
         </div>
     </div>
     @include('shared._toast')
 </body>
-
 </html>

@@ -22,7 +22,7 @@ class CarryForwardLeaveCommand extends Command
             $leaveType = $balance->leaveType;
             $carryForwardAmount = 0;
 
-            // 1. Hitung sisa cuti tahun lalu (jika tipe cuti mengizinkan)
+
             if ($leaveType && $leaveType->allow_carry_forward) {
                 $available = ($balance->initial_quota + $balance->carried_forward_quota) - $balance->used_quota;
 
@@ -38,7 +38,7 @@ class CarryForwardLeaveCommand extends Command
                     'year' => $currentYear,
                 ],
                 [
-                    // Ambil jatah default dari tipe cuti, atau set default 12 jika tidak ada
+
                     'initial_quota' => $leaveType->default_quota ?? 12,
                     'carried_forward_quota' => $carryForwardAmount,
                 ]

@@ -6,9 +6,7 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
+
     public function up(): void
     {
         Schema::table('payrolls', function (Blueprint $table) {
@@ -20,13 +18,11 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
+
     public function down(): void
     {
         Schema::table('payrolls', function (Blueprint $table) {
-            // Drop foreign key terlebih dahulu sebelum drop kolom
+
             $table->dropForeign(['payroll_batch_id']);
             $table->dropColumn('payroll_batch_id');
         });

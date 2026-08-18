@@ -14,17 +14,13 @@ class ActivationOtpMail extends Mailable
 
     public $otpCode;
 
-    /**
-     * Create a new message instance.
-     */
+
     public function __construct($otpCode)
     {
         $this->otpCode = $otpCode;
     }
 
-    /**
-     * Get the message envelope (Subjek Email).
-     */
+
     public function envelope(): Envelope
     {
         return new Envelope(
@@ -32,9 +28,7 @@ class ActivationOtpMail extends Mailable
         );
     }
 
-    /**
-     * Get the message content definition (Tampilan HTML).
-     */
+
     public function content(): Content
     {
         return new Content(

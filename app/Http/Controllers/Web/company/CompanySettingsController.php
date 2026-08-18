@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 class CompanySettingsController extends Controller
 {
-    
+
     public function updateAttendanceRules(Request $request)
     {
         $request->validate([
@@ -19,7 +19,7 @@ class CompanySettingsController extends Controller
         ]);
 
         $company = $request->user()->company; 
-        
+
         $company->update([
             'office_latitude'        => $request->office_latitude,
             'office_longitude'       => $request->office_longitude,

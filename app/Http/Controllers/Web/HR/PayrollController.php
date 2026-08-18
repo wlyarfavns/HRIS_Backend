@@ -26,23 +26,33 @@ class PayrollController extends Controller
         $companyId = $request->user()->company_id;
         $period = $request->filled('period') ? Carbon::parse($request->input('period') . '-01') : now();
 
-
         $payrolls = Payroll::with(['employee.department', 'details.salaryComponent'])
             ->where('company_id', $companyId)
             ->whereYear('period_end', $period->year)
             ->whereMonth('period_end', $period->month)
             ->latest()
             ->get()
-            ->unique('employee_id') // Ambil draf terbaru jika sempat di-run berkali-kali
+            ->unique('employee_id') 
             ->values();
 
-        // 2. Ambil tanggal mulai/akhir dari database langsung agar UI ikut dinamis
+
         $start = $payrolls->first() ? $payrolls->first()->period_start : $period->copy()->startOfMonth();
         $end = $payrolls->first() ? $payrolls->first()->period_end : $period->copy()->endOfMonth();
+
+
+        $currentPage = \Illuminate\Pagination\LengthAwarePaginator::resolveCurrentPage();
+        $perPage = 10;
+        $currentItems = $payrolls->slice(($currentPage - 1) * $perPage, $perPage)->all();
+        $paginatedPayrolls = new \Illuminate\Pagination\LengthAwarePaginator($currentItems, $payrolls->count(), $perPage, $currentPage, [
+            'path' => \Illuminate\Pagination\LengthAwarePaginator::resolveCurrentPath(),
+            'query' => $request->query()
+        ]);
 
         $totalGross = $payrolls->sum('basic_salary') + $payrolls->sum('total_allowances');
         $totalDeduct = $payrolls->sum('total_deductions');
         $totalNet = $payrolls->sum('net_salary');
+
+        $payrolls = $paginatedPayrolls;
 
         $components = \App\Models\SalaryComponent::forCompany($companyId)
             ->orderBy('category')
@@ -61,10 +71,7 @@ class PayrollController extends Controller
         ));
     }
 
-    /**
-     * Bangun status 5-tahap pipeline berdasarkan data payroll asli,
-     * bukan status statis seperti pada versi dummy sebelumnya.
-     */
+
     private function buildPipelineSteps($payrolls, Carbon $start, Carbon $end): array
     {
         $hasData = $payrolls->isNotEmpty();
@@ -126,12 +133,12 @@ class PayrollController extends Controller
 
     public function runPayroll(Request $request)
     {
-        // 1. Validasi input yang masuk dari JS
+
         $request->validate([
             'period' => 'required|date_format:Y-m',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
-            'employee_ids' => 'required|string' // Format JSON array dari Alpine
+            'employee_ids' => 'required|string' 
         ]);
 
         $companyId = $request->user()->company_id;
@@ -139,14 +146,14 @@ class PayrollController extends Controller
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
 
-        // 2. Decode string JSON menjadi Array PHP
+
         $employeeIds = json_decode($request->input('employee_ids'), true);
 
         if (empty($employeeIds)) {
             return back()->with('error', 'Tidak ada karyawan yang dipilih.');
         }
 
-        // 3. Passing parameter ID dan Tanggal Custom ke Service
+
         $this->payrollService->generateAttendanceSummary($companyId, $startDate, $endDate, $employeeIds);
         $this->payrollService->calculateSalary($companyId, $startDate, $endDate, $employeeIds);
 
@@ -159,10 +166,10 @@ class PayrollController extends Controller
     {
         $companyId = $request->user()->company_id;
 
-        // Ambil data karyawan aktif untuk ditampilkan di tabel (Pilih Batch Karyawan)
+
         $employees = \App\Models\Employee::with('department')
             ->where('company_id', $companyId)
-            ->whereIn('status', ['active', 'probation', 'PKWT', 'PKWTT']) // Pastikan status sesuai di database Anda
+            ->whereIn('status', ['active', 'probation', 'PKWT', 'PKWTT']) 
             ->get();
 
         return view('hr.penggajian.run', compact('employees'));
@@ -172,13 +179,13 @@ class PayrollController extends Controller
     {
         $companyId = $request->user()->company_id;
 
-        // 1. Cari data payroll yang masih DRAFT (Sistem akan mengabaikan URL dan mencari draf asli di database)
+
         $payroll = \App\Models\Payroll::where('company_id', $companyId)
             ->where('status', \App\Models\Payroll::STATUS_DRAFT)
             ->orderBy('period_start', 'asc')
             ->first();
 
-        // Jika benar-benar tidak ada draf, kembalikan error
+
         if (!$payroll) {
             return back()->with('error', 'Tidak ada draft payroll yang tersedia untuk dikirim ke Finance.');
         }
@@ -186,14 +193,14 @@ class PayrollController extends Controller
         $start = $payroll->period_start->toDateString();
         $end = $payroll->period_end->toDateString();
 
-        // Ambil nama bulan langsung dari database (Pasti akurat, contoh: "Maret 2026")
+
         $bulanPayroll = $payroll->period_start->translatedFormat('F Y');
 
-        // 2. Eksekusi penguncian data dan pembuatan Batch untuk Finance
+
         $count = $this->payrollService->approveByHr($companyId, $start, $end);
         $this->payrollService->submitBatchToFinance($companyId, $start, $end, $request->user()->id);
 
-        // 3. Trigger Notifikasi ke Finance
+
         $financeUsers = User::role('finance')->where('company_id', $companyId)->get();
         foreach ($financeUsers as $financeUser) {
             $financeUser->notify(new GeneralNotification(
@@ -203,14 +210,12 @@ class PayrollController extends Controller
             ));
         }
 
-        // 4. Redirect kembali dengan URL yang sudah dikoreksi ke bulan yang tepat
+
         return redirect()->route('hr.payroll.index', ['period' => $payroll->period_start->format('Y-m')])
             ->with('success', "{$count} data payroll periode {$bulanPayroll} berhasil dikirim ke Finance.");
     }
 
-    /**
-     * Approval oleh Finance. Hanya boleh dari status approved_hr.
-     */
+
     public function approveFinance(Request $request)
     {
         $request->validate(['period' => 'required|date_format:Y-m']);
@@ -256,8 +261,19 @@ class PayrollController extends Controller
             ->where('company_id', $companyId)
             ->findOrFail($id);
 
+        if ($request->query('export') === 'pdf') {
+            $earnings = collect([['label' => 'Gaji Pokok', 'amount' => (float) $payroll->basic_salary]])
+                ->concat($payroll->details->where('type', 'earning')->map(fn($d) => ['label' => $d->salaryComponent->name ?? '-', 'amount' => (float) $d->amount]))
+                ->values();
+            $deductions = $payroll->details->where('type', 'deduction')->map(fn($d) => ['label' => $d->salaryComponent->name ?? '-', 'amount' => (float) $d->amount])->values();
+            $totalEarnings = collect($earnings)->sum('amount');
+            $totalDeductions = collect($deductions)->sum('amount');
+
+            return \Barryvdh\DomPDF\Facade\Pdf::loadView('mobile.payroll.slip-pdf', compact('payroll', 'earnings', 'deductions', 'totalEarnings', 'totalDeductions'))
+                ->download("slip-gaji-{$payroll->period_start->translatedFormat('F Y')}.pdf");
+        }
+
         return view('hr.penggajian.slip', compact('payroll'));
     }
-
 
 }

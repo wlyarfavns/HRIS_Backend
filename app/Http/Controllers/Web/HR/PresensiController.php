@@ -7,6 +7,7 @@ use App\Models\Attendance;
 use App\Models\LeaveRequest;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class PresensiController extends Controller
 {
@@ -16,14 +17,14 @@ class PresensiController extends Controller
         $search = $request->input('search');
         $companyId = $this->resolveCompanyId($request);
 
-        // 1. Ambil presensi (clock-in/out) hari itu
+
         $attendanceQuery = Attendance::with('employee')
             ->where('company_id', $companyId)
             ->where('date', $date);
 
         if ($search) {
             $attendanceQuery->whereHas('employee', function ($q) use ($search) {
-                // Perbaikan: Cari berdasarkan full_name
+
                 $q->where('full_name', 'like', "%{$search}%")
                     ->orWhere('name', 'like', "%{$search}%");
             });
@@ -31,7 +32,7 @@ class PresensiController extends Controller
 
         $attendances = $attendanceQuery->get();
 
-        // 2. Ambil izin/sakit/cuti yang approved dan meliputi tanggal ini
+
         $leaveQuery = LeaveRequest::with(['employee', 'leaveType'])
             ->forCompany($companyId)
             ->where('status', 'approved')
@@ -46,10 +47,10 @@ class PresensiController extends Controller
 
         $leaves = $leaveQuery->get();
 
-        // 3. Bentuk baris log presensi
+
         $attendanceLogs = $attendances->map(function (Attendance $a) {
             return [
-                // PERBAIKAN: Gunakan employee_id dan full_name
+
                 'nip' => $a->employee->employee_id ?? $a->employee->nip ?? '-',
                 'name' => $a->employee->full_name ?? $a->employee->name ?? '-',
                 'in' => $a->time_in ? $a->time_in->format('H:i') : '-',
@@ -72,10 +73,10 @@ class PresensiController extends Controller
             ];
         });
 
-        // 4. Bentuk baris log izin/sakit/cuti
+
         $leaveLogs = $leaves->map(function (LeaveRequest $l) {
             return [
-                // PERBAIKAN: Gunakan employee_id dan full_name
+
                 'nip' => $l->employee->employee_id ?? $l->employee->nip ?? '-',
                 'name' => $l->employee->full_name ?? $l->employee->name ?? '-',
                 'in' => '-',
@@ -100,14 +101,24 @@ class PresensiController extends Controller
             ->merge($leaveLogs->all())
             ->sortBy('name')
             ->values();
+
         $total = $logs->count();
+
+
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+        $perPage = 10;
+        $currentItems = $logs->slice(($currentPage - 1) * $perPage, $perPage)->all();
+        $paginatedLogs = new LengthAwarePaginator($currentItems, $total, $perPage, $currentPage, [
+            'path' => LengthAwarePaginator::resolveCurrentPath(),
+            'query' => $request->query()
+        ]);
 
         $tepatWaktuCount = $attendanceLogs->where('status', 'Tepat Waktu')->count();
         $terlambatCount = $attendanceLogs->where('status', 'Terlambat')->count();
         $izinCount = $leaveLogs->count();
         $tidakHadirCount = $attendanceLogs->where('status', 'Tidak Hadir')->count();
 
-        // 5. Statistik ringkas
+
         $stats = [
             [
                 'label' => 'Tepat Waktu',
@@ -150,24 +161,24 @@ class PresensiController extends Controller
             $badge[$name] = 'bg-purple-500/10 text-purple-700';
         }
 
+        $logs = $paginatedLogs;
+
         return view('hr.presensi.index', compact('stats', 'logs', 'badge', 'date', 'search'));
     }
 
-    /**
-     * Export rekap presensi harian ke CSV.
-     */
+
     public function export(Request $request)
     {
         $date = $request->input('date', now()->toDateString());
         $companyId = $this->resolveCompanyId($request);
 
-        // 1. Ambil data absen reguler (clock in/out)
+
         $attendances = Attendance::with('employee')
             ->where('company_id', $companyId)
             ->where('date', $date)
             ->get();
 
-        // 2. Ambil data karyawan yang sedang cuti/izin/sakit di hari tersebut
+
         $leaves = LeaveRequest::with(['employee', 'leaveType'])
             ->forCompany($companyId)
             ->where('status', 'approved')
@@ -187,10 +198,10 @@ class PresensiController extends Controller
         $callback = function () use ($attendances, $leaves) {
             $handle = fopen('php://output', 'w');
 
-            // Tambahkan kolom 'Keterangan' di ujung
+
             fputcsv($handle, ['NIP', 'Nama', 'Jam Masuk', 'Jam Keluar', 'Status', 'Jam Kerja Efektif', 'Jarak GPS (m)', 'Fake GPS', 'Keterangan']);
 
-            // Looping data Absen Normal
+
             foreach ($attendances as $a) {
                 fputcsv($handle, [
                     $a->employee->employee_id ?? $a->employee->nip ?? '-',
@@ -205,18 +216,18 @@ class PresensiController extends Controller
                 ]);
             }
 
-            // Looping data Cuti / Izin / Sakit
+
             foreach ($leaves as $l) {
                 fputcsv($handle, [
                     $l->employee->employee_id ?? $l->employee->nip ?? '-',
                     $l->employee->full_name ?? $l->employee->name ?? '-',
                     '-',
                     '-',
-                    $l->type_label, // Menuliskan 'Cuti Tahunan', 'Sakit', dll
+                    $l->type_label, 
                     '-',
                     '-',
                     '-',
-                    $l->reason ?: 'Izin/Cuti' // Alasan cuti
+                    $l->reason ?: 'Izin/Cuti' 
                 ]);
             }
 

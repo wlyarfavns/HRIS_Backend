@@ -4,34 +4,103 @@ namespace App\Http\Controllers\Web\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Str;
+use App\Models\User;
+use App\Models\EmailOtp;
+use App\Mail\ResetPasswordOtpMail;
+use Illuminate\Support\Facades\Mail;
 
 class PasswordResetController extends Controller
 {
-    // 1. Menampilkan Halaman "Lupa Kata Sandi"
+
     public function requestForm()
     {
         return view('auth.forgot-password');
     }
 
-    // 2. Memproses Pengiriman Email
+
     public function sendResetLink(Request $request)
     {
         $request->validate(['email' => 'required|email|exists:users,email'], [
             'email.exists' => 'Kami tidak dapat menemukan pengguna dengan alamat email tersebut.'
         ]);
 
-        $status = Password::sendResetLink($request->only('email'));
+        $user = User::where('email', $request->email)->first();
 
-        return $status === Password::RESET_LINK_SENT
-                    ? back()->with(['status' => 'Tautan pemulihan kata sandi telah dikirim ke email Anda!'])
-                    : back()->withErrors(['email' => 'Gagal mengirim tautan. Silakan coba lagi.']);
+
+        $existingOtp = EmailOtp::where('user_id', $user->id)->first();
+        if ($existingOtp && now()->lessThan($existingOtp->expires_at)) {
+            session(['reset_email' => $user->email]);
+            return redirect()->route('password.verify.form')->with('status', 'Kode OTP Anda masih aktif. Silakan cek email Anda untuk mendapatkan kode tersebut.');
+        }
+
+        $otpCode = rand(100000, 999999);
+
+        EmailOtp::updateOrCreate(
+            ['user_id' => $user->id, 'email' => $user->email],
+            [
+                'otp_code' => Hash::make($otpCode),
+                'expires_at' => now()->addMinutes(15),
+                'verified_at' => null,
+                'reset_token' => null
+            ]
+        );
+
+        Mail::to($user->email)->send(new ResetPasswordOtpMail($otpCode));
+
+
+        session(['reset_email' => $user->email]);
+
+        return redirect()->route('password.verify.form')->with('status', 'Kode OTP pemulihan kata sandi telah dikirim ke email Anda!');
     }
 
-    // 3. Menampilkan Halaman "Atur Ulang Kata Sandi" (dari link email)
+
+    public function verifyOtpForm()
+    {
+        if (!session('reset_email')) {
+            return redirect()->route('password.request');
+        }
+
+        return view('auth.verify-otp', ['email' => session('reset_email')]);
+    }
+
+
+    public function processOtp(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'otp_code' => 'required|string|size:6'
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+        if (!$user) {
+            return back()->withErrors(['otp_code' => 'Pengguna tidak ditemukan.'])->withInput();
+        }
+
+        $otpRecord = EmailOtp::where('user_id', $user->id)->first();
+
+        if (!$otpRecord || now()->greaterThan($otpRecord->expires_at)) {
+            return back()->withErrors(['otp_code' => 'Kode OTP kedaluwarsa. Silakan minta ulang.'])->withInput();
+        }
+
+        if (!Hash::check($request->otp_code, $otpRecord->otp_code)) {
+            $otpRecord->increment('attempts');
+            return back()->withErrors(['otp_code' => 'Kode OTP salah.'])->withInput();
+        }
+
+
+        $resetToken = Str::random(60);
+
+        $otpRecord->update([
+            'verified_at' => now(),
+            'reset_token' => $resetToken
+        ]);
+
+        return redirect()->route('password.reset', ['token' => $resetToken, 'email' => $user->email]);
+    }
+
+
     public function resetForm(Request $request, $token)
     {
         return view('auth.reset-password', [
@@ -40,29 +109,37 @@ class PasswordResetController extends Controller
         ]);
     }
 
-    // 4. Memproses Perubahan Kata Sandi di Database
+
     public function updatePassword(Request $request)
     {
         $request->validate([
             'token'    => 'required',
             'email'    => 'required|email',
-            'password' => 'required|min:8|confirmed', // Harus cocok dengan password_confirmation
+            'password' => 'required|min:8|confirmed',
         ]);
 
-        $status = Password::reset(
-            $request->only('email', 'password', 'password_confirmation', 'token'),
-            function ($user, $password) {
-                $user->forceFill([
-                    'password' => Hash::make($password)
-                ])->setRememberToken(Str::random(60));
-                
-                $user->save();
-                event(new PasswordReset($user));
-            }
-        );
+        $otpRecord = EmailOtp::where('reset_token', $request->token)
+            ->where('email', $request->email)
+            ->first();
 
-        return $status === Password::PASSWORD_RESET
-                    ? redirect()->route('login')->with('success', 'Kata sandi berhasil diubah! Silakan masuk dengan kata sandi baru.')
-                    : back()->withErrors(['email' => 'Token kedaluwarsa atau email tidak cocok.']);
+        if (!$otpRecord || !$otpRecord->verified_at) {
+            return back()->withErrors(['email' => 'Sesi reset kata sandi tidak valid atau kedaluwarsa.']);
+        }
+
+        $user = User::where('email', $request->email)->first();
+        if (!$user) {
+            return back()->withErrors(['email' => 'Pengguna tidak ditemukan.']);
+        }
+
+        $user->forceFill([
+            'password' => Hash::make($request->password)
+        ])->setRememberToken(Str::random(60));
+        $user->save();
+
+
+        $otpRecord->delete();
+        session()->forget('reset_email');
+
+        return redirect()->route('login')->with('success', 'Kata sandi berhasil diubah! Silakan masuk dengan kata sandi baru.');
     }
 }

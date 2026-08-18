@@ -13,7 +13,6 @@ class Attendance extends Model
     public const STATUS_ABSENT  = 'alpha';
     public const STATUS_PERMIT  = 'izin';
     public const STATUS_SAKIT   = 'sakit';
-    // ------------------------------------------
 
     protected $casts = [
         'date' => 'date',
@@ -37,9 +36,7 @@ class Attendance extends Model
         return $this->belongsTo(Company::class);
     }
 
-    /**
-     * Label status yang siap ditampilkan di UI (Bahasa Indonesia, title case).
-     */
+
     public function getStatusLabelAttribute(): string
     {
         return match ($this->status) {
@@ -52,9 +49,7 @@ class Attendance extends Model
         };
     }
 
-    /**
-     * Total jam kerja efektif, format "9j 15m". Null kalau belum checkout.
-     */
+
     public function getEffectiveHoursAttribute(): string
     {
         if (!$this->time_in) {

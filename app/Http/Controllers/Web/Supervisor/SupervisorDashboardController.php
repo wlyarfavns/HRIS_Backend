@@ -19,7 +19,7 @@ class SupervisorDashboardController extends Controller
         $companyId  = $supervisor->company_id;
         $today      = today();
 
-        // ── Tim di bawah supervisor ini ─────────────────────────────────
+
         $team = Employee::with(['department', 'position'])
             ->where('company_id', $companyId)
             ->where('supervisor_id', $supervisor->id)
@@ -28,21 +28,21 @@ class SupervisorDashboardController extends Controller
         $teamIds    = $team->pluck('id');
         $totalTeam  = $team->count();
 
-        // ── Presensi hari ini untuk seluruh tim ─────────────────────────
+
         $attendanceToday = Attendance::whereIn('employee_id', $teamIds)
             ->whereDate('date', $today)
             ->get()
             ->keyBy('employee_id');
 
-        // ── Cuti/izin yang approved & sedang berjalan hari ini ──────────
-        // (pakai scope coveringDate seperti di LeaveApprovalController)
+
+
         $leaveTodayByEmployee = LeaveRequest::whereIn('employee_id', $teamIds)
             ->where('status', 'approved')
             ->coveringDate($today->toDateString())
             ->get()
             ->keyBy('employee_id');
 
-        // ── Hitung status per anggota tim untuk list "Status Tim Hari Ini" ──
+
         $team = $team->map(function ($member) use ($attendanceToday, $leaveTodayByEmployee) {
             $att   = $attendanceToday->get($member->id);
             $leave = $leaveTodayByEmployee->get($member->id);
@@ -79,11 +79,11 @@ class SupervisorDashboardController extends Controller
             'Belum Presensi'  => 'bg-rose-50 text-rose-800 border border-rose-200',
         ];
 
-        // ── Angka ringkas untuk kartu status ─────────────────────────────
+
         $hadirHariIni = collect($team)->whereIn('status', ['Hadir', 'Terlambat'])->count();
         $cutiIzin     = collect($team)->whereIn('status', ['Izin / Sakit', 'Cuti Tahunan'])->count();
 
-        // ── Pengajuan pending dari 3 modul (leave, overtime, reimbursement) ──
+
         $pendingLeave = LeaveRequest::with(['employee', 'leaveType'])
             ->whereIn('employee_id', $teamIds)
             ->where('status', 'pending_spv')
@@ -133,7 +133,7 @@ class SupervisorDashboardController extends Controller
 
         $totalPending = $pendingLeave->count() + $pendingOvertime->count() + $pendingReimbursement->count();
 
-        // ── Kartu statistik atas ──────────────────────────────────────────
+
         $stats = [
             [
                 'label' => 'Anggota Tim',
@@ -161,10 +161,10 @@ class SupervisorDashboardController extends Controller
             ],
         ];
 
-        // ── Data untuk chart kehadiran mingguan (4 minggu berjalan) ────────
+
         $weeklyAttendance = $this->buildWeeklyAttendanceTrend($teamIds);
 
-        // ── Data untuk gauge SLA approval (30 hari terakhir, 3 modul) ─────
+
         $slaStats = $this->buildApprovalSla($companyId, $teamIds, $supervisor->id);
 
         return view('supervisor.dashboard', compact(
@@ -177,10 +177,7 @@ class SupervisorDashboardController extends Controller
         ));
     }
 
-    /**
-     * Persentase kehadiran (hadir+terlambat / total presensi tercatat) per minggu,
-     * untuk 4 minggu berjalan bulan ini.
-     */
+
     private function buildWeeklyAttendanceTrend($teamIds): array
     {
         $start = now()->startOfMonth();
@@ -207,10 +204,7 @@ class SupervisorDashboardController extends Controller
         return $weeks;
     }
 
-    /**
-     * Ringkasan approved/pending/rejected untuk gauge SLA, gabungan 3 modul,
-     * dibatasi ke tim supervisor ini, 30 hari terakhir.
-     */
+
     private function buildApprovalSla($companyId, $teamIds, $supervisorId): array
     {
         $since = now()->subDays(30);

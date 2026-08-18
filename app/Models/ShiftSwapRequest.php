@@ -45,8 +45,9 @@ class ShiftSwapRequest extends Model
     public function getStatusLabelAttribute(): string
     {
         return match ($this->status) {
-            // 'pending_peer' => 'Menunggu Rekan',
+
             'pending_spv'  => 'Menunggu SPV',
+            'pending_hr'   => 'Menunggu HR',
             'approved'     => 'Disetujui',
             'rejected'     => 'Ditolak',
             default        => $this->status,

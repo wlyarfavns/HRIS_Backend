@@ -14,17 +14,13 @@ class ResetPasswordOtpMail extends Mailable
 
     public $otpCode;
 
-    /**
-     * Create a new message instance.
-     */
+
     public function __construct($otpCode)
     {
         $this->otpCode = $otpCode;
     }
 
-    /**
-     * Get the message envelope.
-     */
+
     public function envelope(): Envelope
     {
         return new Envelope(
@@ -32,9 +28,7 @@ class ResetPasswordOtpMail extends Mailable
         );
     }
 
-    /**
-     * Get the message content definition.
-     */
+
     public function content(): Content
     {
         return new Content(

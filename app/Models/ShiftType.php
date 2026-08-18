@@ -26,9 +26,7 @@ class ShiftType extends Model
         return $this->hasMany(ShiftAssignment::class);
     }
 
-    /**
-     * Label jam kerja siap tampil, mis. "08:00 - 17:00" atau "Off Duty".
-     */
+
     public function getTimeLabelAttribute(): string
     {
         if ($this->is_off) {
@@ -39,7 +37,7 @@ class ShiftType extends Model
         return $start . ' - ' . $end . ($this->is_cross_day ? ' (+1)' : '');
     }
 
-    /** Tailwind bg class solid, dipakai untuk dot/legend */
+
     public function getBgClassAttribute(): string
     {
         return match ($this->code) {
@@ -51,7 +49,7 @@ class ShiftType extends Model
         };
     }
 
-    /** Tailwind badge class (soft), dipakai untuk chip di tabel roster */
+
     public function getBadgeClassAttribute(): string
     {
         return match ($this->code) {

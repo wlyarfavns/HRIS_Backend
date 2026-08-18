@@ -40,7 +40,7 @@ class CompanyProfileController extends Controller
         $companyId = $request->user()->company_id ?? 1;
         $company = Company::findOrFail($companyId);
 
-        // Data statistik untuk kartu di atas
+
         $stats = [
             ['label' => 'Total Karyawan Terdaftar', 'value' => User::where('company_id', $companyId)->count(), 'icon' => 'groups'],
             ['label' => 'Total Departemen', 'value' => '0', 'icon' => 'account_tree'],

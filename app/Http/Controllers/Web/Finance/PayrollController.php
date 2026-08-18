@@ -23,19 +23,19 @@ class PayrollController extends Controller
             ->where('company_id', $companyId)
             ->where('status', PayrollBatch::STATUS_PENDING_FINANCE)
             ->withCount('payrolls')->withSum('payrolls', 'net_salary')
-            ->latest('submitted_at')->get();
+            ->latest('submitted_at')->paginate(10, ['*'], 'pending_page')->withQueryString();
 
         $readyBatches = PayrollBatch::with('approvedBy')
             ->where('company_id', $companyId)
             ->where('status', PayrollBatch::STATUS_APPROVED_FINANCE)
             ->withCount('payrolls')->withSum('payrolls', 'net_salary')
-            ->latest('approved_finance_at')->get();
+            ->latest('approved_finance_at')->paginate(10, ['*'], 'ready_page')->withQueryString();
 
         $completedBatches = PayrollBatch::with('bankExports')
             ->where('company_id', $companyId)
             ->where('status', PayrollBatch::STATUS_DISBURSED)
             ->withCount('payrolls')->withSum('payrolls', 'net_salary')
-            ->latest('disbursed_at')->get();
+            ->latest('disbursed_at')->paginate(10, ['*'], 'completed_page')->withQueryString();
 
         return view('finance.payroll.index', compact('pendingBatches', 'readyBatches', 'completedBatches'));
     }
@@ -44,11 +44,11 @@ class PayrollController extends Controller
     {
         abort_unless($batch->company_id === $request->user()->company_id, 403);
 
-        $payrolls = $batch->payrolls()->with(['employee.department', 'details.salaryComponent'])->get();
+        $payrolls = $batch->payrolls()->with(['employee.department', 'details.salaryComponent'])->paginate(10)->withQueryString();
 
-        // FIX: nama & alamat perusahaan di header slip harus dari DB (tabel companies),
-        // bukan teks hardcoded — dipakai oleh _slip-preview-modal.blade.php (di-share
-        // otomatis lewat @include karena satu scope view dengan review.blade.php).
+
+
+
         $company = Company::find($batch->company_id);
 
         return view('finance.payroll.review', compact('batch', 'payrolls', 'company'));
@@ -86,8 +86,8 @@ class PayrollController extends Controller
             $statusTime = '-';
         }
 
-        // FIX: ambil nama & alamat perusahaan dari tabel companies (bukan hardcoded
-        // "PT Talenta Digital Nusantara" di slip.blade.php).
+
+
         $company = Company::find($companyId);
         $companyAddress = collect([$company?->address, $company?->city])->filter()->implode(', ');
 
@@ -112,10 +112,20 @@ class PayrollController extends Controller
                 ->map(fn($d) => ['label' => $d->salaryComponent->name ?? '-', 'amount' => (float) $d->amount])->values(),
             'status' => $status,
             'status_time' => $statusTime,
-            // Belum ada tabel log akses slip di DB — kosongkan dulu, bukan data fiktif.
-            // Kalau butuh, tambahkan tabel payroll_slip_views (payroll_id, employee_id, action, viewed_at).
+
+
             'access_log' => [],
         ];
+
+        if ($request->query('export') === 'pdf') {
+            $earnings = $slip['earnings'];
+            $deductions = $slip['deductions'];
+            $totalEarnings = collect($earnings)->sum('amount');
+            $totalDeductions = collect($deductions)->sum('amount');
+
+            return \Barryvdh\DomPDF\Facade\Pdf::loadView('mobile.payroll.slip-pdf', compact('payroll', 'earnings', 'deductions', 'totalEarnings', 'totalDeductions'))
+                ->download("slip-gaji-{$slip['period']}.pdf");
+        }
 
         return view('finance.disbursement.slip', compact('slip'));
     }

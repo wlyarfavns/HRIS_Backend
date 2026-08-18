@@ -14,10 +14,8 @@ use Illuminate\Support\Facades\DB;
 
 class PayrollService
 {
-    /**
-     * Generate Cut-off Attendance for a company in a specific period.
-     */
-    public function generateAttendanceSummary($companyId, $startDate, $endDate)
+
+    public function generateAttendanceSummary($companyId, $startDate, $endDate, array $employeeIds = [])
     {
         $query = Employee::where('company_id', $companyId);
         if (!empty($employeeIds)) {
@@ -69,7 +67,7 @@ class PayrollService
         return $value;
     }
 
-    public function calculateSalary($companyId, $startDate, $endDate)
+    public function calculateSalary($companyId, $startDate, $endDate, array $employeeIds = [])
     {
         $query = AttendanceSummary::where('company_id', $companyId)
             ->where('start_date', $startDate)
@@ -87,9 +85,15 @@ class PayrollService
         );
         $basicSalary = (float) ($gajiPokokComponent->default_amount ?? 0);
 
+
+        $reimbComponent = SalaryComponent::firstOrCreate(
+            ['company_id' => $companyId, 'name' => 'Reimbursement'],
+            ['type' => 'earning', 'category' => 'Pendapatan Variabel', 'calculation_type' => 'Fixed', 'is_taxable' => false, 'default_amount' => 0]
+        );
+
         $payrolls = [];
 
-        DB::transaction(function () use ($summaries, $companyId, $startDate, $endDate, $components, $basicSalary, &$payrolls) {
+        DB::transaction(function () use ($summaries, $companyId, $startDate, $endDate, $components, $basicSalary, &$payrolls, $reimbComponent) {
             foreach ($summaries as $summary) {
                 $employeeId = $summary->employee_id;
 
@@ -98,7 +102,7 @@ class PayrollService
                 $detailsToCreate = [];
 
                 foreach ($components as $component) {
-                    // Gaji Pokok sudah dihitung terpisah sebagai $basicSalary, skip di loop.
+
                     if (strtolower(trim($component->name)) === 'gaji pokok') {
                         continue;
                     }
@@ -115,6 +119,21 @@ class PayrollService
                         'salary_component_id' => $component->id,
                         'amount' => $amount,
                         'type' => $component->type,
+                    ];
+                }
+
+
+                $totalReimbursement = \App\Models\Reimbursement::where('employee_id', $employeeId)
+                    ->where('status', \App\Models\Reimbursement::STATUS_APPROVED)
+                    ->whereBetween('claim_date', [$startDate, $endDate])
+                    ->sum('amount');
+
+                if ($totalReimbursement > 0) {
+                    $totalAllowances += $totalReimbursement;
+                    $detailsToCreate[] = [
+                        'salary_component_id' => $reimbComponent->id,
+                        'amount' => $totalReimbursement,
+                        'type' => 'earning',
                     ];
                 }
 
@@ -154,10 +173,7 @@ class PayrollService
             ->update(['status' => Payroll::STATUS_APPROVED_HR]);
     }
 
-    /**
-     * Setujui semua payroll approved_hr pada periode tsb sebagai Finance.
-     * Return jumlah payroll yang berhasil diubah statusnya.
-     */
+
     public function approveByFinance($companyId, $startDate, $endDate): int
     {
         return Payroll::where('company_id', $companyId)
@@ -188,13 +204,7 @@ class PayrollService
         return $batch;
     }
 
-    /**
-     * FIX: guard di level Service (bukan cuma Controller) supaya batch yang sudah
-     * lanjut ke tahap exported/disbursed/published TIDAK BISA di-approve ulang.
-     * Approve ulang sebelumnya bisa menimpa status batch balik ke 'approved_finance'
-     * walau exported_at/disbursed_at/published_at sudah terisi — batch jadi "hilang"
-     * dari halaman Disbursement meski datanya sebenarnya sudah lengkap.
-     */
+
     public function approveBatchByFinance(PayrollBatch $batch, $userId): PayrollBatch
     {
         abort_unless(
@@ -217,12 +227,12 @@ class PayrollService
 
     public function exportBatchBankFiles(PayrollBatch $batch, $userId)
     {
-        // FIX: guard supaya batch yang sudah exported/disbursed/published tidak bisa
-        // di-generate ulang secara tidak sengaja dan menimpa status maju-mundur.
+
+
         abort_unless(
-            $batch->status === PayrollBatch::STATUS_APPROVED_FINANCE,
+            in_array($batch->status, [PayrollBatch::STATUS_APPROVED_FINANCE, PayrollBatch::STATUS_EXPORTED]),
             409,
-            "Batch periode {$batch->period_start->translatedFormat('F Y')} berstatus \"{$batch->status}\" dan tidak bisa diexport ulang."
+            "Batch periode {$batch->period_start->translatedFormat('F Y')} berstatus \"{$batch->status}\" dan tidak bisa diexport."
         );
 
         $exports = collect();
@@ -254,12 +264,11 @@ class PayrollService
         return $exports;
     }
 
-
     public function markBatchDisbursed(PayrollBatch $batch): PayrollBatch
     {
-        // FIX: guard tambahan di Service, konsisten dengan guard yang sudah ada di
-        // DisbursementController::markDisbursed() — mencegah re-run yang menimpa
-        // disbursed_at kalau batch sudah lewat dari status 'exported'.
+
+
+
         abort_unless(
             $batch->status === PayrollBatch::STATUS_EXPORTED,
             409,
@@ -303,9 +312,9 @@ class PayrollService
 
     public function markBatchPublished(PayrollBatch $batch, $userId): PayrollBatch
     {
-        // FIX: guard tambahan di Service, konsisten dengan guard di
-        // DisbursementController::markPublished() — batch harus sudah disbursed
-        // dan belum pernah dipublish sebelumnya.
+
+
+
         abort_unless(
             $batch->status === PayrollBatch::STATUS_DISBURSED,
             409,

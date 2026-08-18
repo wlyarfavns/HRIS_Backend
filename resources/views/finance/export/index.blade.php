@@ -18,65 +18,65 @@
     showToast(msg) { this.toast.message = msg; this.toast.show = true; setTimeout(() => this.toast.show = false, 3000); }
 }" x-init="if ('{{ session('success') }}') showToast('{{ session('success') }}')">
 
-    <div class="bg-primary/5 border border-primary/15 rounded-2xl px-5 py-3.5 flex items-center gap-3 mb-6">
-        <span class="material-symbols-outlined text-[20px] text-primary shrink-0">info</span>
-        <p class="text-xs text-primary/90 font-medium leading-relaxed">
+    <div class="bg-gray-50 border border-gray-200 rounded-md px-5 py-3.5 flex items-center gap-3 mb-6">
+        <span class="material-symbols-outlined text-[20px] text-[#0B3D2E] shrink-0">info</span>
+        <p class="text-xs text-emerald-800 font-medium leading-relaxed">
             Generate lalu unduh format mass transfer untuk diunggah manual ke portal Corporate Internet Banking (KlikBCA Bisnis, Mandiri Kopra, BNI Direct, dll).
         </p>
     </div>
 
-    <div class="card-flat rounded-2xl overflow-hidden">
-        <div class="px-6 py-4 border-b border-black/5">
-            <h2 class="text-base font-bold text-on-surface">Batch Approved by Finance</h2>
-            <p class="text-xs text-on-surface-variant/50 mt-0.5">Generate file export bank, lalu unduh per bank</p>
+    <div class="bg-white rounded-md border border-gray-100 shadow-sm overflow-hidden mb-8">
+        <div class="px-8 py-6 border-b border-gray-100 bg-gray-50/50">
+            <h2 class="text-lg font-medium text-gray-800">Batch Approved by Finance</h2>
+            <p class="text-xs text-gray-500 mt-1">Generate file export bank, lalu unduh per bank</p>
         </div>
 
         <div class="overflow-x-auto">
-            <table class="w-full text-sm">
+            <table class="w-full text-sm text-left whitespace-nowrap">
                 <thead>
-                    <tr class="bg-surface-container text-left text-[11px] font-bold text-on-surface-variant/50 uppercase tracking-widest border-b border-black/5">
-                        <th class="px-6 py-3.5">Periode Gaji</th>
-                        <th class="px-4 py-3.5">Disetujui Oleh</th>
-                        <th class="px-4 py-3.5 text-right">Total Pegawai</th>
-                        <th class="px-4 py-3.5 text-right">Grand Total Nett</th>
-                        <th class="px-4 py-3.5 text-center">Status</th>
-                        <th class="px-6 py-3.5 text-center">Aksi</th>
+                    <tr class="bg-gray-50 text-[11px] font-medium text-gray-500 uppercase tracking-widest border-b border-gray-100">
+                        <th class="px-8 py-4">Periode Gaji</th>
+                        <th class="px-6 py-4">Disetujui Oleh</th>
+                        <th class="px-6 py-4 text-right">Total Pegawai</th>
+                        <th class="px-6 py-4 text-right">Grand Total Nett</th>
+                        <th class="px-6 py-4 text-center">Status</th>
+                        <th class="px-8 py-4 text-center">Aksi</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-black/5">
+                <tbody class="divide-y divide-gray-100 text-gray-700">
                     @forelse ($batches as $b)
-                    <tr class="hover:bg-primary/4 transition">
-                        <td class="px-6 py-4">
-                            <div class="flex items-center gap-2.5">
-                                <div class="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                                    <span class="material-symbols-outlined text-[16px] text-primary">calendar_month</span>
+                    <tr class="hover:bg-gray-50 transition group">
+                        <td class="px-8 py-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center shrink-0">
+                                    <span class="material-symbols-outlined text-[20px] text-[#0B3D2E]">calendar_month</span>
                                 </div>
-                                <span class="font-bold text-sm text-on-surface">{{ $b->period_start->translatedFormat('F Y') }}</span>
+                                <span class="font-medium text-sm text-gray-800 group-hover:text-[#0B3D2E] transition-colors">{{ $b->period_start->translatedFormat('F Y') }}</span>
                             </div>
                         </td>
-                        <td class="px-4 py-4 text-xs text-on-surface-variant/70">{{ $b->approvedBy->name ?? '-' }}</td>
-                        <td class="px-4 py-4 text-right font-mono-data text-xs font-bold text-on-surface">{{ number_format($b->payrolls_count, 0, ',', '.') }} org</td>
-                        <td class="px-4 py-4 text-right font-mono-data text-sm font-extrabold text-primary">Rp{{ number_format($b->payrolls_sum_net_salary ?? 0, 0, ',', '.') }}</td>
-                        <td class="px-4 py-4 text-center whitespace-nowrap">
+                        <td class="px-6 py-4 text-sm font-medium">{{ $b->approvedBy->name ?? '-' }}</td>
+                        <td class="px-6 py-4 text-right  text-sm font-medium">{{ number_format($b->payrolls_count, 0, ',', '.') }} org</td>
+                        <td class="px-6 py-4 text-right  text-sm font-semibold text-[#0B3D2E]">Rp{{ number_format($b->payrolls_sum_net_salary ?? 0, 0, ',', '.') }}</td>
+                        <td class="px-6 py-4 text-center">
                             @if ($b->bankExports->isNotEmpty())
-                                <span class="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700">
-                                    <span class="material-symbols-outlined text-[12px]">check_circle</span>
+                                <span class="inline-flex items-center gap-1 text-[11px] font-medium px-3 py-1.5 rounded-md bg-gray-50 text-[#0B3D2E] border border-gray-200">
+                                    <span class="material-symbols-outlined text-[14px]">check_circle</span>
                                     Sudah Diexport
                                 </span>
                             @else
-                                <span class="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-700">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                                <span class="inline-flex items-center gap-1 text-[11px] font-medium px-3 py-1.5 rounded-md bg-gray-50 text-gray-700 border border-gray-200">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-gray-50 animate-pulse"></span>
                                     Belum Diexport
                                 </span>
                             @endif
                         </td>
-                        <td class="px-4 py-4 text-center whitespace-nowrap">
+                        <td class="px-8 py-4 text-center">
                             @if ($b->bankExports->isEmpty())
                                 <form method="POST" action="{{ route('finance.export.generate', $b) }}" class="inline">
                                     @csrf
                                     <button type="submit"
-                                            class="inline-flex items-center gap-1.5 bg-primary text-white hover:bg-primary/90 shadow-xs text-xs font-bold px-3.5 py-1.5 rounded-xl transition">
-                                        <span class="material-symbols-outlined text-[15px]">sync</span>
+                                            class="inline-flex items-center gap-1.5 bg-[#0B3D2E] text-white hover:bg-[#043927] shadow-sm text-xs font-medium px-4 py-2 rounded-md transition">
+                                        <span class="material-symbols-outlined text-[16px]">sync</span>
                                         Generate File
                                     </button>
                                 </form>
@@ -91,8 +91,8 @@
                                         ]),
                                         'download_url' => route('finance.export.download', [$b, '__BANK__']),
                                     ]) }})"
-                                        class="inline-flex items-center gap-1.5 bg-primary text-white hover:bg-primary/90 shadow-xs text-xs font-bold px-3.5 py-1.5 rounded-xl transition">
-                                    <span class="material-symbols-outlined text-[15px]">upload_file</span>
+                                        class="inline-flex items-center gap-1.5 bg-[#0B3D2E] text-white hover:bg-[#043927] shadow-sm text-xs font-medium px-4 py-2 rounded-md transition">
+                                    <span class="material-symbols-outlined text-[16px]">upload_file</span>
                                     Lihat & Unduh
                                 </button>
                             @endif
@@ -100,92 +100,97 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="px-6 py-10 text-center text-xs text-on-surface-variant/50">
-                            Tidak ada batch yang siap diexport saat ini.
+                        <td colspan="6" class="px-8 py-12 text-center text-sm text-gray-500">
+                            <div class="flex flex-col items-center gap-2">
+                                Tidak ada batch yang siap diexport saat ini.
+                            </div>
                         </td>
                     </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
+
+        <div class="mt-4 px-6 pb-6">
+            {{ $batches->links() }}
+        </div>
     </div>
 
-    {{-- MODAL EXPORT --}}
+
     <div x-show="showExportModal" x-cloak
-         class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+         class="fixed inset-0 bg-gray-900/60  z-50 flex items-center justify-center p-4"
          x-transition:enter="transition ease-out duration-200"
          x-transition:enter-start="opacity-0"
          x-transition:enter-end="opacity-100"
          @click.self="showExportModal = false">
 
-        <div class="bg-white rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden"
+        <div class="bg-white rounded-md w-full max-w-lg shadow-sm overflow-hidden border border-gray-100"
              x-transition:enter="transition ease-out duration-200"
              x-transition:enter-start="opacity-0 scale-95 translate-y-2"
              x-transition:enter-end="opacity-100 scale-100 translate-y-0"
              x-show="activeBatch">
 
-            <div class="px-6 py-4 border-b border-black/5 flex items-center justify-between">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
-                        <span class="material-symbols-outlined text-primary text-[19px]">upload_file</span>
-                    </div>
+            <div class="px-8 py-6 border-b border-gray-100 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center">
+                        </div>
                     <div>
-                        <h3 class="text-sm font-bold text-on-surface">Export Bank Transfer</h3>
-                        <p class="text-[11px] text-on-surface-variant/50" x-text="'Periode ' + activeBatch?.period"></p>
+                        <h3 class="text-lg font-medium text-gray-800">Export Bank Transfer</h3>
+                        <p class="text-xs text-gray-500 mt-1" x-text="'Periode ' + activeBatch?.period"></p>
                     </div>
                 </div>
                 <button type="button" @click="showExportModal = false"
-                        class="w-7 h-7 rounded-lg flex items-center justify-center text-on-surface-variant/40 hover:bg-surface-container transition">
-                    <span class="material-symbols-outlined text-[18px]">close</span>
+                        class="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-800 hover:bg-gray-100 transition">
+                    <span class="material-symbols-outlined text-[20px]">close</span>
                 </button>
             </div>
 
-            <div class="px-6 py-5 space-y-2.5">
+            <div class="px-8 py-6 space-y-4">
                 <template x-for="bank in (activeBatch?.banks || [])" :key="bank.filename">
-                    <div class="flex items-center justify-between p-3.5 rounded-xl border border-black/8 hover:border-primary/25 hover:bg-primary/4 transition group">
-                        <div class="flex items-center gap-3 min-w-0">
-                            <div class="w-11 h-11 rounded-xl bg-white border border-black/10 flex items-center justify-center shrink-0 overflow-hidden p-1 shadow-2xs">
+                    <div class="flex items-center justify-between p-4 rounded-md border border-gray-200 hover:border-[#0B3D2E]/30 hover:bg-gray-50 transition group shadow-sm">
+                        <div class="flex items-center gap-4 min-w-0">
+                            <div class="w-12 h-12 rounded-md bg-white border border-gray-100 flex items-center justify-center shrink-0 overflow-hidden p-1.5 shadow-sm">
                                 <template x-if="bankLogos[bank.code]">
                                     <img :src="bankLogos[bank.code]" :alt="bank.name" class="w-full h-full object-contain">
                                 </template>
                                 <template x-if="!bankLogos[bank.code]">
-                                    <span class="text-[10px] font-black text-on-surface-variant/70" x-text="bank.code"></span>
+                                    <span class="text-[11px] font-black text-gray-500" x-text="bank.code"></span>
                                 </template>
                             </div>
                             <div class="min-w-0">
-                                <p class="text-xs font-bold text-on-surface truncate" x-text="bank.name"></p>
-                                <p class="text-[10px] font-mono-data text-on-surface-variant/50 truncate" x-text="bank.format + ' · ' + bank.accounts + ' rekening · Rp' + bank.total.toLocaleString('id-ID')"></p>
+                                <p class="text-sm font-medium text-gray-800 truncate" x-text="bank.name"></p>
+                                <p class="text-[11px]  text-gray-500 truncate mt-1" x-text="bank.format + ' · ' + bank.accounts + ' rekening · Rp' + bank.total.toLocaleString('id-ID')"></p>
                             </div>
                         </div>
                         <a :href="activeBatch.download_url.replace('__BANK__', bank.code)"
-                           class="shrink-0 ml-3 w-8 h-8 rounded-lg flex items-center justify-center text-on-surface-variant/40 hover:text-primary hover:bg-primary/10 transition">
-                            <span class="material-symbols-outlined text-[18px]">download</span>
+                           class="shrink-0 ml-4 w-10 h-10 rounded-md flex items-center justify-center bg-gray-50 text-[#0B3D2E] hover:bg-[#0B3D2E] hover:text-white transition shadow-sm border border-gray-200">
+                            <span class="material-symbols-outlined text-[20px]">download</span>
                         </a>
                     </div>
                 </template>
 
-                <p class="text-[11px] text-on-surface-variant/40 leading-relaxed pt-1">
+                <p class="text-[11px] text-gray-500 leading-relaxed pt-2 text-center">
                     Unduh format mass transfer untuk diunggah secara manual ke portal Corporate Internet Banking.
                 </p>
             </div>
 
-            <div class="px-6 py-4 border-t border-black/5 flex items-center justify-end">
+            <div class="px-8 py-5 border-t border-gray-100 flex items-center justify-end bg-gray-50">
                 <button type="button" @click="showExportModal = false"
-                        class="px-4 py-2 rounded-xl border border-black/10 text-xs font-bold text-on-surface-variant/70 hover:bg-black/5 transition">
+                        class="px-5 py-2.5 rounded-md border border-gray-200 text-sm font-medium text-gray-700 hover:bg-white transition shadow-sm">
                     Tutup
                 </button>
             </div>
         </div>
     </div>
 
-    {{-- TOAST --}}
+
     <div x-show="toast.show" x-cloak
          x-transition:enter="transition ease-out duration-300"
          x-transition:enter-start="opacity-0 translate-y-4"
          x-transition:enter-end="opacity-100 translate-y-0"
-         class="fixed bottom-6 right-6 z-[70] flex items-center gap-3 px-4 py-3 rounded-2xl shadow-2xl bg-[#0B3D2E] border border-emerald-500/30 text-white text-xs backdrop-blur-md max-w-xs">
-        <span class="material-symbols-outlined text-[20px] text-emerald-400">check_circle</span>
-        <span x-text="toast.message" class="font-semibold leading-tight"></span>
+         class="fixed bottom-6 right-6 z-[70] flex items-center gap-3 px-5 py-3.5 rounded-md shadow-sm bg-[#0B3D2E] border border-gray-200/30 text-white text-sm  max-w-xs">
+        <span class="material-symbols-outlined text-[20px] text-emerald-100">check_circle</span>
+        <span x-text="toast.message" class="font-medium leading-tight"></span>
     </div>
 
 </div>

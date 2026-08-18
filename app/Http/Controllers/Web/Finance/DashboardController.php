@@ -14,7 +14,7 @@ class DashboardController extends Controller
         $companyId = $request->user()->company_id;
         $now = now();
 
-        // ── 1. TREN REIMBURSEMENT 6 BULAN TERAKHIR (klaim approved) ─────
+
         $months = collect(range(5, 0))->map(fn ($i) => $now->copy()->subMonths($i));
 
         $trendRaw = Reimbursement::selectRaw("DATE_FORMAT(claim_date, '%Y-%m') as ym, SUM(amount) as total")
@@ -33,7 +33,7 @@ class DashboardController extends Controller
             ? round((($totalThisMonth - $totalLastMonth) / $totalLastMonth) * 100, 1)
             : 0;
 
-        // ── 2. SLA VERIFIKASI & PENCAIRAN (breakdown status bulan ini) ──
+
         $slaBase = Reimbursement::where('company_id', $companyId)
             ->whereMonth('claim_date', $now->month)
             ->whereYear('claim_date', $now->year);
@@ -44,7 +44,7 @@ class DashboardController extends Controller
         $totalSla = max($verifiedCount + $pendingCount + $rejectedCount, 1);
         $slaOnTimePercent = round(($verifiedCount / $totalSla) * 100);
 
-        // ── 3. REIMBURSEMENT PER DEPARTEMEN (klaim approved bulan ini) ──
+
         $byDept = Reimbursement::selectRaw('departments.name as dept_name, SUM(reimbursements.amount) as total')
             ->join('employees', 'employees.id', '=', 'reimbursements.employee_id')
             ->join('departments', 'departments.id', '=', 'employees.department_id')
@@ -57,10 +57,9 @@ class DashboardController extends Controller
             ->limit(6)
             ->get();
 
-        // ── 4. RINGKASAN KARTU KANAN ─────────────────────────────────────
+
         $netPayrollThisMonth = Payroll::where('company_id', $companyId)
-            ->whereMonth('period_start', $now->month)
-            ->whereYear('period_start', $now->year)
+            ->where('status', Payroll::STATUS_APPROVED_HR)
             ->sum('net_salary');
 
         $totalReimburseThisMonth = (clone $slaBase)->where('status', Reimbursement::STATUS_APPROVED)->sum('amount');
@@ -79,7 +78,7 @@ class DashboardController extends Controller
             'deptLabels'              => $byDept->pluck('dept_name'),
             'deptData'                => $byDept->map(fn ($d) => round($d->total / 1_000_000, 2)),
             'netPayrollFormatted'     => $this->formatMillion($netPayrollThisMonth),
-            'totalReimburseFormatted' => 'Rp' . number_format($totalReimburseThisMonth / 1_000_000, 2, ',', '.') . ' Jt',
+            'totalReimburseFormatted' => 'Rp' . number_format($totalReimburseThisMonth / 1_000_000, 3, ',', '.') . ' Jt',
             'pendingCountLabel'       => $pendingCount,
         ]);
     }

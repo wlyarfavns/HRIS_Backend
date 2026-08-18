@@ -143,9 +143,7 @@ class PayrollApiController extends Controller
         ]);
     }
 
-    /**
-     * Pastikan user hanya bisa mengakses data company miliknya sendiri.
-     */
+
     private function authorizeCompany(Request $request, $companyId): void
     {
         abort_unless(

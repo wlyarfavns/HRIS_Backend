@@ -15,91 +15,92 @@
         ['time' => '05 Agu 2026, 11.02', 'user' => 'Andi Wijaya', 'role' => 'Super Admin', 'avatar' => 15, 'action' => 'Mengubah modul', 'module' => 'Modul Finance', 'detail' => 'Fitur "Verifikasi Reimbursement oleh Finance" diaktifkan.'],
     ];
     $roleBadge = [
-        'Super Admin' => 'bg-on-surface-variant/10 text-on-surface-variant',
-        'HR Admin' => 'bg-primary/10 text-primary',
-        'Finance' => 'bg-primary/10 text-primary',
-        'Supervisor' => 'bg-primary/10 text-primary',
+        'Super Admin' => 'bg-gray-50 text-gray-700',
+        'HR Admin' => 'bg-gray-50 text-[#0B3D2E]',
+        'Finance' => 'bg-gray-50 text-[#0B3D2E]',
+        'Supervisor' => 'bg-gray-50 text-[#0B3D2E]',
     ];
 @endphp
 
 @section('content')
 
-    {{-- FILTER BAR --}}
-    <div class="card-flat rounded-2xl p-5 flex items-center gap-3 flex-wrap">
+
+    <div class="bg-white rounded-md shadow-sm p-6 mb-6 flex items-center gap-4 flex-wrap border border-[#043927]/5">
         <div class="relative flex-1 min-w-[220px]">
-            <span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant/40 text-[18px]">search</span>
-            <input type="text" placeholder="Cari nama pengguna..."
-                   class="w-full pl-9 pr-3 py-2.5 bg-surface-container rounded-lg text-sm border border-transparent
-                          hover:border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 focus:bg-white transition">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#043927]/40 text-[18px]">search</span>
+            <input type="text" placeholder="Cari riwayat aktivitas..."
+                   class="w-full pl-10 pr-4 py-2.5 bg-[#FDFBF7] rounded-md text-sm border border-[#043927]/10 text-[#043927] placeholder-[#043927]/40 hover:border-[#043927]/20 focus:outline-none focus:border-[#0B3D2E] focus:ring-2 focus:ring-[#0B3D2E]/20 transition">
         </div>
 
         <div class="relative">
-            <select class="appearance-none text-xs font-bold border border-black/10 rounded-lg pl-3 pr-8 py-2.5 bg-white
-                           hover:border-primary/40 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition cursor-pointer">
+            <select class="appearance-none text-xs font-medium border border-[#043927]/10 rounded-md pl-4 pr-9 py-2.5 bg-[#FDFBF7] text-[#043927] hover:border-[#043927]/20 focus:outline-none focus:border-[#0B3D2E] focus:ring-2 focus:ring-[#0B3D2E]/20 transition cursor-pointer">
                 <option>Semua Role</option>
                 <option>Super Admin</option>
                 <option>HR Admin</option>
                 <option>Finance</option>
                 <option>Supervisor</option>
             </select>
-            <span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant/50 text-[18px] pointer-events-none">expand_more</span>
+            <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-[#043927]/50 text-[18px] pointer-events-none">expand_more</span>
         </div>
 
         <div class="relative">
-            <select class="appearance-none text-xs font-bold border border-black/10 rounded-lg pl-3 pr-8 py-2.5 bg-white
-                           hover:border-primary/40 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition cursor-pointer">
+            <select class="appearance-none text-xs font-medium border border-[#043927]/10 rounded-md pl-4 pr-9 py-2.5 bg-[#FDFBF7] text-[#043927] hover:border-[#043927]/20 focus:outline-none focus:border-[#0B3D2E] focus:ring-2 focus:ring-[#0B3D2E]/20 transition cursor-pointer">
                 <option>Semua Jenis Aksi</option>
                 <option>Login</option>
                 <option>Perubahan Data</option>
                 <option>Persetujuan</option>
             </select>
-            <span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant/50 text-[18px] pointer-events-none">expand_more</span>
+            <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-[#043927]/50 text-[18px] pointer-events-none">expand_more</span>
         </div>
 
         <input type="date"
-               class="text-xs font-bold border border-black/10 rounded-lg px-3 py-2.5 bg-white text-on-surface-variant/70
-                      hover:border-primary/40 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition">
+               class="text-xs font-medium border border-[#043927]/10 rounded-md px-4 py-2.5 bg-[#FDFBF7] text-[#043927] hover:border-[#043927]/20 focus:outline-none focus:border-[#0B3D2E] focus:ring-2 focus:ring-[#0B3D2E]/20 transition">
     </div>
 
-    {{-- TABLE CARD --}}
-    <div class="card-flat rounded-2xl overflow-hidden">
-        <div class="px-6 py-4 border-b border-black/5">
-            <h2 class="text-base font-bold text-on-surface">Riwayat Aktivitas</h2>
-            <p class="text-xs text-on-surface-variant/50 mt-0.5">{{ count($logs) }} entri ditampilkan</p>
+
+    <div class="bg-white rounded-md shadow-sm p-8">
+        <div class="flex items-center justify-between mb-6 pb-4 border-b border-[#043927]/5">
+            <div>
+                <h2 class="text-lg font-medium text-[#043927]">Riwayat Aktivitas</h2>
+                <p class="text-xs text-[#043927]/50 mt-0.5">{{ count($logs) }} entri ditampilkan</p>
+            </div>
         </div>
 
-        <table class="w-full text-sm">
-            <thead>
-                <tr class="bg-surface-container text-left text-[11px] font-bold text-on-surface-variant/50 uppercase tracking-widest">
-                    <th class="px-6 py-3.5">Waktu</th>
-                    <th class="px-6 py-3.5">Pengguna</th>
-                    <th class="px-6 py-3.5">Aksi</th>
-                    <th class="px-6 py-3.5">Modul</th>
-                    <th class="px-6 py-3.5">Detail</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-black/5" x-data="{ open: null }">
-                @foreach ($logs as $i => $log)
-                    <tr class="hover:bg-primary/5 transition cursor-pointer" @click="open = open === {{ $i }} ? null : {{ $i }}">
-                        <td class="px-6 py-3.5 font-mono-data text-xs text-on-surface-variant/60 whitespace-nowrap">{{ $log['time'] }}</td>
-                        <td class="px-6 py-3.5">
-                            <div class="flex items-center gap-2.5">
-                                <img src="https://i.pravatar.cc/28?img={{ $log['avatar'] }}" class="w-7 h-7 rounded-full" alt="">
-                                <div>
-                                    <p class="font-bold text-on-surface text-xs">{{ $log['user'] }}</p>
-                                    <span class="text-[10px] font-bold px-1.5 py-0.5 rounded {{ $roleBadge[$log['role']] }}">{{ $log['role'] }}</span>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-3.5 text-on-surface font-semibold text-xs">{{ $log['action'] }}</td>
-                        <td class="px-6 py-3.5 text-on-surface-variant/60 text-xs">{{ $log['module'] }}</td>
-                        <td class="px-6 py-3.5 text-xs text-on-surface-variant/50 max-w-xs truncate" x-bind:class="open === {{ $i }} ? '' : 'truncate'">
-                            {{ $log['detail'] }}
-                        </td>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left whitespace-nowrap">
+                <thead class="text-xs text-[#043927]/50 border-b border-[#043927]/5">
+                    <tr>
+                        <th class="px-4 py-4 font-semibold">WAKTU</th>
+                        <th class="px-4 py-4 font-semibold">PENGGUNA</th>
+                        <th class="px-4 py-4 font-semibold">AKSI</th>
+                        <th class="px-4 py-4 font-semibold">MODUL</th>
+                        <th class="px-4 py-4 font-semibold">DETAIL</th>
                     </tr>
-                @endforeach
-            </tbody>
-        </table>
+                </thead>
+                <tbody class="text-[#043927] text-sm" x-data="{ open: null }">
+                    @foreach ($logs as $i => $log)
+                        <tr class="border-b border-[#043927]/5 hover:bg-[#FDFBF7] transition cursor-pointer" @click="open = open === {{ $i }} ? null : {{ $i }}">
+                            <td class="px-4 py-4  text-xs text-[#043927]/60">{{ $log['time'] }}</td>
+                            <td class="px-4 py-4">
+                                <div class="flex items-center gap-3">
+                                    <img src="https://i.pravatar.cc/32?img={{ $log['avatar'] }}" class="w-8 h-8 rounded-full" alt="">
+                                    <div>
+                                        <p class="font-medium text-xs">{{ $log['user'] }}</p>
+                                        <span class="inline-block mt-1 text-[10px] font-medium px-1.5 py-0.5 rounded-md {{ $roleBadge[$log['role']] }}">{{ $log['role'] }}</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-4 font-semibold text-xs">{{ $log['action'] }}</td>
+                            <td class="px-4 py-4 text-[#043927]/60 text-xs">{{ $log['module'] }}</td>
+                            <td class="px-4 py-4 text-xs text-[#043927]/60 max-w-xs truncate" x-bind:class="open === {{ $i }} ? '' : 'truncate'">
+                                {{ $log['detail'] }}
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
     </div>
 
 @endsection
+

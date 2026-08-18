@@ -49,16 +49,12 @@ class OvertimeRequest extends Model
         };
     }
 
-    /**
-     * Kalkulasi upah lembur sesuai formula Kepmenaker (1/173 x upah sebulan x jam lembur).
-     * NOTE: rumus Depnaker sebenarnya berjenjang (jam ke-1 x1.5, jam berikutnya x2),
-     * sesuaikan dgn kebijakan perusahaan.
-     */
+
     public static function calculateOvertimePay(float $monthlySalary, float $hours): int
     {
         $hourlyRate = (1 / 173) * $monthlySalary;
 
-        // Jam pertama x 1.5, jam ke-2 dst x 2 (standar Kepmenaker No. 102/2004)
+
         if ($hours <= 1) {
             $pay = $hourlyRate * 1.5 * $hours;
         } else {

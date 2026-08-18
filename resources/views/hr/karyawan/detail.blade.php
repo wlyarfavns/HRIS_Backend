@@ -1,11 +1,11 @@
 @extends('layouts.hr')
     @php
-        /** @var \App\Models\Employee $employee */
-        /** @var \Illuminate\Support\Collection $contracts */
-        /** @var \Illuminate\Support\Collection $recentActivity */
-        /** @var int $leaveBalance */
-        /** @var int $leaveQuota */
-        /** @var array<string,bool> $documents */
+
+
+
+
+
+
     @endphp
 
 @section('title', 'Detail Karyawan — ' . $employee->full_name)
@@ -14,101 +14,101 @@
 
 @section('content')
 
-    {{-- LINK KEMBALI --}}
-    <a href="{{ route('hr.employees.index') }}" class="inline-flex items-center gap-1.5 text-xs font-bold text-on-surface-variant/60
-                   hover:text-primary transition -mt-2 mb-1">
+
+    <a href="{{ route('hr.employees.index') }}" class="inline-flex items-center gap-1.5 text-xs font-medium text-gray-500
+                   hover:text-[#0B3D2E] transition -mt-2 mb-4">
         <span class="material-symbols-outlined text-[16px]">arrow_back</span>
         Kembali ke Daftar Karyawan
     </a>
 
-    {{-- FLASH SUCCESS --}}
+
     @if (session('success'))
-        <div class="rounded-xl bg-green-50 border border-green-200 text-green-800 text-sm p-3.5 mb-4 flex items-center gap-2">
+        <div class="rounded-md bg-gray-50 border border-gray-200 text-emerald-800 text-sm p-4 mb-4 flex items-center gap-2">
             <span class="material-symbols-outlined text-[18px]">check_circle</span>
             {{ session('success') }}
         </div>
     @endif
 
-    {{-- ── HEADER PROFIL ──────────────────────────────────────────────────── --}}
-    <div class="card-flat rounded-2xl p-6 flex items-center gap-5 mb-5">
 
-        {{-- Avatar inisial (tidak pakai gambar eksternal) --}}
-        <div class="w-[72px] h-[72px] rounded-full bg-primary/10 text-primary
-                        flex items-center justify-center text-2xl font-extrabold shrink-0 uppercase">
+    <div class="bg-white rounded-md p-8 flex items-center gap-5 mb-6 border border-gray-200 shadow-sm">
+
+
+        <div class="w-20 h-20 rounded-full bg-gray-50 text-[#0B3D2E] border border-gray-200
+                        flex items-center justify-center text-3xl font-semibold shrink-0 uppercase">
             {{ substr($employee->full_name, 0, 1) }}
         </div>
 
         <div class="flex-1 min-w-0">
-            <div class="flex flex-wrap items-center gap-2.5">
-                <p class="text-lg font-bold text-on-surface">{{ $employee->full_name }}</p>
+            <div class="flex flex-wrap items-center gap-3">
+                <p class="text-xl font-medium text-gray-800">{{ $employee->full_name }}</p>
 
-                {{-- Badge tipe kontrak --}}
-                <span class="text-[11px] font-bold px-2.5 py-1 rounded
+
+                <span class="text-[11px] font-medium px-3 py-1.5 rounded-lg
                         {{ $employee->employment_status === 'PKWTT'
-        ? 'bg-primary/10 text-primary'
-        : 'bg-amber-500/10 text-amber-700' }}">
+        ? 'bg-gray-50 text-[#0B3D2E]'
+        : 'bg-gray-50 text-gray-700' }}">
                     {{ $employee->employment_status }}
                 </span>
 
-                {{-- Badge status --}}
-                <span class="text-[11px] font-bold px-2.5 py-1 rounded
+
+                <span class="text-[11px] font-medium px-3 py-1.5 rounded-lg
                         {{ $employee->status === 'active'
-        ? 'bg-green-500/10 text-green-700'
-        : 'bg-red-500/10 text-red-700' }}">
+        ? 'bg-gray-50 text-[#0B3D2E]'
+        : 'bg-gray-50 text-gray-700' }}">
                     {{ $employee->status === 'active' ? 'Aktif' : ucfirst($employee->status) }}
                 </span>
             </div>
 
-            <p class="text-sm text-on-surface-variant/60 mt-1">
+            <p class="text-sm font-medium text-gray-600 mt-1.5">
                 {{ $employee->position->name ?? '-' }}
-                &bull;
+                <span class="text-gray-300 mx-1">&bull;</span>
                 {{ $employee->department->name ?? '-' }}
             </p>
-            <p class="text-xs text-on-surface-variant/40 font-mono-data mt-1">
+            <p class="text-xs text-gray-400  mt-1">
                 {{ $employee->employee_id }}
-                &bull;
+                <span class="text-gray-300 mx-1">&bull;</span>
                 Bergabung {{ \Carbon\Carbon::parse($employee->join_date)->translatedFormat('d M Y') }}
             </p>
         </div>
 
-        <div class="flex items-center gap-2 shrink-0">
-            <a href="{{ route('hr.employees.documents', $employee->employee_id) }}" class="border border-black/10 text-on-surface-variant/70 text-xs font-bold px-4 py-2.5
-                           rounded-lg flex items-center gap-1.5 hover:bg-surface-container transition cursor-pointer">
-                <span class="material-symbols-outlined text-[16px]">folder_open</span>
+        <div class="flex items-center gap-2.5 shrink-0">
+            <a href="{{ route('hr.employees.documents', $employee->employee_id) }}" class="border border-gray-200 text-gray-600 text-sm font-medium px-5 py-2.5
+                           rounded-md flex items-center gap-1.5 hover:bg-gray-50 transition cursor-pointer">
+                <span class="material-symbols-outlined text-[18px]">folder_open</span>
                 Dokumen
             </a>
-            <a href="{{ route('hr.employees.edit', $employee->employee_id) }}" class="bg-primary hover:brightness-110 text-white text-xs font-bold px-4 py-2.5
-                           rounded-lg flex items-center gap-1.5 transition cursor-pointer">
-                <span class="material-symbols-outlined text-[16px]">edit</span>
+            <a href="{{ route('hr.employees.edit', $employee->employee_id) }}" class="bg-[#0B3D2E] hover:bg-[#043927] text-white text-sm font-medium px-5 py-2.5
+                           rounded-md flex items-center gap-1.5 transition cursor-pointer shadow-sm">
+                <span class="material-symbols-outlined text-[18px]">edit</span>
                 Edit Data
             </a>
         </div>
     </div>
 
-    {{-- ── GRID UTAMA ──────────────────────────────────────────────────────── --}}
-    <div class="grid grid-cols-3 gap-5">
 
-        {{-- KOLOM KIRI: DATA UTAMA --}}
-        <div class="col-span-2 space-y-5">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-            {{-- DATA PRIBADI --}}
-            <div class="card-flat rounded-2xl p-6">
-                <h2 class="text-base font-bold text-on-surface mb-5">Data Pribadi</h2>
-                <div class="grid grid-cols-2 gap-5">
+
+        <div class="md:col-span-2 space-y-6">
+
+
+            <div class="bg-white rounded-md p-8 border border-gray-200">
+                <h2 class="text-lg font-medium text-gray-800 mb-6 pb-4 border-b border-gray-100">Data Pribadi</h2>
+                <div class="grid grid-cols-2 gap-x-6 gap-y-8">
 
                     <div>
-                        <p class="text-[11px] font-bold text-on-surface-variant/40 uppercase tracking-wide">NIK (KTP)</p>
-                        <p class="text-sm font-semibold text-on-surface font-mono-data mt-1">
+                        <p class="text-[11px] font-medium text-gray-400 uppercase tracking-wide">NIK (KTP)</p>
+                        <p class="text-sm font-medium text-gray-800  mt-1.5">
                             {{ $employee->nik ?? '—' }}
                         </p>
                     </div>
 
                     <div>
-                        <p class="text-[11px] font-bold text-on-surface-variant/40 uppercase tracking-wide">Email</p>
-                        <p class="text-sm font-semibold text-on-surface mt-1 break-all">
-                            {{-- Sembunyikan email dummy @internal.local --}}
+                        <p class="text-[11px] font-medium text-gray-400 uppercase tracking-wide">Email</p>
+                        <p class="text-sm font-medium text-gray-800 mt-1.5 break-all">
+
                             @if (str_ends_with($employee->email ?? '', '@internal.local'))
-                                <span class="text-on-surface-variant/40 italic text-xs">Belum diaktivasi</span>
+                                <span class="text-gray-400 italic text-xs font-normal">Belum diaktivasi</span>
                             @else
                                 {{ $employee->email ?? '—' }}
                             @endif
@@ -116,33 +116,33 @@
                     </div>
 
                     <div>
-                        <p class="text-[11px] font-bold text-on-surface-variant/40 uppercase tracking-wide">No. Telepon</p>
-                        <p class="text-sm font-semibold text-on-surface font-mono-data mt-1">
+                        <p class="text-[11px] font-medium text-gray-400 uppercase tracking-wide">No. Telepon</p>
+                        <p class="text-sm font-medium text-gray-800  mt-1.5">
                             {{ $employee->phone ?? '—' }}
                         </p>
                     </div>
 
                     <div>
-                        <p class="text-[11px] font-bold text-on-surface-variant/40 uppercase tracking-wide">Posisi / Grade
+                        <p class="text-[11px] font-medium text-gray-400 uppercase tracking-wide">Posisi / Grade
                         </p>
-                        <p class="text-sm font-semibold text-on-surface mt-1">
+                        <p class="text-sm font-medium text-gray-800 mt-1.5">
                             {{ $employee->position->name ?? '—' }}
                             @if ($employee->position->grade ?? null)
-                                <span class="text-on-surface-variant/50">· {{ $employee->position->grade }}</span>
+                                <span class="text-gray-400 font-normal">· {{ $employee->position->grade }}</span>
                             @endif
                         </p>
                     </div>
 
                     <div>
-                        <p class="text-[11px] font-bold text-on-surface-variant/40 uppercase tracking-wide">NPWP</p>
-                        <p class="text-sm font-semibold text-on-surface font-mono-data mt-1">
+                        <p class="text-[11px] font-medium text-gray-400 uppercase tracking-wide">NPWP</p>
+                        <p class="text-sm font-medium text-gray-800  mt-1.5">
                             {{ $employee->npwp ?? '—' }}
                         </p>
                     </div>
 
                     <div>
-                        <p class="text-[11px] font-bold text-on-surface-variant/40 uppercase tracking-wide">No. BPJS</p>
-                        <p class="text-sm font-semibold text-on-surface font-mono-data mt-1">
+                        <p class="text-[11px] font-medium text-gray-400 uppercase tracking-wide">No. BPJS</p>
+                        <p class="text-sm font-medium text-gray-800  mt-1.5">
                             {{ $employee->bpjs_number ?? '—' }}
                         </p>
                     </div>
@@ -150,38 +150,36 @@
                 </div>
             </div>
 
-            {{-- RIWAYAT KONTRAK --}}
-            <div class="card-flat rounded-2xl overflow-hidden">
-                <div class="px-6 py-4 border-b border-black/5">
-                    <h2 class="text-base font-bold text-on-surface">Riwayat Masa Berlaku Kontrak</h2>
+
+            <div class="bg-white rounded-md overflow-hidden border border-gray-200">
+                <div class="px-8 py-5 border-b border-gray-100 bg-gray-50/50">
+                    <h2 class="text-base font-medium text-gray-800">Riwayat Masa Berlaku Kontrak</h2>
                 </div>
 
                 @if ($contracts->isEmpty())
-                    <div class="px-6 py-8 text-center text-sm text-on-surface-variant/50">
-                        <span
-                            class="material-symbols-outlined text-[32px] block mb-2 text-on-surface-variant/20">assignment_late</span>
+                    <div class="px-8 py-10 text-center text-sm text-gray-500">
                         Belum ada riwayat kontrak tercatat.
                     </div>
                 @else
-                    <div class="divide-y divide-black/5">
+                    <div class="divide-y divide-gray-100">
                         @foreach ($contracts as $c)
-                                <div class="px-6 py-4 flex items-center justify-between">
-                                    <div class="flex items-center gap-3">
-                                        <span class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0
+                                <div class="px-8 py-5 flex items-center justify-between hover:bg-gray-50 transition">
+                                    <div class="flex items-center gap-4">
+                                        <span class="w-10 h-10 rounded-md flex items-center justify-center shrink-0
                                                         {{ $c['status'] === 'Berjalan'
-                            ? 'bg-primary/10 text-primary'
-                            : 'bg-surface-container text-on-surface-variant/40' }}">
-                                            <span class="material-symbols-outlined text-[18px]">assignment</span>
+                            ? 'bg-gray-50 text-[#0B3D2E]'
+                            : 'bg-gray-100 text-gray-400' }}">
+                                            <span class="material-symbols-outlined text-[20px]">assignment</span>
                                         </span>
                                         <div>
-                                            <p class="text-sm font-bold text-on-surface">{{ $c['type'] }}</p>
-                                            <p class="text-xs text-on-surface-variant/50 font-mono-data mt-0.5">{{ $c['range'] }}</p>
+                                            <p class="text-sm font-medium text-gray-800">{{ $c['type'] }}</p>
+                                            <p class="text-xs text-gray-500  mt-0.5">{{ $c['range'] }}</p>
                                         </div>
                                     </div>
-                                    <span class="text-[11px] font-bold px-2.5 py-1 rounded
+                                    <span class="text-[10px] font-medium px-3 py-1 rounded-lg uppercase tracking-wider
                                                     {{ $c['status'] === 'Berjalan'
-                            ? 'bg-primary/10 text-primary'
-                            : 'bg-surface-container text-on-surface-variant/50' }}">
+                            ? 'bg-gray-50 text-[#0B3D2E]'
+                            : 'bg-gray-100 text-gray-500' }}">
                                         {{ $c['status'] }}
                                     </span>
                                 </div>
@@ -190,22 +188,22 @@
                 @endif
             </div>
 
-            {{-- AKTIVITAS TERBARU --}}
-            <div class="card-flat rounded-2xl p-6">
-                <h2 class="text-base font-bold text-on-surface mb-5">Aktivitas Terbaru</h2>
+
+            <div class="bg-white rounded-md p-8 border border-gray-200">
+                <h2 class="text-base font-medium text-gray-800 mb-6">Aktivitas Terbaru</h2>
 
                 @if ($recentActivity->isEmpty())
-                    <p class="text-sm text-on-surface-variant/50 italic">Belum ada aktivitas tercatat.</p>
+                    <p class="text-sm text-gray-500 italic bg-gray-50 p-4 rounded-md text-center border border-dashed border-gray-200">Belum ada aktivitas tercatat.</p>
                 @else
-                    <div class="space-y-4">
+                    <div class="space-y-5">
                         @foreach ($recentActivity as $a)
-                            <div class="flex items-center gap-3">
-                                <span class="w-8 h-8 rounded-lg bg-primary/10 text-primary
-                                                         flex items-center justify-center shrink-0">
-                                    <span class="material-symbols-outlined text-[16px]">{{ $a['icon'] }}</span>
+                            <div class="flex items-center gap-4">
+                                <span class="w-9 h-9 rounded-md bg-gray-50 text-gray-500
+                                                         flex items-center justify-center shrink-0 border border-gray-100">
+                                    <span class="material-symbols-outlined text-[18px]">{{ $a['icon'] }}</span>
                                 </span>
-                                <p class="text-sm text-on-surface-variant/80 flex-1">{{ $a['label'] }}</p>
-                                <p class="text-xs text-on-surface-variant/40 font-mono-data whitespace-nowrap">
+                                <p class="text-sm text-gray-700 font-medium flex-1">{{ $a['label'] }}</p>
+                                <p class="text-xs text-gray-400  whitespace-nowrap bg-gray-50 px-2 py-1 rounded-md">
                                     {{ $a['time'] }}
                                 </p>
                             </div>
@@ -216,94 +214,92 @@
 
         </div>
 
-        {{-- KOLOM KANAN: RINGKASAN --}}
-        <div class="space-y-5">
 
-            {{-- SISA CUTI --}}
-            <div class="card-flat rounded-2xl p-6">
-                <p class="text-[11px] font-bold text-on-surface-variant/50 uppercase tracking-wide mb-3">
+        <div class="space-y-6">
+
+
+            <div class="bg-white rounded-md p-6 border border-gray-200">
+                <p class="text-[11px] font-medium text-gray-400 uppercase tracking-wide mb-3">
                     Sisa Kuota Cuti {{ now()->year }}
                 </p>
-                <p class="text-3xl font-extrabold font-mono-data text-primary">
+                <p class="text-3xl font-semibold  text-gray-800">
                     {{ $leaveBalance }}
-                    <span class="text-sm font-bold text-on-surface-variant/40">/ {{ $leaveQuota }} hari</span>
+                    <span class="text-sm font-medium text-gray-400">/ {{ $leaveQuota }} hari</span>
                 </p>
-                <div class="w-full h-1.5 rounded-full bg-surface-container mt-3 overflow-hidden">
-                    <div class="h-full bg-primary rounded-full transition-all"
+                <div class="w-full h-1.5 rounded-full bg-gray-100 mt-4 overflow-hidden">
+                    <div class="h-full bg-[#0B3D2E] rounded-full transition-all"
                         style="width: {{ $leaveQuota > 0 ? round($leaveBalance / $leaveQuota * 100) : 0 }}%">
                     </div>
                 </div>
-                <p class="text-[11px] text-on-surface-variant/40 mt-2">
+                <p class="text-[11px] text-gray-500 mt-2.5 font-medium">
                     Terpakai: {{ $leaveQuota - $leaveBalance }} hari
                 </p>
             </div>
 
-            {{-- GAJI POKOK --}}
-            <div class="card-flat rounded-2xl p-6">
-                <p class="text-[11px] font-bold text-on-surface-variant/50 uppercase tracking-wide mb-3">
+
+            <div class="bg-white rounded-md p-6 border border-gray-200">
+                <p class="text-[11px] font-medium text-gray-400 uppercase tracking-wide mb-3">
                     Gaji Pokok
                 </p>
-                <p class="text-2xl font-extrabold font-mono-data text-on-surface">
+                <p class="text-2xl font-semibold  text-[#0B3D2E]">
                     Rp{{ number_format($employee->basic_salary ?? 0, 0, ',', '.') }}
                 </p>
                 <a href="{{ route('hr.payroll.slip', $employee->employee_id) }}"
-                    class="text-xs font-bold text-primary/70 hover:text-primary transition mt-2 inline-block">
+                    class="text-[11px] font-medium text-gray-700 hover:text-gray-700 transition mt-3 inline-block">
                     Lihat slip gaji terakhir →
                 </a>
             </div>
 
-            {{-- DOKUMEN TERUNGGAH --}}
-            <div class="card-flat rounded-2xl p-6">
-                <p class="text-[11px] font-bold text-on-surface-variant/50 uppercase tracking-wide mb-3">
+
+            <div class="bg-white rounded-md p-6 border border-gray-200">
+                <p class="text-[11px] font-medium text-gray-400 uppercase tracking-wide mb-4">
                     Dokumen Terunggah
                 </p>
-                <div class="space-y-2.5">
+                <div class="space-y-3">
                     @foreach ($documents as $doc => $done)
                         <div class="flex items-center justify-between text-sm">
-                            <span class="text-on-surface-variant/70">{{ $doc }}</span>
-                            <span class="material-symbols-outlined text-[18px]
-                                        {{ $done ? 'text-primary' : 'text-on-surface-variant/25' }}">
-                                {{ $done ? 'check_circle' : 'radio_button_unchecked' }}
-                            </span>
-                        </div>
+                            <span class="text-gray-700 font-medium">{{ $doc }}</span>
+                            </div>
                     @endforeach
                 </div>
-                <a href="{{ route('hr.employees.documents', $employee->employee_id) }}"
-                    class="text-xs font-bold text-primary/70 hover:text-primary transition mt-3 inline-block">
-                    Kelola dokumen →
-                </a>
+                <div class="mt-4 pt-4 border-t border-gray-100">
+                    <a href="{{ route('hr.employees.documents', $employee->employee_id) }}"
+                        class="text-[11px] font-medium text-gray-700 hover:text-gray-700 transition inline-block">
+                        Kelola dokumen →
+                    </a>
+                </div>
             </div>
 
-            {{-- INFO NIP / AKUN --}}
-            <div class="card-flat rounded-2xl p-6">
-                <p class="text-[11px] font-bold text-on-surface-variant/50 uppercase tracking-wide mb-3">
+
+            <div class="bg-white rounded-md p-6 border border-gray-200">
+                <p class="text-[11px] font-medium text-gray-400 uppercase tracking-wide mb-4">
                     Info Akun Karyawan
                 </p>
-                <div class="space-y-3">
+                <div class="space-y-4">
                     <div>
-                        <p class="text-[10px] text-on-surface-variant/40 uppercase font-bold tracking-wide mb-0.5">
+                        <p class="text-[10px] text-gray-400 uppercase font-medium tracking-wide mb-1">
                             NIP (Username)
                         </p>
-                        <p class="font-mono-data font-extrabold text-primary text-base">
+                        <p class=" font-semibold text-gray-800 text-lg bg-gray-50 p-2 rounded-lg border border-gray-100">
                             {{ $employee->employee_id }}
                         </p>
                     </div>
-                    <div class="pt-2 border-t border-black/5">
-                        <p class="text-[10px] text-on-surface-variant/40 uppercase font-bold tracking-wide mb-0.5">
+                    <div class="pt-3 border-t border-gray-100">
+                        <p class="text-[10px] text-gray-400 uppercase font-medium tracking-wide mb-1.5">
                             Status Aktivasi
                         </p>
                         @php
                             $isActivated = $employee->email && !str_ends_with($employee->email, '@internal.local');
                         @endphp
-                        <span class="text-[11px] font-bold px-2.5 py-1 rounded inline-flex items-center gap-1
-                                {{ $isActivated ? 'bg-green-500/10 text-green-700' : 'bg-amber-500/10 text-amber-700' }}">
-                            <span class="material-symbols-outlined text-[13px]">
+                        <span class="text-[10px] font-medium px-2.5 py-1.5 rounded-lg inline-flex items-center gap-1.5 uppercase tracking-wider
+                                {{ $isActivated ? 'bg-gray-50 text-[#0B3D2E]' : 'bg-gray-50 text-gray-700' }}">
+                            <span class="material-symbols-outlined text-[14px]">
                                 {{ $isActivated ? 'verified' : 'pending' }}
                             </span>
                             {{ $isActivated ? 'Sudah Aktivasi' : 'Belum Aktivasi' }}
                         </span>
                         @if (!$isActivated)
-                            <p class="text-[10px] text-on-surface-variant/40 mt-1.5">
+                            <p class="text-[10px] text-gray-500 mt-2 leading-relaxed bg-gray-50 p-2 rounded-lg">
                                 Karyawan belum mengisi email &amp; password baru di aplikasi mobile.
                             </p>
                         @endif

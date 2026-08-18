@@ -14,12 +14,12 @@ use Illuminate\Validation\Rules\Password;
 
 class ForgotPasswordController extends Controller
 {
-    // STEP 1: Cek NIP
+
     public function checkNip(Request $request)
     {
         $request->validate(['nip' => 'required|string']);
 
-        // Cari user berdasarkan NIP (Asumsi NIP ada di tabel users)
+
         $user = User::where('nip', $request->nip)->first();
 
         if (!$user || !$user->email) {
@@ -28,7 +28,6 @@ class ForgotPasswordController extends Controller
                 'message' => 'NIP tidak ditemukan atau email belum terdaftar.'
             ], 404);
         }
-
 
         $emailParts = explode('@', $user->email);
         $maskedEmail = substr($emailParts[0], 0, 3) . '***@' . $emailParts[1];
@@ -40,8 +39,8 @@ class ForgotPasswordController extends Controller
         ], 200);
     }
 
-    // STEP 2: Kirim OTP
-    // STEP 2: Kirim OTP
+
+
     public function sendOtp(Request $request)
     {
         $request->validate(['nip' => 'required|string']);
@@ -51,7 +50,7 @@ class ForgotPasswordController extends Controller
             return response()->json(['success' => false, 'message' => 'User tidak ditemukan.'], 404);
         }
 
-        // --- TAMBAHKAN LOGIKA INI ---
+
         $existingOtp = EmailOtp::where('user_id', $user->id)->first();
 
         if ($existingOtp && now()->lessThan($existingOtp->expires_at)) {
@@ -61,7 +60,6 @@ class ForgotPasswordController extends Controller
                 'message' => 'Kode OTP masih aktif. Silakan tunggu ' . ceil($remaining / 60) . ' menit lagi untuk mengirim ulang.'
             ], 429); 
         }
-        // -----------------------------
 
         $otpCode = rand(100000, 999999);
 
@@ -83,7 +81,7 @@ class ForgotPasswordController extends Controller
         ], 200);
     }
 
-    // STEP 3: Verifikasi OTP
+
     public function verifyOtp(Request $request)
     {
         $request->validate([
@@ -98,7 +96,7 @@ class ForgotPasswordController extends Controller
             return response()->json(['success' => false, 'message' => 'Kode OTP tidak valid atau kedaluwarsa.'], 400);
         }
 
-        // Generate Token Rahasia untuk Step 4
+
         $resetToken = Str::random(60);
 
         $otpRecord->update([
@@ -113,17 +111,16 @@ class ForgotPasswordController extends Controller
         ], 200);
     }
 
-    // STEP 4: Reset Password
-// STEP 4: Reset Password
+
     public function resetPassword(Request $request)
     {
         $request->validate([
             'reset_token' => 'required|string',
-            // Pastikan dari Flutter mengirim 'password' dan 'password_confirmation'
+
             'password' => ['required', 'confirmed', Password::min(8)->mixedCase()->numbers()->symbols()]
         ]);
 
-        // 1. Cari record OTP yang memiliki reset_token tersebut
+
         $otpRecord = EmailOtp::where('reset_token', $request->reset_token)->first();
 
         if (!$otpRecord) {
@@ -133,7 +130,7 @@ class ForgotPasswordController extends Controller
             ], 400);
         }
 
-        // 2. Ambil data User berdasarkan user_id dari record OTP
+
         $user = User::find($otpRecord->user_id);
 
         if (!$user) {
@@ -143,12 +140,12 @@ class ForgotPasswordController extends Controller
             ], 404);
         }
 
-        // 3. Update password user
+
         $user->update([
             'password' => Hash::make($request->password)
         ]);
 
-        // 4. Hapus record OTP agar reset_token ini tidak bisa dipakai ulang
+
         $otpRecord->delete();
 
         return response()->json([
