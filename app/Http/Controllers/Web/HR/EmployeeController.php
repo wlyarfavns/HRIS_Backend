@@ -138,13 +138,11 @@ class EmployeeController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('hr.karyawan.edit', compact(
-            'employee',
-            'departments',
-            'positions',
-            'supervisors',
-            'salaryComponents',
-            'employeeComponentAmounts'
+        return view('hr.karyawan.edit', compact( 
+            'employee', 
+            'departments', 
+            'positions', 
+            'supervisors'
         ));
     }
     public function update(Request $request, Employee $employee)
