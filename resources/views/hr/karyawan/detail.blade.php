@@ -284,26 +284,7 @@
                             {{ $employee->employee_id }}
                         </p>
                     </div>
-                    <div class="pt-3 border-t border-gray-100">
-                        <p class="text-[10px] text-gray-400 uppercase font-medium tracking-wide mb-1.5">
-                            Status Aktivasi
-                        </p>
-                        @php
-                            $isActivated = $employee->email && !str_ends_with($employee->email, '@internal.local');
-                        @endphp
-                        <span class="text-[10px] font-medium px-2.5 py-1.5 rounded-lg inline-flex items-center gap-1.5 uppercase tracking-wider
-                                {{ $isActivated ? 'bg-gray-50 text-[#0B3D2E]' : 'bg-gray-50 text-gray-700' }}">
-                            <span class="material-symbols-outlined text-[14px]">
-                                {{ $isActivated ? 'verified' : 'pending' }}
-                            </span>
-                            {{ $isActivated ? 'Sudah Aktivasi' : 'Belum Aktivasi' }}
-                        </span>
-                        @if (!$isActivated)
-                            <p class="text-[10px] text-gray-500 mt-2 leading-relaxed bg-gray-50 p-2 rounded-lg">
-                                Karyawan belum mengisi email &amp; password baru di aplikasi mobile.
-                            </p>
-                        @endif
-                    </div>
+
                 </div>
             </div>
 
