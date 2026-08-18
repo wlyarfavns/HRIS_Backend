@@ -4,30 +4,33 @@
 @section('page-title', 'Dokumen Karyawan')
 @section('page-desc', 'Lihat status dan riwayat dokumen kepegawaian.')
 
-@php
-
-    $employee = [
-        'nip' => 'EMP-00812',
-        'full_name' => 'Jim Halpert',
-        'department' => 'Sales',
-        'contract_type' => 'PKWT',
-        'avatar' => 12,
-    ];
-
-    $documents = [
-        ['label' => 'Scan KTP', 'icon' => 'badge', 'uploaded' => true, 'file' => 'ktp_jim_halpert.pdf', 'size' => '412 KB', 'date' => '18 Agu 2024'],
-        ['label' => 'Scan NPWP', 'icon' => 'receipt_long', 'uploaded' => true, 'file' => 'npwp_jim_halpert.pdf', 'size' => '298 KB', 'date' => '18 Agu 2024'],
-        ['label' => 'Kartu BPJS', 'icon' => 'health_and_safety', 'uploaded' => false, 'file' => null, 'size' => null, 'date' => null],
-        ['label' => 'Ijazah Terakhir', 'icon' => 'school', 'uploaded' => true, 'file' => 'ijazah_jim_halpert.pdf', 'size' => '1.1 MB', 'date' => '19 Agu 2024'],
-        ['label' => 'Kontrak Kerja', 'icon' => 'contract_edit', 'uploaded' => true, 'file' => 'kontrak_pkwt_jim.pdf', 'size' => '540 KB', 'date' => '20 Agu 2024'],
-        ['label' => 'CV / Resume', 'icon' => 'description', 'uploaded' => false, 'file' => null, 'size' => null, 'date' => null],
+@php 
+    $emp = \App\Models\Employee::with('department')->where('company_id', auth()->user()->company_id)
+        ->where(function ($q) use ($id) {
+            $q->where('employee_id', $id)->orWhere('id', $id);
+        })->firstOrFail();
+ 
+    $employee = [ 
+        'id' => $emp->id,
+        'nip' => $emp->employee_id, 
+        'full_name' => $emp->full_name, 
+        'department' => $emp->department ? $emp->department->name : '-', 
+        'contract_type' => $emp->contract_type ?? 'PKWT', 
+        'avatar' => $emp->id % 70, 
+    ]; 
+ 
+    $documents = [ 
+        ['label' => 'Scan KTP', 'icon' => 'badge', 'uploaded' => !empty($emp->ktp_file_path), 'file' => basename($emp->ktp_file_path ?? ''), 'size' => '-', 'date' => '-'], 
+        ['label' => 'Scan NPWP', 'icon' => 'receipt_long', 'uploaded' => !empty($emp->npwp_file_path), 'file' => basename($emp->npwp_file_path ?? ''), 'size' => '-', 'date' => '-'], 
+        ['label' => 'Kartu BPJS', 'icon' => 'health_and_safety', 'uploaded' => !empty($emp->bpjs_file_path), 'file' => basename($emp->bpjs_file_path ?? ''), 'size' => '-', 'date' => '-'], 
+        ['label' => 'Ijazah Terakhir', 'icon' => 'school', 'uploaded' => false, 'file' => null, 'size' => null, 'date' => null], 
+        ['label' => 'Kontrak Kerja', 'icon' => 'contract_edit', 'uploaded' => false, 'file' => null, 'size' => null, 'date' => null], 
+        ['label' => 'CV / Resume', 'icon' => 'description', 'uploaded' => false, 'file' => null, 'size' => null, 'date' => null], 
     ];
 
     $uploadedCount = collect($documents)->where('uploaded', true)->count();
 
     $history = [
-        ['file' => 'kontrak_pkwt_jim.pdf', 'type' => 'Kontrak Kerja', 'size' => '540 KB', 'date' => '20 Agu 2024, 10:15', 'by' => 'HR Admin'],
-        ['file' => 'ijazah_jim_halpert.pdf', 'type' => 'Ijazah Terakhir', 'size' => '1.1 MB', 'date' => '19 Agu 2024, 14:32', 'by' => 'HR Admin'],
         ['file' => 'ktp_jim_halpert.pdf', 'type' => 'Scan KTP', 'size' => '412 KB', 'date' => '18 Agu 2024, 09:02', 'by' => 'Jim Halpert'],
         ['file' => 'npwp_jim_halpert.pdf', 'type' => 'Scan NPWP', 'size' => '298 KB', 'date' => '18 Agu 2024, 09:05', 'by' => 'Jim Halpert'],
     ];
@@ -53,7 +56,7 @@
         <span class="text-[11px] font-medium px-3 py-1.5 rounded-lg {{ $employee['contract_type'] === 'PKWTT' ? 'bg-gray-50 text-[#0B3D2E]' : 'bg-gray-50 text-gray-700' }}">
             {{ $employee['contract_type'] }}
         </span>
-        <a href="{{ route('hr.employees.edit', $employee['nip']) }}"
+        <a href="{{ route('hr.employees.edit', $employee['id']) }}"
            class="text-xs font-medium text-gray-600 hover:text-[#0B3D2E] border border-gray-200 hover:border-[#0B3D2E] bg-gray-50 hover:bg-gray-50 rounded-md px-4 py-2.5 transition flex items-center gap-1.5">
             <span class="material-symbols-outlined text-[16px]">edit</span>
             Kelola di Edit Karyawan
