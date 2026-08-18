@@ -41,9 +41,7 @@
                 </div>
                 <div class="p-6 space-y-4">
                     <a href="{{ route('admin.users.create') }}" class="flex items-start gap-4 p-4 rounded-md bg-white border border-gray-200 hover:border-[#0B3D2E] shadow-sm transition group">
-                        <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center shrink-0">
-                            <span class="material-symbols-outlined text-[20px] text-[#0B3D2E]">person_add</span>
-                        </div>
+                        
                         <div>
                             <h4 class="text-sm font-medium text-gray-700 group-hover:text-[#0B3D2E]">Tambah Pengguna</h4>
                             <p class="text-xs text-gray-500 mt-1">Berikan akses sistem baru</p>
@@ -51,9 +49,7 @@
                     </a>
 
                     <a href="{{ route('admin.users.index') }}" class="flex items-start gap-4 p-4 rounded-md bg-white border border-gray-200 hover:border-[#0B3D2E] shadow-sm transition group">
-                        <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center shrink-0">
-                            <span class="material-symbols-outlined text-[20px] text-gray-700">admin_panel_settings</span>
-                        </div>
+                        
                         <div>
                             <h4 class="text-sm font-medium text-gray-700 group-hover:text-[#0B3D2E]">Kelola Role</h4>
                             <p class="text-xs text-gray-500 mt-1">Atur hak akses pengguna</p>
@@ -61,9 +57,7 @@
                     </a>
 
                     <a href="{{ route('admin.company.index') }}" class="flex items-start gap-4 p-4 rounded-md bg-white border border-gray-200 hover:border-[#0B3D2E] shadow-sm transition group">
-                        <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center shrink-0">
-                            <span class="material-symbols-outlined text-[20px] text-gray-700">store</span>
-                        </div>
+                        
                         <div>
                             <h4 class="text-sm font-medium text-gray-700 group-hover:text-[#0B3D2E]">Profil Perusahaan</h4>
                             <p class="text-xs text-gray-500 mt-1">Update data identitas HRIS</p>
@@ -77,9 +71,7 @@
         <div class="lg:col-span-2 bg-white rounded-md border border-gray-100 shadow-sm overflow-hidden flex flex-col">
             <div class="px-8 py-6 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
                 <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center">
-                        <span class="material-symbols-outlined text-[#0B3D2E] text-[20px]">recent_actors</span>
-                    </div>
+                    
                     <h3 class="text-lg font-medium text-gray-800">Karyawan Baru Terdaftar</h3>
                 </div>
             </div>

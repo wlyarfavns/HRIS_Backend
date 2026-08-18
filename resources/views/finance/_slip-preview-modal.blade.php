@@ -9,9 +9,7 @@
 
         <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 shrink-0 bg-gray-50/50">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center">
-                    <span class="material-symbols-outlined text-[20px] text-[#0B3D2E]">receipt_long</span>
-                </div>
+                
                 <p class="text-base font-medium text-gray-800">Preview Slip Gaji Digital</p>
             </div>
             <button type="button" @click="showSlipModal = false"

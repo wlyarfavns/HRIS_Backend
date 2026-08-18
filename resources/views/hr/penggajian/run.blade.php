@@ -94,9 +94,7 @@
         <div class="lg:col-span-1 space-y-6">
             <div class="bg-white rounded-md border border-gray-200 shadow-sm overflow-hidden">
                 <div class="px-6 py-5 border-b border-gray-100 flex items-center gap-3 bg-gray-50/50">
-                    <div class="w-10 h-10 rounded-full bg-gray-50 border border-gray-200 flex items-center justify-center">
-                        <span class="material-symbols-outlined text-[#0B3D2E] text-[20px]">tune</span>
-                    </div>
+                    
                     <div>
                         <h3 class="text-sm font-medium text-gray-800">Setup Periode</h3>
                         <p class="text-[11px] text-gray-500 mt-0.5">Atur rentang cut-off payroll</p>

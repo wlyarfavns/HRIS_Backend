@@ -45,9 +45,7 @@
             <div class="bg-white rounded-md border border-gray-100 shadow-sm overflow-hidden">
                 <div class="px-8 py-6 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
                     <div class="flex items-center gap-4">
-                        <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center">
-                            <span class="material-symbols-outlined text-[#0B3D2E] text-[20px]">how_to_reg</span>
-                        </div>
+                        
                         <div>
                             <h3 class="text-lg font-medium text-gray-800">Data Kehadiran</h3>
                             <p class="text-xs text-gray-500 mt-1">Bulan Berjalan</p>
@@ -77,9 +75,7 @@
             <div class="bg-white rounded-md border border-gray-100 shadow-sm overflow-hidden">
                 <div class="px-8 py-6 border-b border-gray-100 bg-gray-50/50">
                     <div class="flex items-center gap-4">
-                        <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center">
-                            <span class="material-symbols-outlined text-[#0B3D2E] text-[20px]">event_note</span>
-                        </div>
+                        
                         <h3 class="text-lg font-medium text-gray-800">Kategori Cuti & Izin Terbanyak</h3>
                     </div>
                 </div>
@@ -114,9 +110,7 @@
             <div class="bg-white rounded-md border border-gray-100 shadow-sm overflow-hidden">
                 <div class="px-8 py-6 border-b border-gray-100 bg-gray-50/50">
                     <div class="flex items-center gap-4">
-                        <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center">
-                            <span class="material-symbols-outlined text-[#0B3D2E] text-[20px]">domain</span>
-                        </div>
+                        
                         <h3 class="text-lg font-medium text-gray-800">Distribusi Pegawai per Departemen</h3>
                     </div>
                 </div>

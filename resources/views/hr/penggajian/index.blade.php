@@ -302,9 +302,7 @@
             <div class="bg-white rounded-md max-w-md w-full p-8 shadow-sm space-y-6 border border-gray-100">
                 <div class="flex items-center justify-between border-b border-gray-100 pb-4">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-[#0B3D2E]">
-                            <span class="material-symbols-outlined text-[20px]">add_circle</span>
-                        </div>
+                        
                         <h3 class="text-lg font-medium text-gray-800">Tambah Komponen Gaji</h3>
                     </div>
                     <button type="button" @click="showAddModal = false"
@@ -390,9 +388,7 @@
             <div class="bg-white rounded-md max-w-md w-full p-8 shadow-sm space-y-6 border border-gray-100" x-show="editItem?.id">
                 <div class="flex items-center justify-between border-b border-gray-100 pb-4">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-700">
-                            <span class="material-symbols-outlined text-[20px]">edit</span>
-                        </div>
+                        
                         <h3 class="text-lg font-medium text-gray-800">Edit Komponen Gaji</h3>
                     </div>
                     <button type="button" @click="showEditModal = false"

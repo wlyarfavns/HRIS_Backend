@@ -44,9 +44,7 @@
 
             <div class="bg-white rounded-md border border-gray-100 shadow-sm overflow-hidden flex flex-col">
                 <div class="px-8 py-6 border-b border-gray-100 bg-gray-50/50 flex items-center gap-4">
-                    <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center">
-                        <span class="material-symbols-outlined text-[20px] text-[#0B3D2E]">trending_up</span>
-                    </div>
+                    
                     <div>
                         <h3 class="text-lg font-medium text-gray-800">Tren Pencairan Reimbursement</h3>
                         <p class="text-xs text-gray-500 mt-1">6 Bulan Terakhir</p>
@@ -78,9 +76,7 @@
 
             <div class="bg-white rounded-md border border-gray-100 shadow-sm overflow-hidden flex flex-col">
                 <div class="px-8 py-6 border-b border-gray-100 bg-gray-50/50 flex items-center gap-4">
-                    <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center">
-                        <span class="material-symbols-outlined text-[20px] text-[#0B3D2E]">domain</span>
-                    </div>
+                    
                     <div>
                         <h3 class="text-lg font-medium text-gray-800">Beban Reimbursement per Departemen</h3>
                     </div>
@@ -111,9 +107,7 @@
 
             <div class="bg-white rounded-md border border-gray-100 shadow-sm overflow-hidden flex flex-col">
                 <div class="px-6 py-5 border-b border-gray-100 bg-gray-50/50 flex items-center gap-4">
-                    <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center">
-                        <span class="material-symbols-outlined text-[20px] text-[#0B3D2E]">fact_check</span>
-                    </div>
+                    
                     <h3 class="text-base font-medium text-gray-800">Status Verifikasi Pencairan</h3>
                 </div>
 
@@ -155,16 +149,12 @@
                 </div>
                 <div class="p-4 space-y-3">
                     <a href="{{ route('finance.payroll.index') }}" class="flex items-center gap-4 p-4 rounded-md bg-white border border-gray-200 hover:border-[#0B3D2E] shadow-sm transition group">
-                        <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center shrink-0 group-hover:bg-gray-50 transition">
-                            <span class="material-symbols-outlined text-[20px] text-gray-700">payments</span>
-                        </div>
+                        
                         <span class="text-sm font-medium text-gray-700 group-hover:text-[#0B3D2E] transition">Proses Payroll</span>
                     </a>
 
                     <a href="#" class="flex items-center gap-4 p-4 rounded-md bg-white border border-gray-200 hover:border-[#0B3D2E] shadow-sm transition group">
-                        <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center shrink-0 group-hover:bg-gray-50 transition">
-                            <span class="material-symbols-outlined text-[20px] text-gray-700">pie_chart</span>
-                        </div>
+                        
                         <span class="text-sm font-medium text-gray-700 group-hover:text-[#0B3D2E] transition">Laporan Keuangan</span>
                     </a>
                 </div>

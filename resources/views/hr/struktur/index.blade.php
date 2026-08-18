@@ -69,9 +69,7 @@
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
         <div class="bg-white rounded-md p-6 border border-gray-100 shadow-sm relative overflow-hidden group hover:border-[#0B3D2E]/30 transition-colors">
             <div class="flex items-center justify-between mb-4">
-                <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center">
-                    <span class="material-symbols-outlined text-[20px] text-[#0B3D2E]">corporate_fare</span>
-                </div>
+                
                 <span class="text-xs font-medium text-gray-400 uppercase tracking-wider">Departemen</span>
             </div>
             <p class="text-3xl font-semibold  text-gray-800 leading-none mb-2">{{ count($departments) }}</p>
@@ -80,9 +78,7 @@
         </div>
         <div class="bg-white rounded-md p-6 border border-gray-100 shadow-sm relative overflow-hidden group hover:border-[#0B3D2E]/30 transition-colors">
             <div class="flex items-center justify-between mb-4">
-                <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center">
-                    <span class="material-symbols-outlined text-[20px] text-gray-700">badge</span>
-                </div>
+                
                 <span class="text-xs font-medium text-gray-400 uppercase tracking-wider">Posisi</span>
             </div>
             <p class="text-3xl font-semibold  text-[#0B3D2E] leading-none mb-2">{{ collect($departments)->sum('positions') }}</p>
@@ -91,9 +87,7 @@
         </div>
         <div class="bg-white rounded-md p-6 border border-gray-100 shadow-sm relative overflow-hidden group hover:border-[#0B3D2E]/30 transition-colors">
             <div class="flex items-center justify-between mb-4">
-                <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center">
-                    <span class="material-symbols-outlined text-[20px] text-gray-700">groups</span>
-                </div>
+                
                 <span class="text-xs font-medium text-gray-400 uppercase tracking-wider">Karyawan</span>
             </div>
             <p class="text-3xl font-semibold  text-gray-800 leading-none mb-2">1.284</p>
@@ -107,9 +101,7 @@
         <div class="p-6 border-b border-gray-100 flex items-center justify-between flex-wrap gap-4 bg-gray-50/50">
             <div>
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-[#0B3D2E]">
-                        <span class="material-symbols-outlined text-[20px]">account_tree</span>
-                    </div>
+                    
                     <div>
                         <div class="flex items-center gap-2">
                             <h2 class="text-lg font-medium text-gray-800">Hierarki Struktur Organisasi</h2>
@@ -359,9 +351,7 @@
         <div class="bg-white rounded-md max-w-sm w-full p-8 shadow-sm space-y-6 animate-in fade-in zoom-in duration-200 border border-gray-100" x-show="selectedNode">
             <div class="flex items-center justify-between border-b border-gray-100 pb-4">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-[#0B3D2E]">
-                        <span class="material-symbols-outlined text-[20px]">account_circle</span>
-                    </div>
+                    
                     <h3 class="text-lg font-medium text-gray-800">Profil Pegawai</h3>
                 </div>
                 <button type="button" @click="showProfileModal = false" class="text-gray-400 hover:text-gray-800 w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center transition">
@@ -418,9 +408,7 @@
         <div class="bg-white rounded-md max-w-md w-full p-8 shadow-sm space-y-6 animate-in fade-in zoom-in duration-200 border border-gray-100" x-show="selectedNode">
             <div class="flex items-center justify-between border-b border-gray-100 pb-4">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-700">
-                        <span class="material-symbols-outlined text-[20px]">edit</span>
-                    </div>
+                    
                     <h3 class="text-lg font-medium text-gray-800">Edit Pegawai</h3>
                 </div>
                 <button type="button" @click="showEditModal = false" class="text-gray-400 hover:text-gray-800 w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center transition">
@@ -470,9 +458,7 @@
         <div class="bg-white rounded-md max-w-md w-full p-8 shadow-sm space-y-6 animate-in fade-in zoom-in duration-200 border border-gray-100">
             <div class="flex items-center justify-between border-b border-gray-100 pb-4">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-[#0B3D2E]">
-                        <span class="material-symbols-outlined text-[20px]">add_business</span>
-                    </div>
+                    
                     <h3 class="text-lg font-medium text-gray-800">Tambah Departemen Baru</h3>
                 </div>
                 <button type="button" @click="showDeptModal = false" class="text-gray-400 hover:text-gray-800 w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center transition">

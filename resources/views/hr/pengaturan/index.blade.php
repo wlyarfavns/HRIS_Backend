@@ -34,9 +34,7 @@
 
         <div class="bg-white rounded-md p-8 border border-gray-100 shadow-sm">
             <div class="flex items-center gap-3 mb-6 pb-4 border-b border-gray-100">
-                <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-[#0B3D2E]">
-                    <span class="material-symbols-outlined text-[20px]">event_available</span>
-                </div>
+                
                 <div>
                     <h2 class="text-lg font-medium text-gray-800">Kebijakan Cuti</h2>
                     <p class="text-xs text-gray-500 mt-0.5">Atur kuota dan batas hari cuti tahunan</p>
@@ -80,9 +78,7 @@
 
         <div class="bg-white rounded-md p-8 border border-gray-100 shadow-sm">
             <div class="flex items-center gap-3 mb-6 pb-4 border-b border-gray-100">
-                <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-700">
-                    <span class="material-symbols-outlined text-[20px]">schedule</span>
-                </div>
+                
                 <div>
                     <h2 class="text-lg font-medium text-gray-800">Kebijakan Lembur</h2>
                     <p class="text-xs text-gray-500 mt-0.5">Rumus dan batasan lembur bulanan</p>
@@ -110,9 +106,7 @@
 
         <div class="bg-white rounded-md p-8 border border-gray-100 shadow-sm">
             <div class="flex items-center gap-3 mb-6 pb-4 border-b border-gray-100">
-                <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-700">
-                    <span class="material-symbols-outlined text-[20px]">fingerprint</span>
-                </div>
+                
                 <div>
                     <h2 class="text-lg font-medium text-gray-800">Kebijakan Presensi</h2>
                     <p class="text-xs text-gray-500 mt-0.5">Aturan jam kerja standar dan toleransi keterlambatan</p>

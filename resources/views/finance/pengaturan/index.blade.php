@@ -125,9 +125,7 @@
 
         <div class="bg-white rounded-md border border-gray-100 shadow-sm p-6 flex items-center justify-between">
             <div class="flex items-center gap-4">
-                <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center">
-                    <span class="material-symbols-outlined text-[20px] text-gray-700">admin_panel_settings</span>
-                </div>
+                
                 <div>
                     <p class="text-sm font-medium text-gray-800">Approval Payroll 2 Tahap (HR + Finance)</p>
                     <p class="text-xs text-gray-500 mt-0.5">Dikendalikan Super Admin di Modul Finance — ditampilkan di sini sebagai referensi (read-only).</p>

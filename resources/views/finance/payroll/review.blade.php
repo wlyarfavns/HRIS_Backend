@@ -91,9 +91,7 @@
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
         <div class="bg-white border border-gray-100 rounded-md p-6 shadow-sm relative overflow-hidden group hover:border-gray-200 transition-colors">
             <div class="flex items-center justify-between mb-4">
-                <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center">
-                    <span class="material-symbols-outlined text-[20px] text-gray-700">account_balance_wallet</span>
-                </div>
+                
                 <p class="text-[11px] font-medium uppercase tracking-widest text-gray-400">Total Gross Salary</p>
             </div>
             <p class="text-3xl font-semibold  text-gray-800 leading-none">Rp{{ number_format($totalGross, 0, ',', '.') }}</p>
@@ -103,9 +101,7 @@
 
         <div class="bg-white border border-gray-100 rounded-md p-6 shadow-sm relative overflow-hidden group hover:border-gray-200 transition-colors">
             <div class="flex items-center justify-between mb-4">
-                <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center">
-                    <span class="material-symbols-outlined text-[20px] text-gray-700">account_balance</span>
-                </div>
+                
                 <p class="text-[11px] font-medium uppercase tracking-widest text-gray-400">Titipan Pajak & BPJS</p>
             </div>
             <p class="text-3xl font-semibold  text-gray-700 leading-none">Rp{{ number_format($totalTitipan, 0, ',', '.') }}</p>
@@ -118,9 +114,7 @@
 
         <div class="bg-[#0B3D2E] border border-[#0B3D2E] rounded-md p-6 shadow-sm relative overflow-hidden text-white group hover:border-[#043927] transition-colors">
             <div class="flex items-center justify-between mb-4">
-                <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-                    <span class="material-symbols-outlined text-[20px] text-white">payments</span>
-                </div>
+                
                 <p class="text-[11px] font-medium uppercase tracking-widest text-emerald-100">Grand Total Nett Salary</p>
             </div>
             <p class="text-3xl font-semibold  text-white leading-none">Rp{{ number_format($totalNet, 0, ',', '.') }}</p>

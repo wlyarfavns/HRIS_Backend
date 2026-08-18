@@ -42,9 +42,7 @@
         <div class="xl:col-span-2 space-y-8">
             <div class="bg-white rounded-md border border-gray-100 shadow-sm overflow-hidden flex flex-col">
                 <div class="px-8 py-6 border-b border-gray-100 bg-gray-50/50 flex items-center gap-4">
-                    <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center">
-                        <span class="material-symbols-outlined text-[20px] text-gray-700">pending_actions</span>
-                    </div>
+                    
                     <h3 class="text-lg font-medium text-gray-800">Tugas Persetujuan (Menunggu)</h3>
                 </div>
 
@@ -99,9 +97,7 @@
             @if(isset($slaStats))
             <div class="bg-white rounded-md border border-gray-100 shadow-sm p-8">
                 <div class="flex items-center gap-4 mb-6">
-                    <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center">
-                        <span class="material-symbols-outlined text-[20px] text-[#0B3D2E]">speed</span>
-                    </div>
+                    
                     <h3 class="text-lg font-medium text-gray-800">Tingkat Respons Persetujuan (SLA)</h3>
                 </div>
 

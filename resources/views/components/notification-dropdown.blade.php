@@ -35,9 +35,7 @@
 
 
              <a href="#" class="flex gap-4 px-5 py-4 hover:bg-black/[0.02] transition-colors bg-primary/[0.02] relative group">
-                 <div class="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                     <span class="material-symbols-outlined text-[20px]">task_alt</span>
-                 </div>
+                 
                  <div class="flex-1 min-w-0 pr-4">
                      <p class="text-xs font-medium text-on-surface mb-0.5 group-hover:text-primary transition-colors">Approval Cuti Disetujui</p>
                      <p class="text-[11px] text-on-surface-variant/70 leading-relaxed truncate">Pengajuan cuti tahunan Anda (2 hari) telah disetujui oleh HR.</p>
@@ -50,9 +48,7 @@
 
 
              <a href="#" class="flex gap-4 px-5 py-4 hover:bg-black/[0.02] transition-colors bg-primary/[0.02] relative group">
-                 <div class="w-10 h-10 rounded-full bg-gray-50/10 text-gray-700 flex items-center justify-center shrink-0">
-                     <span class="material-symbols-outlined text-[20px]">event_note</span>
-                 </div>
+                 
                  <div class="flex-1 min-w-0 pr-4">
                      <p class="text-xs font-medium text-on-surface mb-0.5 group-hover:text-gray-700 transition-colors">Tugas Baru Diberikan</p>
                      <p class="text-[11px] text-on-surface-variant/70 leading-relaxed truncate">Supervisor menugaskan "Review Dokumen Q3" kepada Anda.</p>
@@ -65,9 +61,7 @@
 
 
              <a href="#" class="flex gap-4 px-5 py-4 hover:bg-black/[0.02] transition-colors bg-primary/[0.02] relative group">
-                 <div class="w-10 h-10 rounded-full bg-gray-500/10 text-[#0B3D2E] flex items-center justify-center shrink-0">
-                     <span class="material-symbols-outlined text-[20px]">account_balance_wallet</span>
-                 </div>
+                 
                  <div class="flex-1 min-w-0 pr-4">
                      <p class="text-xs font-medium text-on-surface mb-0.5 group-hover:text-[#0B3D2E] transition-colors">Slip Gaji Tersedia</p>
                      <p class="text-[11px] text-on-surface-variant/70 leading-relaxed truncate">Slip gaji untuk periode Agustus 2026 sudah dapat diunduh.</p>
@@ -80,9 +74,7 @@
 
 
              <a href="#" class="flex gap-4 px-5 py-4 hover:bg-black/[0.02] transition-colors relative group opacity-75 hover:opacity-100">
-                 <div class="w-10 h-10 rounded-full bg-slate-500/10 text-slate-600 flex items-center justify-center shrink-0">
-                     <span class="material-symbols-outlined text-[20px]">campaign</span>
-                 </div>
+                 
                  <div class="flex-1 min-w-0">
                      <p class="text-xs font-medium text-on-surface mb-0.5 group-hover:text-slate-800 transition-colors">Pengumuman Perusahaan</p>
                      <p class="text-[11px] text-on-surface-variant/70 leading-relaxed truncate">Townhall bulanan akan diadakan pada hari Jumat pkl 14:00.</p>
@@ -94,9 +86,7 @@
 
 
              <a href="#" class="flex gap-4 px-5 py-4 hover:bg-black/[0.02] transition-colors relative group opacity-75 hover:opacity-100">
-                 <div class="w-10 h-10 rounded-full bg-gray-50/10 text-gray-700 flex items-center justify-center shrink-0">
-                     <span class="material-symbols-outlined text-[20px]">cancel</span>
-                 </div>
+                 
                  <div class="flex-1 min-w-0">
                      <p class="text-xs font-medium text-on-surface mb-0.5 group-hover:text-gray-700 transition-colors">Pengajuan Reimbursement Ditolak</p>
                      <p class="text-[11px] text-on-surface-variant/70 leading-relaxed truncate">Klaim transport "Taksi Bandara" tidak sesuai kebijakan.</p>

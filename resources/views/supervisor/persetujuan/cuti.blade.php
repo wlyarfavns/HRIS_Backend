@@ -43,9 +43,7 @@
         @foreach ($stats as $s)
             <div class="bg-white border border-gray-100 rounded-md p-6 shadow-sm relative overflow-hidden group hover:border-[#0B3D2E]/30 transition-colors">
                 <div class="flex items-center justify-between mb-4">
-                    <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center">
-                        <span class="material-symbols-outlined text-[20px] text-gray-500">{{ $s['icon'] }}</span>
-                    </div>
+                    
                     <span class="text-[11px] font-medium text-gray-400 uppercase tracking-wider">{{ $s['label'] }}</span>
                 </div>
                 <p class="text-3xl font-semibold  text-gray-800 leading-none mb-2">{{ $s['value'] }}</p>

@@ -88,9 +88,7 @@
                         <tr class="hover:bg-gray-50 transition group">
                             <td class="px-8 py-4">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-full bg-gray-50 border border-gray-200 flex items-center justify-center shrink-0">
-                                        <span class="material-symbols-outlined text-[20px] text-gray-700">calendar_month</span>
-                                    </div>
+                                    
                                     <span class="font-medium text-sm text-gray-800 group-hover:text-[#0B3D2E] transition-colors">{{ $b->period_start->translatedFormat('F Y') }}</span>
                                 </div>
                             </td>
@@ -164,9 +162,7 @@
                         <tr class="hover:bg-gray-50 transition group">
                             <td class="px-8 py-4">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center shrink-0">
-                                        <span class="material-symbols-outlined text-[20px] text-[#0B3D2E]">calendar_month</span>
-                                    </div>
+                                    
                                     <span class="font-medium text-sm text-gray-800 group-hover:text-[#0B3D2E] transition-colors">{{ $b->period_start->translatedFormat('F Y') }}</span>
                                 </div>
                             </td>
@@ -233,9 +229,7 @@
                         <tr class="hover:bg-gray-50 transition group">
                             <td class="px-8 py-4">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
-                                        <span class="material-symbols-outlined text-[20px] text-gray-500">calendar_month</span>
-                                    </div>
+                                    
                                     <span class="font-medium text-sm text-gray-800">{{ $b->period_start->translatedFormat('F Y') }}</span>
                                 </div>
                             </td>
