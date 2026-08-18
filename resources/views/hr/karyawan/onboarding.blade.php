@@ -47,9 +47,19 @@
                         <p class="text-[10px] text-gray-400 uppercase font-medium tracking-wide mb-0.5">
                             Password Awal
                         </p>
-                        <p class=" font-semibold text-gray-800 text-xl">
-                            {{ session('success_data')['nip'] }}
-                        </p>
+                        <div class="flex items-center justify-between gap-2" x-data="{ copiedPw: false }">
+                            <p class=" font-semibold text-gray-800 text-xl">
+                                {{ session('success_data')['password'] ?? session('success_data')['nip'] }}
+                            </p>
+                            <button type="button"
+                                @click="navigator.clipboard.writeText('{{ session('success_data')['password'] ?? session('success_data')['nip'] }}'); copiedPw = true; setTimeout(() => copiedPw = false, 2000)"
+                                class="w-8 h-8 rounded-lg flex items-center justify-center cursor-pointer
+                                                               bg-gray-50 hover:bg-[#0B3D2E] hover:text-white text-[#0B3D2E] transition"
+                                :title="copiedPw ? 'Tersalin!' : 'Salin Password'">
+                                <span class="material-symbols-outlined text-[16px]"
+                                    x-text="copiedPw ? 'check' : 'content_copy'"></span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 

@@ -312,9 +312,8 @@ class EmployeeController extends Controller
         $newSequence = $lastEmployee ? ((int) substr($lastEmployee->employee_id, -3)) + 1 : 1;
         $nip = $joinYearMonth . str_pad($newSequence, 3, '0', STR_PAD_LEFT);
 
-
-
         $dummyEmail = strtolower($nip) . '@internal.local';
+        $rawPassword = \Illuminate\Support\Str::random(8);
 
         $ktpPath = null;
         if ($request->hasFile('ktp_file')) {
@@ -340,7 +339,7 @@ class EmployeeController extends Controller
                 'nip' => $nip,
                 'name' => $request->full_name,
                 'email' => $dummyEmail,
-                'password' => Hash::make($nip),
+                'password' => Hash::make($rawPassword),
             ]);
             $user->assignRole('employee');
 
@@ -383,6 +382,7 @@ class EmployeeController extends Controller
         return redirect()->route('hr.employees.onboarding')->with('success_data', [
             'name' => $request->full_name,
             'nip' => $nip,
+            'password' => $rawPassword,
         ]);
     }
 
