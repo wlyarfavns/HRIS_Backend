@@ -288,8 +288,6 @@
                                 class="appearance-none w-full pl-4 pr-10 py-2.5 bg-gray-50 rounded-md text-sm border border-gray-200 text-gray-800 hover:border-gray-300 focus:border-[#0B3D2E] focus:ring-2 focus:ring-[#0B3D2E]/20 focus:bg-white focus:outline-none transition cursor-pointer">
                                 <option value="PKWT">PKWT (Kontrak Waktu Tertentu)</option>
                                 <option value="PKWTT">PKWTT (Karyawan Tetap)</option>
-                                <option value="Probation">Probation (3 Bulan)</option>
-                                <option value="Internship">Internship / Magang</option>
                             </select>
                             <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
 </div>
