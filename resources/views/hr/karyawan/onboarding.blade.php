@@ -204,25 +204,6 @@
                     </div>
 
 
-                    <div class="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-md px-4 py-3"
-                        x-data="{ copied: false }">
-                        <div class="text-right">
-                            <p class="text-[9px] font-medium uppercase tracking-wider text-gray-400 mb-0.5">
-                                NIP &amp; Password Awal
-                            </p>
-                            <p class=" font-semibold text-xl text-[#0B3D2E] leading-none" x-text="autoNip">
-                                {{ $predictedNip }}
-                            </p>
-                        </div>
-                        <button type="button"
-                            @click="navigator.clipboard.writeText(autoNip); copied = true; setTimeout(() => copied = false, 2000)"
-                            class="w-8 h-8 rounded-lg flex items-center justify-center transition cursor-pointer
-                                               bg-white border border-gray-200 hover:bg-[#0B3D2E] hover:text-white hover:border-[#0B3D2E] text-gray-500"
-                            :title="copied ? 'Tersalin!' : 'Salin NIP'">
-                            <span class="material-symbols-outlined text-[16px]"
-                                x-text="copied ? 'check' : 'content_copy'"></span>
-                        </button>
-                    </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
