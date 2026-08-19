@@ -8,6 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,400,0,0" />
     <style>
@@ -28,41 +29,58 @@
     <div class="w-full max-w-[1200px] h-full max-h-[800px] bg-white rounded-[2rem] shadow-[0_30px_80px_-20px_rgba(8,122,82,0.25)] flex flex-col lg:flex-row overflow-hidden relative z-10 border border-white/50">
 
 
-        <div class="hidden lg:flex lg:w-1/2 bg-[#0B3D2E] p-12 flex-col justify-center items-center relative">
-
-            <div class="text-center mb-12 z-10">
-                <h1 class="text-4xl font-bold text-white mb-2 tracking-tight">TalentaHR</h1>
-                <p class="text-emerald-100/80 text-sm">Sistem Informasi SDM Terpadu</p>
+        <div class="hidden lg:flex lg:w-1/2 bg-[#0B3D2E] p-12 flex-col justify-center items-center relative overflow-hidden">
+            <!-- Decorative Elements -->
+            <div class="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
+                <div class="absolute -top-32 -left-32 w-[30rem] h-[30rem] bg-emerald-500/10 rounded-full blur-3xl"></div>
+                <div class="absolute bottom-10 -right-20 w-[20rem] h-[20rem] bg-emerald-400/10 rounded-full blur-3xl"></div>
             </div>
 
+            <!-- Title Section -->
+            <div class="text-center mb-8 z-10 w-full max-w-sm">
+                <div class="inline-block mb-4 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 backdrop-blur-md shadow-lg">
+                    <span class="text-emerald-300 text-[11px] font-extrabold tracking-[0.2em] uppercase">TalentaHR Platform</span>
+                </div>
+                <h1 class="text-4xl lg:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white to-emerald-200 mb-4 tracking-tight" style="font-family: 'Plus Jakarta Sans', sans-serif;">
+                    Kelola SDM<br/>Lebih Cerdas.
+                </h1>
+                <p class="text-emerald-100/75 text-sm leading-relaxed font-medium">
+                    Transformasi digital untuk manajemen HR Anda. Automasi proses dan tingkatkan produktivitas tim.
+                </p>
+            </div>
 
-            <div class="w-full max-w-sm relative z-10">
+            <!-- Illustration -->
+            <div class="w-full max-w-sm relative z-10 my-4 transition-transform duration-700 hover:scale-105">
                 <x-auth-illustration />
             </div>
 
-            <div class="mt-10 w-full max-w-sm relative z-10 space-y-4">
-                <div class="flex items-center gap-3 bg-[#065A3D]/40 p-3 rounded-lg border border-white/5">
-                    <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center shrink-0">
-                        <span class="material-symbols-outlined text-white text-[18px]">lock_reset</span>
+            <!-- Cool Cards -->
+            <div class="mt-8 w-full max-w-sm relative z-10 space-y-4">
+
+                <!-- Card 1 -->
+                <div class="group flex items-center gap-4 bg-white/5 backdrop-blur-md p-4 rounded-2xl border border-white/10 shadow-xl hover:bg-white/10 transition duration-300 transform hover:-translate-y-1">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-400 to-[#065A3D] flex items-center justify-center shrink-0 shadow-inner group-hover:scale-110 transition-transform duration-300">
+                        <span class="material-symbols-outlined text-white text-[24px]">lock_reset</span>
                     </div>
                     <div>
-                        <h4 class="text-white text-sm font-semibold">Proses Pemulihan Aman</h4>
-                        <p class="text-emerald-100/70 text-xs mt-0.5">Tautan reset dikirim langsung ke email Anda.</p>
+                        <h4 class="text-white text-sm font-semibold tracking-wide">Pemulihan Aman</h4>
+                        <p class="text-emerald-100/60 text-xs mt-1">Tautan enkripsi dikirim ke email Anda.</p>
                     </div>
                 </div>
-                <div class="flex items-center gap-3 bg-[#065A3D]/40 p-3 rounded-lg border border-white/5">
-                    <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center shrink-0">
-                        <span class="material-symbols-outlined text-white text-[18px]">support_agent</span>
+                <!-- Card 2 -->
+                <div class="group flex items-center gap-4 bg-white/5 backdrop-blur-md p-4 rounded-2xl border border-white/10 shadow-xl hover:bg-white/10 transition duration-300 transform hover:-translate-y-1">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-400 to-[#065A3D] flex items-center justify-center shrink-0 shadow-inner group-hover:scale-110 transition-transform duration-300">
+                        <span class="material-symbols-outlined text-white text-[24px]">support_agent</span>
                     </div>
                     <div>
-                        <h4 class="text-white text-sm font-semibold">Dukungan Admin</h4>
-                        <p class="text-emerald-100/70 text-xs mt-0.5">Hubungi IT/HR perusahaan jika Anda kehilangan akses email.</p>
+                        <h4 class="text-white text-sm font-semibold tracking-wide">Dukungan 24/7</h4>
+                        <p class="text-emerald-100/60 text-xs mt-1">Bantuan IT selalu siap sedia.</p>
                     </div>
                 </div>
             </div>
         </div>
 
-
+        <!-- RIGHT SIDE -->
         <div class="w-full lg:w-1/2 p-10 md:p-16 flex flex-col justify-center bg-white relative">
 
 
