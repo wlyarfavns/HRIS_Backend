@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="Dn0Unht8FxYKCPQA9kvBRbiXKQF5qlsG9RfEA1Mm">
+    <title>Verifikasi Reimbursement - TalentaHR</title>
+    <link rel="preload" as="style" href="http://localhost/build/assets/app-_1YQBujB.css" /><link rel="modulepreload" as="script" href="http://localhost/build/assets/app-DUr89oQr.js" /><link rel="stylesheet" href="http://localhost/build/assets/app-_1YQBujB.css" data-navigate-track="reload" /><script type="module" src="http://localhost/build/assets/app-DUr89oQr.js" data-navigate-track="reload"></script>    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/turbolinks/5.0.0/turbolinks.js"></script>
+    <style>
+        .turbolinks-progress-bar {
+            height: 3px;
+            background-color: #0B3D2E;
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+        }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 10px; }
+
+
+        .nav-tab.is-active {
+            background-color: rgba(253, 251, 247, 0.1);
+            color: #FDFBF7;
+            font-weight: 600;
+        }
+        .nav-tab.is-active:hover { background-color: rgba(253, 251, 247, 0.15); }
+        .nav-tab:not(.is-active) { color: rgba(253, 251, 247, 0.7); }
+        .nav-tab:not(.is-active):hover { background-color: rgba(253, 251, 247, 0.05); color: #FDFBF7; }
+
+        .nav-subtab.is-active {
+            background-color: rgba(253, 251, 247, 0.1);
+            color: #FDFBF7;
+            font-weight: 600;
+        }
+        .nav-subtab.is-active:hover { background-color: rgba(253, 251, 247, 0.15); }
+        .nav-subtab:not(.is-active) { color: rgba(253, 251, 247, 0.6); }
+        .nav-subtab:not(.is-active):hover { background-color: rgba(253, 251, 247, 0.05); color: #FDFBF7; }
+
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body class="text-gray-800 antialiased bg-gray-50 relative">
+<div class="flex min-h-screen relative z-10">
+
+
+        <aside class="w-64 bg-[#0B3D2E] text-[#FDFBF7] fixed h-screen flex flex-col shadow-sm z-50">
+            <div class="px-6 py-6 border-b border-white/10">
+                <h1 class="text-xl font-semibold tracking-tight leading-tight">TalentaHR</h1>
+                <p class="text-[10px] font-medium text-white/50 uppercase tracking-widest mt-1">Finance</p>
+            </div>
+            <nav class="flex-1 px-4 pt-6 space-y-1 overflow-y-auto pb-8 custom-scrollbar">
+
+                <a href="http://localhost/finance/dashboard"
+   class="nav-tab  flex items-center gap-3 p-3 px-4 rounded-lg text-sm transition-all">
+    <span class="material-symbols-outlined text-[20px]">dashboard</span>
+                    Dashboard
+</a>
+
+                <a href="http://localhost/finance/reimbursement"
+   class="nav-tab is-active flex items-center gap-3 p-3 px-4 rounded-lg text-sm transition-all">
+    <span class="material-symbols-outlined text-[20px]">receipt_long</span>
+                    Verifikasi Pencairan
+</a>
+
+                <a href="http://localhost/finance/payroll"
+   class="nav-tab  flex items-center gap-3 p-3 px-4 rounded-lg text-sm transition-all">
+    <span class="material-symbols-outlined text-[20px]">fact_check</span>
+                    Proses Penggajian
+</a>
+
+                <a href="http://localhost/finance/export-bank"
+   class="nav-tab  flex items-center gap-3 p-3 px-4 rounded-lg text-sm transition-all">
+    <span class="material-symbols-outlined text-[20px]">upload_file</span>
+                    Ekspor Bank
+</a>
+
+                <a href="http://localhost/finance/disbursement"
+   class="nav-tab  flex items-center gap-3 p-3 px-4 rounded-lg text-sm transition-all">
+    <span class="material-symbols-outlined text-[20px]">history</span>
+                    Riwayat Pencairan
+</a>
+            </nav>
+        </aside>
+
+
+        <div class="flex-1 ml-64 flex flex-col min-h-screen">
+
+
+            <header class="sticky top-0 z-40 bg-white border-b border-gray-200">
+                <div class="flex items-center justify-between px-8 py-3.5 gap-6">
+                    <div class="min-w-0">
+                        <h1 class="text-lg font-medium text-gray-800">Verifikasi Reimbursement</h1>
+                                                    <p class="text-sm text-gray-500">Klaim pengeluaran yang telah disetujui SPV &amp; HR, menunggu verifikasi final Finance sebelum pencairan.</p>
+                                            </div>
+
+                    <div class="flex items-center gap-4 shrink-0">
+                        
+                        <div class="relative" x-data="notificationDropdown()" x-init="fetchNotifications()" @click.outside="open = false">
+
+
+    <button @click="open = !open"
+        class="relative p-2 text-on-surface-variant/60 hover:text-primary transition-colors focus:outline-none rounded-full hover:bg-black/5 cursor-pointer">
+        <span class="material-symbols-outlined text-[24px]">notifications</span>
+        <span x-show="unreadCount > 0" x-cloak class="absolute top-1.5 right-1.5 flex h-2.5 w-2.5">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-error opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-error ring-2 ring-white"></span>
+        </span>
+    </button>
+
+
+    <div x-show="open" x-cloak x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0 scale-95 translate-y-2"
+        x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+        x-transition:leave="transition ease-in duration-150"
+        x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+        x-transition:leave-end="opacity-0 scale-95 translate-y-2"
+        class="absolute right-0 mt-3 w-[340px] sm:w-[380px] bg-white rounded-md shadow-[0_12px_40px_rgba(0,0,0,0.12)] border border-black/5 z-50 overflow-hidden"
+        style="display: none;">
+
+
+        <div
+            class="px-5 py-4 flex items-center justify-between border-b border-black/5 bg-gradient-to-r from-surface-container/50 to-transparent">
+            <div class="flex items-center gap-2">
+                <h3 class="text-sm font-medium text-on-surface">Notifikasi</h3>
+                <span x-show="unreadCount > 0" x-text="unreadCount + ' Baru'"
+                    class="bg-primary/10 text-primary text-[10px] font-medium px-2 py-0.5 rounded-full"></span>
+            </div>
+            <button x-show="unreadCount > 0" @click="markAllRead()"
+                class="text-[11px] font-semibold text-primary hover:text-primary/70 transition-colors">
+                Tandai semua dibaca
+            </button>
+        </div>
+
+
+        <div class="max-h-[360px] overflow-y-auto divide-y divide-black/5 custom-scrollbar">
+
+
+            <template x-if="notifications.length === 0">
+                <div class="px-5 py-8 text-center">
+                    <p class="text-xs font-semibold text-on-surface-variant/60">Tidak ada notifikasi baru.</p>
+                </div>
+            </template>
+
+
+            <template x-for="(notif, index) in notifications" :key="notif.id">
+                <a href="#" @click.prevent="readAndRedirect(notif.id, notif.data.url)"
+                    class="flex gap-4 px-5 py-4 hover:bg-black/[0.02] transition-colors bg-primary/[0.02] relative group">
+
+
+                    <div
+                        class="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined text-[20px]">notifications_active</span>
+                    </div>
+
+                    <div class="flex-1 min-w-0 pr-4">
+                        <p class="text-xs font-medium text-on-surface mb-0.5 group-hover:text-primary transition-colors"
+                            x-text="notif.data.title"></p>
+                        <p class="text-[11px] text-on-surface-variant/70 leading-relaxed truncate"
+                            x-text="notif.data.message"></p>
+                        <p class="text-[10px] text-on-surface-variant/50 font-medium mt-1.5 flex items-center gap-1">
+                            <span class="material-symbols-outlined text-[12px]">schedule</span>
+                            <span x-text="formatDate(notif.created_at)"></span>
+                        </p>
+                    </div>
+                    <div class="absolute right-5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-primary"></div>
+                </a>
+            </template>
+        </div>
+
+
+        <div class="p-3 border-t border-black/5 bg-surface-container/20 text-center">
+            <a href="http://localhost/notifikasi"
+                class="inline-block text-xs font-medium text-primary hover:text-primary/80 transition-colors py-1">
+                Lihat semua riwayat
+            </a>
+        </div>
+    </div>
+
+    <style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        .custom-scrollbar:hover::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</div>
+
+<script>
+    function notificationDropdown() {
+        return {
+            open: false,
+            notifications: [],
+            unreadCount: 0,
+
+            fetchNotifications() {
+                fetch('http://localhost/notifikasi/unread')
+                    .then(res => res.json())
+                    .then(data => {
+                        this.notifications = data;
+                        this.unreadCount = data.length;
+                    });
+            },
+
+            readAndRedirect(id, url) {
+                fetch(`/notifikasi/${id}/read`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    }
+                }).then(() => {
+                    if (url && url !== '#') window.location.href = url;
+                    else this.fetchNotifications();
+                });
+            },
+
+            markAllRead() {
+                fetch('http://localhost/notifikasi/read-all', {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content }
+                }).then(() => this.fetchNotifications());
+            },
+
+            formatDate(dateStr) {
+                const d = new Date(dateStr);
+                const now = new Date();
+                const diff = (now - d) / 1000; 
+
+                if (diff < 60) return 'Baru saja';
+                if (diff < 3600) return Math.floor(diff / 60) + ' menit yang lalu';
+                if (diff < 86400) return Math.floor(diff / 3600) + ' jam yang lalu';
+
+                return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+            }
+        }
+    }
+</script>
+
+                        <div class="h-5 w-px bg-gray-200"></div>
+
+                        
+
+                        <div class="relative" x-data="{ open: false }" @click.outside="open = false">
+                            <button @click="open = !open" class="flex items-center gap-3 group">
+                                <div class="text-right hidden sm:block">
+                                    <p class="text-sm font-medium text-gray-800 leading-tight">
+                                        asep kasep
+                                    </p>
+                                    <p class="text-[10px] text-gray-500 font-medium uppercase tracking-wide">
+                                        finance
+                                    </p>
+                                </div>
+                                <img src="https://ui-avatars.com/api/?name=asep+kasep&background=E9F3EF&color=043927"
+                                    alt="Foto profil"
+                                    class="w-9 h-9 rounded-full object-cover border border-gray-200 group-hover:border-[#0B3D2E] transition">
+                                </button>
+
+                            <div x-show="open" x-transition.origin.top.right x-cloak
+                                class="absolute right-0 mt-3 w-56 bg-white rounded-md shadow-sm border border-gray-100 py-2 z-30">
+                                <div class="px-4 py-3 border-b border-gray-100 mb-1">
+                                    <p class="text-sm font-medium text-gray-800">asep kasep</p>
+                                    <p class="text-xs text-gray-500 truncate">asep@yahoo.com</p>
+                                </div>
+                                <a href="http://localhost/finance/profil"
+                                    class="flex items-center gap-2.5 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#0B3D2E] transition cursor-pointer">
+                                    <span class="material-symbols-outlined text-[18px]">account_circle</span>
+                                    Profil Saya
+                                </a>
+                                <div class="border-t border-gray-100 mt-1 pt-1">
+                                    <form method="POST" action="http://localhost/logout">
+                                        <input type="hidden" name="_token" value="Dn0Unht8FxYKCPQA9kvBRbiXKQF5qlsG9RfEA1Mm" autocomplete="off">                                        <button type="submit"
+                                            class="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 text-left transition cursor-pointer">
+                                            <span class="material-symbols-outlined text-[18px]">logout</span>
+                                            Keluar
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <main class="p-8 flex-1">
+                <div x-data="{
+    showReceiptModal: false,
+    selectedClaim: null,
+    rejecting: false,
+    rejectReason: '',
+    processing: false,
+    toast: { show: false, message: '', type: 'success' },
+    triggerToast(msg, type='success') {
+        this.toast.message = msg;
+        this.toast.type = type;
+        this.toast.show = true;
+        setTimeout(() => this.toast.show = false, 3000);
+    },
+    openReceipt(claim) {
+        this.selectedClaim = claim;
+        this.rejecting = false;
+        this.rejectReason = '';
+        this.showReceiptModal = true;
+    },
+    async submitAction(action) {
+        if (action === 'reject' && !this.rejecting) {
+            this.rejecting = true;
+            return;
+        }
+        if (action === 'reject' && !this.rejectReason.trim()) {
+            this.triggerToast('Alasan penolakan wajib diisi', 'error');
+            return;
+        }
+
+        this.processing = true;
+        try {
+            const res = await fetch(`/finance/reimbursement/${this.selectedClaim.id}/action`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({ action, rejection_reason: this.rejectReason }),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.message || 'Gagal memproses klaim');
+
+            this.showReceiptModal = false;
+            this.triggerToast(data.message, action === 'approve' ? 'success' : 'error');
+            setTimeout(() => window.location.reload(), 1200);
+        } catch (e) {
+            this.triggerToast(e.message, 'error');
+        } finally {
+            this.processing = false;
+        }
+    },
+    searchQuery: new URLSearchParams(window.location.search).get('search') || '',
+    items: [{&quot;name&quot;:&quot;minerva&quot;},{&quot;name&quot;:&quot;minerva&quot;}],
+    get hasVisibleRows() {
+        return this.items.some(i => 
+            this.searchQuery === '' || i.name.includes(this.searchQuery.toLowerCase())
+        );
+    }
+}">
+
+
+    <div id="stats-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white rounded-md p-6 border border-gray-100 shadow-sm relative overflow-hidden group hover:border-[#0B3D2E]/30 transition-colors">
+                <div class="flex items-center justify-between mb-4">
+                    
+                    <span class="text-[11px] font-medium text-gray-400 uppercase tracking-wider">Total Klaim Menunggu Finance</span>
+                </div>
+                <p class="text-3xl font-semibold  text-amber-700 leading-none mb-2">Rp0</p>
+                <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-gray-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity "></div>
+            </div>
+                    <div class="bg-white rounded-md p-6 border border-gray-100 shadow-sm relative overflow-hidden group hover:border-[#0B3D2E]/30 transition-colors">
+                <div class="flex items-center justify-between mb-4">
+                    
+                    <span class="text-[11px] font-medium text-gray-400 uppercase tracking-wider">Jumlah Pengajuan Menunggu</span>
+                </div>
+                <p class="text-3xl font-semibold  text-primary leading-none mb-2">0 Klaim</p>
+                <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-gray-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity "></div>
+            </div>
+                    <div class="bg-white rounded-md p-6 border border-gray-100 shadow-sm relative overflow-hidden group hover:border-[#0B3D2E]/30 transition-colors">
+                <div class="flex items-center justify-between mb-4">
+                    
+                    <span class="text-[11px] font-medium text-gray-400 uppercase tracking-wider">Klaim Siap Disburse</span>
+                </div>
+                <p class="text-3xl font-semibold  text-primary leading-none mb-2">Rp800.000</p>
+                <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-gray-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity "></div>
+            </div>
+                    <div class="bg-white rounded-md p-6 border border-gray-100 shadow-sm relative overflow-hidden group hover:border-[#0B3D2E]/30 transition-colors">
+                <div class="flex items-center justify-between mb-4">
+                    
+                    <span class="text-[11px] font-medium text-gray-400 uppercase tracking-wider">Rata-rata per Klaim</span>
+                </div>
+                <p class="text-3xl font-semibold  text-on-surface leading-none mb-2">Rp400.000</p>
+                <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-gray-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity "></div>
+            </div>
+            </div>
+
+
+    <div class="bg-white rounded-md border border-gray-100 shadow-sm overflow-hidden mb-8">
+        <div class="px-8 py-6 border-b border-gray-100 flex items-center justify-between gap-4 flex-wrap bg-gray-50/50">
+            <div>
+                <h2 class="text-lg font-medium text-gray-800">Daftar Verifikasi Klaim Reimbursement</h2>
+                <p class="text-xs text-gray-500 mt-1">Klaim tampil di sini setelah diverifikasi Supervisor &amp; HR Operations</p>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <div class="relative">
+                    <input type="text" x-model="searchQuery" placeholder="Cari klaim berdasarkan nama..."
+                           class="w-72 pl-10 pr-4 py-2.5 bg-white rounded-md text-sm border border-gray-200
+                                  focus:outline-none focus:ring-2 focus:ring-[#0B3D2E]/20 focus:border-[#0B3D2E] transition shadow-sm">
+                    <span class="material-symbols-outlined absolute left-3 top-2.5 text-gray-400 text-[20px]">search</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="table-container" class="overflow-x-auto relative">
+            <table class="w-full text-sm text-left">
+                <thead class="bg-gray-50 border-b border-gray-100">
+                    <tr class="text-[11px] font-medium text-gray-500 uppercase tracking-widest">
+                        <th class="px-8 py-4">Karyawan</th>
+                        <th class="px-6 py-4">Kategori Pengeluaran</th>
+                        <th class="px-6 py-4 text-right">Nominal</th>
+                        <th class="px-6 py-4">Bukti Struk</th>
+                        <th class="px-6 py-4">Riwayat Verifikasi</th>
+                        <th class="px-6 py-4">Status</th>
+                        <th class="px-8 py-4 text-center">Aksi Finance</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 text-gray-700">
+                                            <tr class="hover:bg-gray-50 transition group"
+                            x-show="searchQuery === '' || 'minerva'.includes(searchQuery.toLowerCase())">
+                            <td class="px-8 py-4">
+                                <div class="flex items-center gap-3">
+                                    <img src="https://ui-avatars.com/api/?background=E9F3EF&color=0B3D2E&name=Minerva"
+                                         class="w-10 h-10 rounded-full object-cover shrink-0 ring-2 ring-gray-50"
+                                         alt="Minerva">
+                                    <div>
+                                        <p class="font-medium text-gray-800 text-sm group-hover:text-[#0B3D2E] transition-colors">Minerva</p>
+                                        <p class="text-[11px]  text-gray-500 mt-0.5">
+                                            199508142026081002 · Information Technology
+                                        </p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <p class="text-sm font-medium text-gray-800">Bensin &amp; Parkir Client</p>
+                                <p class="text-[11px] text-gray-500 line-clamp-1 mt-0.5">Meeting dengan client di Kuningan</p>
+                            </td>
+                            <td class="px-6 py-4 text-right  font-semibold text-[#0B3D2E] text-sm">
+                                Rp350.000
+                            </td>
+                            <td class="px-6 py-4">
+                                <button type="button" @click="openReceipt(JSON.parse('{\u0022id\u0022:1,\u0022company_id\u0022:2,\u0022employee_id\u0022:6,\u0022category\u0022:\u0022Bensin \\u0026 Parkir Client\u0022,\u0022description\u0022:\u0022Meeting dengan client di Kuningan\u0022,\u0022amount\u0022:\u0022350000.00\u0022,\u0022receipt_path\u0022:\u0022reimbursements\\\/iTAvJ74HWqJMkM2ZMNwgQwKcwH5waoTnm8tE48DO.jpg\u0022,\u0022claim_date\u0022:\u00222026-08-11T17:00:00.000000Z\u0022,\u0022status\u0022:\u0022approved\u0022,\u0022spv_id\u0022:17,\u0022spv_approved_at\u0022:\u00222026-08-12T02:09:46.000000Z\u0022,\u0022hr_reviewed_by\u0022:3,\u0022hr_reviewed_at\u0022:\u00222026-08-12T02:10:06.000000Z\u0022,\u0022finance_reviewed_by\u0022:18,\u0022finance_reviewed_at\u0022:\u00222026-08-12T02:10:25.000000Z\u0022,\u0022rejection_reason\u0022:null,\u0022created_at\u0022:\u00222026-08-12T02:01:43.000000Z\u0022,\u0022updated_at\u0022:\u00222026-08-12T02:10:25.000000Z\u0022,\u0022status_label\u0022:\u0022Disetujui\u0022,\u0022receipt_url\u0022:null,\u0022employee\u0022:{\u0022id\u0022:6,\u0022company_id\u0022:2,\u0022user_id\u0022:11,\u0022employee_id\u0022:\u0022199508142026081002\u0022,\u0022full_name\u0022:\u0022Minerva\u0022,\u0022nik\u0022:\u0022876546786567\u0022,\u0022email\u0022:\u0022willyarifavines25@gmail.com\u0022,\u0022phone\u0022:\u0022081234567890\u0022,\u0022npwp\u0022:\u00225435436456547\u0022,\u0022bpjs_number\u0022:\u0022314435435435\u0022,\u0022gender\u0022:\u0022L\u0022,\u0022agama\u0022:\u0022Islam\u0022,\u0022birth_place\u0022:\u0022Bandung\u0022,\u0022birth_date\u0022:\u00221995-08-13T17:00:00.000000Z\u0022,\u0022address\u0022:\u0022Jl. Jend. Sudirman No. 45, Jakarta Selatan\u0022,\u0022department_id\u0022:1,\u0022position_id\u0022:1,\u0022join_date\u0022:\u00222026-07-31T17:00:00.000000Z\u0022,\u0022employment_status\u0022:\u0022PKWTT\u0022,\u0022basic_salary\u0022:\u00223000000.00\u0022,\u0022ktp_file_path\u0022:null,\u0022status\u0022:\u0022active\u0022,\u0022bank_name\u0022:\u0022BCA\u0022,\u0022bank_account_number\u0022:\u0022435654321234\u0022,\u0022bank_account_holder\u0022:\u0022Minerva\u0022,\u0022created_at\u0022:\u00222026-08-07T06:52:08.000000Z\u0022,\u0022updated_at\u0022:\u00222026-08-13T02:28:53.000000Z\u0022,\u0022supervisor_id\u0022:17,\u0022department\u0022:{\u0022id\u0022:1,\u0022company_id\u0022:2,\u0022name\u0022:\u0022Information Technology\u0022,\u0022code\u0022:\u0022IT-01\u0022,\u0022description\u0022:\u0022Departemen IT dan Sistem Informasi\u0022,\u0022created_at\u0022:\u00222026-08-04T03:58:15.000000Z\u0022,\u0022updated_at\u0022:\u00222026-08-04T03:58:15.000000Z\u0022}}}'))"
+                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-200 text-xs font-semibold text-gray-600 hover:text-[#0B3D2E] transition whitespace-nowrap shadow-sm">
+                                    <span class="material-symbols-outlined text-[16px]">receipt_long</span>
+                                    Lihat Struk
+                                </button>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="inline-flex items-center gap-1.5 text-xs font-medium text-gray-600">
+                                                                            <span class="material-symbols-outlined text-[16px] text-[#0B3D2E]">check_circle</span>
+                                        Disetujui Anton D
+                                                                    </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-[11px] font-medium whitespace-nowrap
+                                    bg-gray-50 text-[#0B3D2E] border border-gray-200">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
+                                    Disetujui
+                                </span>
+                            </td>
+                            <td class="px-8 py-4 text-center">
+                                                                    <span class="inline-flex items-center gap-1.5 px-4 py-2 rounded-md bg-gray-50 text-emerald-800 border border-gray-200 text-xs font-medium whitespace-nowrap">
+                                        <span class="material-symbols-outlined text-[16px] text-[#0B3D2E]">check_circle</span>
+                                        Disetujui
+                                    </span>
+                                                            </td>
+                        </tr>
+                                            <tr class="hover:bg-gray-50 transition group"
+                            x-show="searchQuery === '' || 'minerva'.includes(searchQuery.toLowerCase())">
+                            <td class="px-8 py-4">
+                                <div class="flex items-center gap-3">
+                                    <img src="https://ui-avatars.com/api/?background=E9F3EF&color=0B3D2E&name=Minerva"
+                                         class="w-10 h-10 rounded-full object-cover shrink-0 ring-2 ring-gray-50"
+                                         alt="Minerva">
+                                    <div>
+                                        <p class="font-medium text-gray-800 text-sm group-hover:text-[#0B3D2E] transition-colors">Minerva</p>
+                                        <p class="text-[11px]  text-gray-500 mt-0.5">
+                                            199508142026081002 · Information Technology
+                                        </p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <p class="text-sm font-medium text-gray-800">Makan / Konsumsi</p>
+                                <p class="text-[11px] text-gray-500 line-clamp-1 mt-0.5">Bakso</p>
+                            </td>
+                            <td class="px-6 py-4 text-right  font-semibold text-[#0B3D2E] text-sm">
+                                Rp450.000
+                            </td>
+                            <td class="px-6 py-4">
+                                <button type="button" @click="openReceipt(JSON.parse('{\u0022id\u0022:2,\u0022company_id\u0022:2,\u0022employee_id\u0022:6,\u0022category\u0022:\u0022Makan \\\/ Konsumsi\u0022,\u0022description\u0022:\u0022Bakso\u0022,\u0022amount\u0022:\u0022450000.00\u0022,\u0022receipt_path\u0022:\u0022reimbursements\\\/k3afcwEu12XstTt3IvGlkUiRKcDvTLgR4n3ZqAP0.jpg\u0022,\u0022claim_date\u0022:\u00222026-08-11T17:00:00.000000Z\u0022,\u0022status\u0022:\u0022approved\u0022,\u0022spv_id\u0022:17,\u0022spv_approved_at\u0022:\u00222026-08-12T04:11:24.000000Z\u0022,\u0022hr_reviewed_by\u0022:3,\u0022hr_reviewed_at\u0022:\u00222026-08-12T04:11:50.000000Z\u0022,\u0022finance_reviewed_by\u0022:18,\u0022finance_reviewed_at\u0022:\u00222026-08-12T04:12:13.000000Z\u0022,\u0022rejection_reason\u0022:null,\u0022created_at\u0022:\u00222026-08-12T04:11:01.000000Z\u0022,\u0022updated_at\u0022:\u00222026-08-12T04:12:13.000000Z\u0022,\u0022status_label\u0022:\u0022Disetujui\u0022,\u0022receipt_url\u0022:null,\u0022employee\u0022:{\u0022id\u0022:6,\u0022company_id\u0022:2,\u0022user_id\u0022:11,\u0022employee_id\u0022:\u0022199508142026081002\u0022,\u0022full_name\u0022:\u0022Minerva\u0022,\u0022nik\u0022:\u0022876546786567\u0022,\u0022email\u0022:\u0022willyarifavines25@gmail.com\u0022,\u0022phone\u0022:\u0022081234567890\u0022,\u0022npwp\u0022:\u00225435436456547\u0022,\u0022bpjs_number\u0022:\u0022314435435435\u0022,\u0022gender\u0022:\u0022L\u0022,\u0022agama\u0022:\u0022Islam\u0022,\u0022birth_place\u0022:\u0022Bandung\u0022,\u0022birth_date\u0022:\u00221995-08-13T17:00:00.000000Z\u0022,\u0022address\u0022:\u0022Jl. Jend. Sudirman No. 45, Jakarta Selatan\u0022,\u0022department_id\u0022:1,\u0022position_id\u0022:1,\u0022join_date\u0022:\u00222026-07-31T17:00:00.000000Z\u0022,\u0022employment_status\u0022:\u0022PKWTT\u0022,\u0022basic_salary\u0022:\u00223000000.00\u0022,\u0022ktp_file_path\u0022:null,\u0022status\u0022:\u0022active\u0022,\u0022bank_name\u0022:\u0022BCA\u0022,\u0022bank_account_number\u0022:\u0022435654321234\u0022,\u0022bank_account_holder\u0022:\u0022Minerva\u0022,\u0022created_at\u0022:\u00222026-08-07T06:52:08.000000Z\u0022,\u0022updated_at\u0022:\u00222026-08-13T02:28:53.000000Z\u0022,\u0022supervisor_id\u0022:17,\u0022department\u0022:{\u0022id\u0022:1,\u0022company_id\u0022:2,\u0022name\u0022:\u0022Information Technology\u0022,\u0022code\u0022:\u0022IT-01\u0022,\u0022description\u0022:\u0022Departemen IT dan Sistem Informasi\u0022,\u0022created_at\u0022:\u00222026-08-04T03:58:15.000000Z\u0022,\u0022updated_at\u0022:\u00222026-08-04T03:58:15.000000Z\u0022}}}'))"
+                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-200 text-xs font-semibold text-gray-600 hover:text-[#0B3D2E] transition whitespace-nowrap shadow-sm">
+                                    <span class="material-symbols-outlined text-[16px]">receipt_long</span>
+                                    Lihat Struk
+                                </button>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="inline-flex items-center gap-1.5 text-xs font-medium text-gray-600">
+                                                                            <span class="material-symbols-outlined text-[16px] text-[#0B3D2E]">check_circle</span>
+                                        Disetujui Anton D
+                                                                    </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-[11px] font-medium whitespace-nowrap
+                                    bg-gray-50 text-[#0B3D2E] border border-gray-200">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
+                                    Disetujui
+                                </span>
+                            </td>
+                            <td class="px-8 py-4 text-center">
+                                                                    <span class="inline-flex items-center gap-1.5 px-4 py-2 rounded-md bg-gray-50 text-emerald-800 border border-gray-200 text-xs font-medium whitespace-nowrap">
+                                        <span class="material-symbols-outlined text-[16px] text-[#0B3D2E]">check_circle</span>
+                                        Disetujui
+                                    </span>
+                                                            </td>
+                        </tr>
+                                        
+                                            <tr x-show="!hasVisibleRows" style="display: none;" x-transition>
+                            <td colspan="7" class="px-8 py-12 text-center text-gray-500 text-sm">
+                                <template x-if="searchQuery">
+                                    <span>Tidak ada klaim yang sesuai dengan pencarian "<span x-text="searchQuery" class="font-medium text-gray-700"></span>".</span>
+                                </template>
+                            </td>
+                        </tr>
+                                    </tbody>
+            </table>
+        </div>
+        <div class="mt-4 px-6 pb-6">
+            
+        </div>
+    </div>
+
+
+    <div x-show="showReceiptModal" x-cloak
+         class="fixed inset-0 bg-gray-900/60  z-50 flex items-center justify-center p-4"
+         @click.self="showReceiptModal = false">
+        <div class="bg-white rounded-md max-w-lg w-full p-8 shadow-sm space-y-6 animate-in fade-in zoom-in duration-200 border border-gray-100" x-show="selectedClaim">
+            <div class="flex items-center justify-between border-b border-gray-100 pb-4">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-full bg-gray-50 text-[#0B3D2E] flex items-center justify-center">
+                        </div>
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-800">Verifikasi Reimbursement Finance</h3>
+                        <p class="text-xs text-gray-500" x-text="selectedClaim ? selectedClaim.employee.full_name + ' · ' + selectedClaim.category : ''"></p>
+                    </div>
+                </div>
+                <button type="button" @click="showReceiptModal = false" class="text-gray-400 hover:text-gray-800 w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center transition">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+
+            <div class="space-y-4 text-sm">
+                <div class="p-5 rounded-md bg-gray-50 border border-gray-200 flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 font-medium text-xs">Nominal Transfer</p>
+                        <p class="text-2xl font-semibold  text-[#0B3D2E] mt-1"
+                           x-text="selectedClaim ? 'Rp' + Number(selectedClaim.amount).toLocaleString('id-ID') : ''"></p>
+                    </div>
+                    <span class="text-[11px] font-medium px-3 py-1.5 rounded-md bg-gray-50 text-gray-700 border border-gray-200"
+                          x-text="selectedClaim ? selectedClaim.status_label : ''"></span>
+                </div>
+
+                <div class="border-2 border-dashed border-gray-200 rounded-md p-6 bg-white flex flex-col items-center justify-center gap-3 text-center">
+                    <div>
+                        <p class="font-medium text-gray-800" x-text="selectedClaim ? (selectedClaim.receipt_url ? selectedClaim.receipt_path.split('/').pop() : 'Foto tidak ada') : ''"></p>
+                        <p class="text-[11px] text-gray-500 mt-1" x-show="selectedClaim && selectedClaim.receipt_url">Format file PDF/JPG terenkripsi &amp; terverifikasi digital</p>
+                    </div>
+                    <a :href="selectedClaim ? selectedClaim.receipt_url : '#'" target="_blank"
+                       x-show="selectedClaim && selectedClaim.receipt_url"
+                       class="mt-2 text-xs font-medium text-[#0B3D2E] hover:underline bg-gray-50 px-4 py-2 rounded-md border border-gray-200 transition">Cek Berkas</a>
+                </div>
+
+                <div>
+                    <label class="font-medium text-gray-400 uppercase tracking-wide text-[11px] block mb-2">Rincian Keperluan Pengeluaran</label>
+                    <p class="p-4 rounded-md border border-gray-200 bg-gray-50 text-gray-700 leading-relaxed" x-text="selectedClaim ? selectedClaim.description : ''"></p>
+                </div>
+
+
+                <div x-show="rejecting" x-cloak>
+                    <label class="font-medium text-gray-700 uppercase tracking-wide text-[11px] block mb-2">Alasan Penolakan</label>
+                    <textarea x-model="rejectReason" rows="2"
+                              class="w-full p-4 rounded-md border border-gray-200 bg-gray-50 text-gray-800 text-sm focus:outline-none focus:border-gray-200 focus:ring-2 focus:ring-red-200/50 transition"
+                              placeholder="Jelaskan alasan penolakan klaim ini..."></textarea>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
+                <button type="button" @click="showReceiptModal = false" :disabled="processing"
+                        class="px-5 py-2.5 rounded-md border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 transition shadow-sm disabled:opacity-50">
+                    <span x-text="(selectedClaim && selectedClaim.status === 'pending_finance') ? 'Batal' : 'Tutup'"></span>
+                </button>
+                <button type="button" @click="submitAction('reject')" :disabled="processing" x-show="selectedClaim && selectedClaim.status === 'pending_finance'"
+                        class="px-5 py-2.5 rounded-md border border-gray-200 text-gray-700 bg-gray-50 hover:bg-gray-50 text-sm font-medium transition shadow-sm disabled:opacity-50">
+                    <span x-text="rejecting ? 'Kirim Penolakan' : 'Tolak Klaim'"></span>
+                </button>
+                <button type="button" @click="submitAction('approve')" :disabled="processing" x-show="selectedClaim && selectedClaim.status === 'pending_finance' && !rejecting"
+                        class="px-6 py-2.5 rounded-md bg-[#0B3D2E] text-white text-sm font-medium hover:bg-[#043927] shadow-sm flex items-center gap-2 transition disabled:opacity-50">
+                    <span class="material-symbols-outlined text-[16px]">check</span>
+                    Verifikasi &amp; Masukkan Disbursement
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <div x-show="toast.show" x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0 translate-y-4 scale-95"
+         x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+         x-transition:leave-end="opacity-0 translate-y-4 scale-95"
+         class="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-4 rounded-md shadow-sm font-medium text-sm border "
+         :class="{
+             'bg-[#0B3D2E] border-gray-200/30 text-white': toast.type === 'success' || toast.type === 'info',
+             'bg-gray-50 border-gray-200/30 text-white': toast.type === 'error'
+         }"
+         style="display: none;">
+        <span class="material-symbols-outlined text-[20px]"
+              :class="toast.type === 'error' ? 'text-white' : 'text-emerald-100'"
+              x-text="toast.type === 'error' ? 'error' : (toast.type === 'info' ? 'info' : 'check_circle')"></span>
+        <span x-text="toast.message" class="font-medium"></span>
+    </div>
+
+</div>
+            </main>
+        </div>
+    </div>
+    </body>
+</html>

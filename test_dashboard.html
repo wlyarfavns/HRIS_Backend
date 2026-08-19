@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="q5pOV11KUMlgj2sxEy0EMK2A7Y8HbPP48wruwwC2">
+    <title>Dashboard Finance - TalentaHR</title>
+    <link rel="preload" as="style" href="http://localhost/build/assets/app-_1YQBujB.css" /><link rel="modulepreload" as="script" href="http://localhost/build/assets/app-DUr89oQr.js" /><link rel="stylesheet" href="http://localhost/build/assets/app-_1YQBujB.css" data-navigate-track="reload" /><script type="module" src="http://localhost/build/assets/app-DUr89oQr.js" data-navigate-track="reload"></script>    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/turbolinks/5.0.0/turbolinks.js"></script>
+    <style>
+        .turbolinks-progress-bar {
+            height: 3px;
+            background-color: #0B3D2E;
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+        }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 10px; }
+
+
+        .nav-tab.is-active {
+            background-color: rgba(253, 251, 247, 0.1);
+            color: #FDFBF7;
+            font-weight: 600;
+        }
+        .nav-tab.is-active:hover { background-color: rgba(253, 251, 247, 0.15); }
+        .nav-tab:not(.is-active) { color: rgba(253, 251, 247, 0.7); }
+        .nav-tab:not(.is-active):hover { background-color: rgba(253, 251, 247, 0.05); color: #FDFBF7; }
+
+        .nav-subtab.is-active {
+            background-color: rgba(253, 251, 247, 0.1);
+            color: #FDFBF7;
+            font-weight: 600;
+        }
+        .nav-subtab.is-active:hover { background-color: rgba(253, 251, 247, 0.15); }
+        .nav-subtab:not(.is-active) { color: rgba(253, 251, 247, 0.6); }
+        .nav-subtab:not(.is-active):hover { background-color: rgba(253, 251, 247, 0.05); color: #FDFBF7; }
+
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body class="text-gray-800 antialiased bg-gray-50 relative">
+<div class="flex min-h-screen relative z-10">
+
+
+        <aside class="w-64 bg-[#0B3D2E] text-[#FDFBF7] fixed h-screen flex flex-col shadow-sm z-50">
+            <div class="px-6 py-6 border-b border-white/10">
+                <h1 class="text-xl font-semibold tracking-tight leading-tight">TalentaHR</h1>
+                <p class="text-[10px] font-medium text-white/50 uppercase tracking-widest mt-1">Finance</p>
+            </div>
+            <nav class="flex-1 px-4 pt-6 space-y-1 overflow-y-auto pb-8 custom-scrollbar">
+
+                <a href="http://localhost/finance/dashboard"
+   class="nav-tab is-active flex items-center gap-3 p-3 px-4 rounded-lg text-sm transition-all">
+    <span class="material-symbols-outlined text-[20px]">dashboard</span>
+                    Dashboard
+</a>
+
+                <a href="http://localhost/finance/reimbursement"
+   class="nav-tab  flex items-center gap-3 p-3 px-4 rounded-lg text-sm transition-all">
+    <span class="material-symbols-outlined text-[20px]">receipt_long</span>
+                    Verifikasi Pencairan
+</a>
+
+                <a href="http://localhost/finance/payroll"
+   class="nav-tab  flex items-center gap-3 p-3 px-4 rounded-lg text-sm transition-all">
+    <span class="material-symbols-outlined text-[20px]">fact_check</span>
+                    Proses Penggajian
+</a>
+
+                <a href="http://localhost/finance/export-bank"
+   class="nav-tab  flex items-center gap-3 p-3 px-4 rounded-lg text-sm transition-all">
+    <span class="material-symbols-outlined text-[20px]">upload_file</span>
+                    Ekspor Bank
+</a>
+
+                <a href="http://localhost/finance/disbursement"
+   class="nav-tab  flex items-center gap-3 p-3 px-4 rounded-lg text-sm transition-all">
+    <span class="material-symbols-outlined text-[20px]">history</span>
+                    Riwayat Pencairan
+</a>
+            </nav>
+        </aside>
+
+
+        <div class="flex-1 ml-64 flex flex-col min-h-screen">
+
+
+            <header class="sticky top-0 z-40 bg-white border-b border-gray-200">
+                <div class="flex items-center justify-between px-8 py-3.5 gap-6">
+                    <div class="min-w-0">
+                        <h1 class="text-lg font-medium text-gray-800">Dashboard Finance</h1>
+                                                    <p class="text-sm text-gray-500">Ringkasan beban penggajian, pencairan reimbursement, dan SLA verifikasi.</p>
+                                            </div>
+
+                    <div class="flex items-center gap-4 shrink-0">
+                        
+                        <div class="relative" x-data="notificationDropdown()" x-init="fetchNotifications()" @click.outside="open = false">
+
+
+    <button @click="open = !open"
+        class="relative p-2 text-on-surface-variant/60 hover:text-primary transition-colors focus:outline-none rounded-full hover:bg-black/5 cursor-pointer">
+        <span class="material-symbols-outlined text-[24px]">notifications</span>
+        <span x-show="unreadCount > 0" x-cloak class="absolute top-1.5 right-1.5 flex h-2.5 w-2.5">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-error opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-error ring-2 ring-white"></span>
+        </span>
+    </button>
+
+
+    <div x-show="open" x-cloak x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0 scale-95 translate-y-2"
+        x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+        x-transition:leave="transition ease-in duration-150"
+        x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+        x-transition:leave-end="opacity-0 scale-95 translate-y-2"
+        class="absolute right-0 mt-3 w-[340px] sm:w-[380px] bg-white rounded-md shadow-[0_12px_40px_rgba(0,0,0,0.12)] border border-black/5 z-50 overflow-hidden"
+        style="display: none;">
+
+
+        <div
+            class="px-5 py-4 flex items-center justify-between border-b border-black/5 bg-gradient-to-r from-surface-container/50 to-transparent">
+            <div class="flex items-center gap-2">
+                <h3 class="text-sm font-medium text-on-surface">Notifikasi</h3>
+                <span x-show="unreadCount > 0" x-text="unreadCount + ' Baru'"
+                    class="bg-primary/10 text-primary text-[10px] font-medium px-2 py-0.5 rounded-full"></span>
+            </div>
+            <button x-show="unreadCount > 0" @click="markAllRead()"
+                class="text-[11px] font-semibold text-primary hover:text-primary/70 transition-colors">
+                Tandai semua dibaca
+            </button>
+        </div>
+
+
+        <div class="max-h-[360px] overflow-y-auto divide-y divide-black/5 custom-scrollbar">
+
+
+            <template x-if="notifications.length === 0">
+                <div class="px-5 py-8 text-center">
+                    <p class="text-xs font-semibold text-on-surface-variant/60">Tidak ada notifikasi baru.</p>
+                </div>
+            </template>
+
+
+            <template x-for="(notif, index) in notifications" :key="notif.id">
+                <a href="#" @click.prevent="readAndRedirect(notif.id, notif.data.url)"
+                    class="flex gap-4 px-5 py-4 hover:bg-black/[0.02] transition-colors bg-primary/[0.02] relative group">
+
+
+                    <div
+                        class="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined text-[20px]">notifications_active</span>
+                    </div>
+
+                    <div class="flex-1 min-w-0 pr-4">
+                        <p class="text-xs font-medium text-on-surface mb-0.5 group-hover:text-primary transition-colors"
+                            x-text="notif.data.title"></p>
+                        <p class="text-[11px] text-on-surface-variant/70 leading-relaxed truncate"
+                            x-text="notif.data.message"></p>
+                        <p class="text-[10px] text-on-surface-variant/50 font-medium mt-1.5 flex items-center gap-1">
+                            <span class="material-symbols-outlined text-[12px]">schedule</span>
+                            <span x-text="formatDate(notif.created_at)"></span>
+                        </p>
+                    </div>
+                    <div class="absolute right-5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-primary"></div>
+                </a>
+            </template>
+        </div>
+
+
+        <div class="p-3 border-t border-black/5 bg-surface-container/20 text-center">
+            <a href="http://localhost/notifikasi"
+                class="inline-block text-xs font-medium text-primary hover:text-primary/80 transition-colors py-1">
+                Lihat semua riwayat
+            </a>
+        </div>
+    </div>
+
+    <style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        .custom-scrollbar:hover::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</div>
+
+<script>
+    function notificationDropdown() {
+        return {
+            open: false,
+            notifications: [],
+            unreadCount: 0,
+
+            fetchNotifications() {
+                fetch('http://localhost/notifikasi/unread')
+                    .then(res => res.json())
+                    .then(data => {
+                        this.notifications = data;
+                        this.unreadCount = data.length;
+                    });
+            },
+
+            readAndRedirect(id, url) {
+                fetch(`/notifikasi/${id}/read`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    }
+                }).then(() => {
+                    if (url && url !== '#') window.location.href = url;
+                    else this.fetchNotifications();
+                });
+            },
+
+            markAllRead() {
+                fetch('http://localhost/notifikasi/read-all', {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content }
+                }).then(() => this.fetchNotifications());
+            },
+
+            formatDate(dateStr) {
+                const d = new Date(dateStr);
+                const now = new Date();
+                const diff = (now - d) / 1000; 
+
+                if (diff < 60) return 'Baru saja';
+                if (diff < 3600) return Math.floor(diff / 60) + ' menit yang lalu';
+                if (diff < 86400) return Math.floor(diff / 3600) + ' jam yang lalu';
+
+                return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+            }
+        }
+    }
+</script>
+
+                        <div class="h-5 w-px bg-gray-200"></div>
+
+                        
+
+                        <div class="relative" x-data="{ open: false }" @click.outside="open = false">
+                            <button @click="open = !open" class="flex items-center gap-3 group">
+                                <div class="text-right hidden sm:block">
+                                    <p class="text-sm font-medium text-gray-800 leading-tight">
+                                        asep kasep
+                                    </p>
+                                    <p class="text-[10px] text-gray-500 font-medium uppercase tracking-wide">
+                                        finance
+                                    </p>
+                                </div>
+                                <img src="https://ui-avatars.com/api/?name=asep+kasep&background=E9F3EF&color=043927"
+                                    alt="Foto profil"
+                                    class="w-9 h-9 rounded-full object-cover border border-gray-200 group-hover:border-[#0B3D2E] transition">
+                                </button>
+
+                            <div x-show="open" x-transition.origin.top.right x-cloak
+                                class="absolute right-0 mt-3 w-56 bg-white rounded-md shadow-sm border border-gray-100 py-2 z-30">
+                                <div class="px-4 py-3 border-b border-gray-100 mb-1">
+                                    <p class="text-sm font-medium text-gray-800">asep kasep</p>
+                                    <p class="text-xs text-gray-500 truncate">asep@yahoo.com</p>
+                                </div>
+                                <a href="http://localhost/finance/profil"
+                                    class="flex items-center gap-2.5 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#0B3D2E] transition cursor-pointer">
+                                    <span class="material-symbols-outlined text-[18px]">account_circle</span>
+                                    Profil Saya
+                                </a>
+                                <div class="border-t border-gray-100 mt-1 pt-1">
+                                    <form method="POST" action="http://localhost/logout">
+                                        <input type="hidden" name="_token" value="q5pOV11KUMlgj2sxEy0EMK2A7Y8HbPP48wruwwC2" autocomplete="off">                                        <button type="submit"
+                                            class="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 text-left transition cursor-pointer">
+                                            <span class="material-symbols-outlined text-[18px]">logout</span>
+                                            Keluar
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <main class="p-8 flex-1">
+                <div class="space-y-8">
+
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+        <a href="http://localhost/finance/payroll" class="block bg-[#0B3D2E] rounded-xl p-6 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 border border-transparent">
+            <p class="text-xs font-semibold uppercase tracking-wider text-emerald-100 mb-1">Total Payroll Pending</p>
+            <p class="text-4xl font-bold text-white truncate">Rp40,74 Jt</p>
+            <p class="text-xs text-emerald-200 mt-2">Kelola Penggajian </p>
+        </a>
+
+        <a href="http://localhost/finance/reimbursement" class="block bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md hover:-translate-y-1 hover:border-emerald-200 transition-all duration-300">
+            <p class="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Total Reimburse</p>
+            <p class="text-4xl font-bold text-gray-800 truncate">Rp0,800 Jt</p>
+            <p class="text-xs text-emerald-600 mt-2">Kelola Pencairan </p>
+        </a>
+
+        <a href="http://localhost/finance/reimbursement" class="block bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md hover:-translate-y-1 hover:border-emerald-200 transition-all duration-300">
+            <p class="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">SLA Verifikasi</p>
+            <p class="text-4xl font-bold text-gray-800">100%</p>
+            <p class="text-xs text-emerald-600 mt-2">Penyelesaian tepat waktu </p>
+        </a>
+
+        <a href="http://localhost/finance/reimbursement" class="block bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md hover:-translate-y-1 hover:border-emerald-200 transition-all duration-300">
+            <p class="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Menunggu Pencairan</p>
+            <p class="text-4xl font-bold text-gray-800">0</p>
+            <p class="text-xs text-emerald-600 mt-2">Lihat daftar antrean </p>
+        </a>
+
+    </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+
+
+        <div class="xl:col-span-2 space-y-8">
+
+
+            <div class="bg-white rounded-md border border-gray-100 shadow-sm overflow-hidden flex flex-col">
+                <div class="px-8 py-6 border-b border-gray-100 bg-gray-50/50 flex items-center gap-4">
+                    
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-800">Tren Pencairan Reimbursement</h3>
+                        <p class="text-xs text-gray-500 mt-1">6 Bulan Terakhir</p>
+                    </div>
+                </div>
+
+                <div class="p-6">
+                    <div class="space-y-4">
+                                                                                    <div class="flex justify-between items-center py-4 px-5 border border-gray-100 rounded-md hover:border-gray-200 shadow-sm transition group">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-gray-50 transition">
+                                            </div>
+                                        <span class="text-sm font-medium text-gray-700 group-hover:text-[#0B3D2E] transition">Mar</span>
+                                    </div>
+                                    <span class="text-base font-semibold  text-[#0B3D2E] bg-gray-50 px-4 py-2 rounded-md">0 <span class="text-xs text-[#0B3D2E] font-sans font-medium">Juta</span></span>
+                                </div>
+                                                            <div class="flex justify-between items-center py-4 px-5 border border-gray-100 rounded-md hover:border-gray-200 shadow-sm transition group">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-gray-50 transition">
+                                            </div>
+                                        <span class="text-sm font-medium text-gray-700 group-hover:text-[#0B3D2E] transition">Apr</span>
+                                    </div>
+                                    <span class="text-base font-semibold  text-[#0B3D2E] bg-gray-50 px-4 py-2 rounded-md">0 <span class="text-xs text-[#0B3D2E] font-sans font-medium">Juta</span></span>
+                                </div>
+                                                            <div class="flex justify-between items-center py-4 px-5 border border-gray-100 rounded-md hover:border-gray-200 shadow-sm transition group">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-gray-50 transition">
+                                            </div>
+                                        <span class="text-sm font-medium text-gray-700 group-hover:text-[#0B3D2E] transition">May</span>
+                                    </div>
+                                    <span class="text-base font-semibold  text-[#0B3D2E] bg-gray-50 px-4 py-2 rounded-md">0 <span class="text-xs text-[#0B3D2E] font-sans font-medium">Juta</span></span>
+                                </div>
+                                                            <div class="flex justify-between items-center py-4 px-5 border border-gray-100 rounded-md hover:border-gray-200 shadow-sm transition group">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-gray-50 transition">
+                                            </div>
+                                        <span class="text-sm font-medium text-gray-700 group-hover:text-[#0B3D2E] transition">Jun</span>
+                                    </div>
+                                    <span class="text-base font-semibold  text-[#0B3D2E] bg-gray-50 px-4 py-2 rounded-md">0 <span class="text-xs text-[#0B3D2E] font-sans font-medium">Juta</span></span>
+                                </div>
+                                                            <div class="flex justify-between items-center py-4 px-5 border border-gray-100 rounded-md hover:border-gray-200 shadow-sm transition group">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-gray-50 transition">
+                                            </div>
+                                        <span class="text-sm font-medium text-gray-700 group-hover:text-[#0B3D2E] transition">Jul</span>
+                                    </div>
+                                    <span class="text-base font-semibold  text-[#0B3D2E] bg-gray-50 px-4 py-2 rounded-md">0 <span class="text-xs text-[#0B3D2E] font-sans font-medium">Juta</span></span>
+                                </div>
+                                                            <div class="flex justify-between items-center py-4 px-5 border border-gray-100 rounded-md hover:border-gray-200 shadow-sm transition group">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-gray-50 transition">
+                                            </div>
+                                        <span class="text-sm font-medium text-gray-700 group-hover:text-[#0B3D2E] transition">Aug</span>
+                                    </div>
+                                    <span class="text-base font-semibold  text-[#0B3D2E] bg-gray-50 px-4 py-2 rounded-md">0.8 <span class="text-xs text-[#0B3D2E] font-sans font-medium">Juta</span></span>
+                                </div>
+                                                                        </div>
+                </div>
+            </div>
+
+
+            <div class="bg-white rounded-md border border-gray-100 shadow-sm overflow-hidden flex flex-col">
+                <div class="px-8 py-6 border-b border-gray-100 bg-gray-50/50 flex items-center gap-4">
+                    
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-800">Beban Reimbursement per Departemen</h3>
+                    </div>
+                </div>
+                <div class="p-6 space-y-4">
+                                                                    <div class="flex justify-between items-center py-4 px-5 bg-white border border-gray-100 rounded-md hover:border-gray-300 transition group">
+                            <div class="flex items-center gap-3">
+                                <span class="text-sm font-medium text-gray-700">Information Technology</span>
+                            </div>
+                            <span class="text-sm font-semibold  text-gray-800">0.8 <span class="text-xs text-gray-500 font-sans font-medium">Juta</span></span>
+                        </div>
+                                                            </div>
+            </div>
+
+        </div>
+
+
+        <div class="xl:col-span-1 space-y-8">
+
+
+            <div class="bg-white rounded-md border border-gray-100 shadow-sm overflow-hidden flex flex-col">
+                <div class="px-6 py-5 border-b border-gray-100 bg-gray-50/50 flex items-center gap-4">
+                    
+                    <h3 class="text-base font-medium text-gray-800">Status Verifikasi Pencairan</h3>
+                </div>
+
+                <div class="p-6">
+                    <div class="space-y-4 mb-6">
+                        <div class="flex justify-between items-center py-3 px-4 bg-gray-50 rounded-md border border-gray-200">
+                            <span class="font-medium text-sm text-[#0B3D2E]">Telah Dicairkan</span>
+                            <span class="font-semibold  text-base text-[#0B3D2E]">2</span>
+                        </div>
+
+                        <div class="flex justify-between items-center py-3 px-4 bg-gray-50 rounded-md border border-gray-200">
+                            <span class="font-medium text-sm text-gray-700">Menunggu (Pending)</span>
+                            <span class="font-semibold  text-base text-gray-700">0</span>
+                        </div>
+
+                        <div class="flex justify-between items-center py-3 px-4 bg-gray-50 rounded-md border border-gray-200">
+                            <span class="font-medium text-sm text-gray-700">Ditolak</span>
+                            <span class="font-semibold  text-base text-gray-700">0</span>
+                        </div>
+                    </div>
+
+                    <div class="pt-6 border-t border-gray-100">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-xs font-medium text-gray-500 uppercase tracking-widest">Total Pengajuan</span>
+                            <span class="font-semibold text-gray-800 text-lg ">2</span>
+                        </div>
+                        <a href="http://localhost/finance/reimbursement" class="flex items-center justify-center gap-2 w-full py-3 bg-[#0B3D2E] text-white font-medium text-sm rounded-md hover:bg-[#043927] transition shadow-sm">
+                            Lihat Data Pending
+                            <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="bg-white rounded-md border border-gray-100 shadow-sm overflow-hidden flex flex-col">
+                <div class="px-6 py-5 border-b border-gray-100 bg-gray-50/50">
+                    <h3 class="text-base font-medium text-gray-800">Akses Cepat</h3>
+                </div>
+                <div class="p-4 space-y-3">
+                    <a href="http://localhost/finance/payroll" class="flex items-center gap-4 p-4 rounded-md bg-white border border-gray-200 hover:border-[#0B3D2E] shadow-sm transition group">
+                        
+                        <span class="text-sm font-medium text-gray-700 group-hover:text-[#0B3D2E] transition">Proses Payroll</span>
+                    </a>
+
+                    <a href="#" class="flex items-center gap-4 p-4 rounded-md bg-white border border-gray-200 hover:border-[#0B3D2E] shadow-sm transition group">
+                        
+                        <span class="text-sm font-medium text-gray-700 group-hover:text-[#0B3D2E] transition">Laporan Keuangan</span>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<script>
+    if (window.autoRefreshInterval) {
+        clearInterval(window.autoRefreshInterval);
+    }
+    
+    window.autoRefreshInterval = setInterval(() => {
+        fetch(window.location.href, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(res => res.text())
+        .then(html => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, "text/html");
+            const newMain = doc.querySelector('main');
+            const oldMain = document.querySelector('main');
+            if (newMain && oldMain) {
+                oldMain.innerHTML = newMain.innerHTML;
+            }
+        });
+    }, 15000);
+    
+    document.addEventListener("turbolinks:before-visit", function() {
+        if (window.autoRefreshInterval) {
+            clearInterval(window.autoRefreshInterval);
+        }
+    }, { once: true });
+</script>
+            </main>
+        </div>
+    </div>
+    </body>
+</html>
