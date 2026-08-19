@@ -37,41 +37,7 @@
 
 
             <div class="w-full max-w-sm relative z-10">
-                <svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-auto drop-shadow-2xl">
-
-                    <path d="M50 150 C50 80, 120 50, 200 50 C280 50, 350 100, 350 180 C350 260, 260 280, 180 280 C100 280, 50 220, 50 150 Z" fill="#065A3D" opacity="0.6"/>
-
-
-                    <rect x="130" y="90" width="140" height="130" rx="12" fill="#ffffff" stroke="#043927" stroke-width="2"/>
-                    <rect x="130" y="90" width="140" height="30" rx="12" fill="#e2e8f0" stroke="#043927" stroke-width="2"/>
-
-
-                    <rect x="165" y="150" width="70" height="50" rx="8" fill="#0B3D2E"/>
-
-                    <path d="M178 150 L178 135 Q200 115 222 135 L222 150" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round"/>
-
-                    <circle cx="200" cy="170" r="8" fill="white"/>
-                    <rect x="197" y="170" width="6" height="12" rx="2" fill="white"/>
-
-
-                    <rect x="95" y="110" width="25" height="4" rx="2" fill="#4ade80" opacity="0.6"/>
-                    <rect x="95" y="122" width="18" height="4" rx="2" fill="#4ade80" opacity="0.4"/>
-
-
-                    <rect x="280" y="110" width="25" height="4" rx="2" fill="#4ade80" opacity="0.6"/>
-                    <rect x="280" y="122" width="18" height="4" rx="2" fill="#4ade80" opacity="0.4"/>
-
-
-                    <rect x="256" y="60" width="80" height="30" rx="15" fill="#f59e0b"/>
-                    <circle cx="271" cy="75" r="8" fill="#ffffff"/>
-                    <path d="M268 75 L270 77 L274 73" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <rect x="284" y="73" width="40" height="4" rx="2" fill="#ffffff"/>
-
-
-                    <rect x="64" y="58" width="70" height="28" rx="14" fill="#065A3D"/>
-                    <circle cx="78" cy="72" r="7" fill="white" opacity="0.2"/>
-                    <rect x="90" y="70" width="34" height="4" rx="2" fill="white" opacity="0.7"/>
-                </svg>
+                <x-auth-illustration />
             </div>
 
             <div class="mt-10 w-full max-w-sm relative z-10 space-y-4">
@@ -183,3 +149,4 @@
 
 </body>
 </html>
+

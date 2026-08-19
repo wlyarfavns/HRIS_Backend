@@ -46,41 +46,7 @@
 
 
             <div class="w-full max-w-sm relative z-10">
-                <svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-auto drop-shadow-2xl">
-
-                    <path d="M80 200 C40 120, 100 60, 200 80 C300 100, 360 160, 320 240 C280 320, 120 280, 80 200 Z" fill="#065A3D" opacity="0.6"/>
-
-
-                    <rect x="160" y="60" width="80" height="40" rx="8" fill="#FDFBF7" stroke="#043927" stroke-width="2"/>
-                    <rect x="170" y="70" width="20" height="20" rx="10" fill="#0B3D2E" opacity="0.3"/>
-                    <rect x="200" y="76" width="30" height="8" rx="4" fill="#0B3D2E"/>
-
-                    <path d="M200 100 L200 130" stroke="#FDFBF7" stroke-width="2"/>
-                    <path d="M110 130 L290 130" stroke="#FDFBF7" stroke-width="2"/>
-
-                    <path d="M110 130 L110 150" stroke="#FDFBF7" stroke-width="2"/>
-                    <path d="M200 130 L200 150" stroke="#FDFBF7" stroke-width="2"/>
-                    <path d="M290 130 L290 150" stroke="#FDFBF7" stroke-width="2"/>
-
-                    <rect x="70" y="150" width="80" height="40" rx="8" fill="#FDFBF7" stroke="#043927" stroke-width="2"/>
-                    <rect x="80" y="160" width="20" height="20" rx="10" fill="#4ade80" opacity="0.8"/>
-                    <rect x="110" y="166" width="30" height="8" rx="4" fill="#0B3D2E"/>
-
-                    <rect x="160" y="150" width="80" height="40" rx="8" fill="#ffffff" stroke="#f59e0b" stroke-width="2"/>
-                    <rect x="170" y="160" width="20" height="20" rx="10" fill="#0B3D2E" opacity="0.8"/>
-                    <rect x="200" y="166" width="30" height="8" rx="4" fill="#0B3D2E" opacity="0.8"/>
-
-                    <rect x="250" y="150" width="80" height="40" rx="8" fill="#FDFBF7" stroke="#043927" stroke-width="2"/>
-                    <rect x="260" y="160" width="20" height="20" rx="10" fill="#f59e0b" opacity="0.8"/>
-                    <rect x="290" y="166" width="30" height="8" rx="4" fill="#0B3D2E"/>
-
-
-                    <circle cx="100" cy="80" r="12" fill="#4ade80" opacity="0.6"/>
-                    <circle cx="300" cy="100" r="8" fill="#ffffff" opacity="0.4"/>
-                    <rect x="250" y="240" width="60" height="20" rx="10" fill="#FDFBF7" stroke="#043927" stroke-width="2"/>
-                    <circle cx="265" cy="250" r="4" fill="#ef4444"/>
-                    <rect x="275" y="248" width="20" height="4" rx="2" fill="#0B3D2E"/>
-                </svg>
+                <x-auth-illustration />
             </div>
 
             <div class="mt-10 w-full max-w-sm relative z-10 space-y-4">
@@ -241,3 +207,4 @@
 
 </body>
 </html>
+
