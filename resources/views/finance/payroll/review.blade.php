@@ -51,12 +51,28 @@
     </a>
 @endsection
 
+@php
+    $alpineItems = $rows->map(function($emp) {
+        return [
+            'name' => strtolower($emp['name']),
+            'nip' => strtolower($emp['nip']),
+            'dept' => strtolower($emp['dept'])
+        ];
+    })->toJson();
+@endphp
+
 @section('content')
 <div x-data="{
     showApproveModal: false,
     search: '',
     showSlipModal: false,
     slipEmployee: null,
+    items: {{ $alpineItems }},
+    get hasVisibleRows() {
+        return this.items.some(i => 
+            this.search === '' || i.name.includes(this.search.toLowerCase()) || i.nip.includes(this.search.toLowerCase()) || i.dept.includes(this.search.toLowerCase())
+        );
+    },
     openSlip(emp) { this.slipEmployee = emp; this.showSlipModal = true; }
 }">
 
@@ -135,6 +151,7 @@
                 <div class="relative">
                     <input type="text" x-model="search" placeholder="Cari karyawan…"
                            class="w-64 pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#0B3D2E]/20 focus:border-[#0B3D2E] shadow-sm transition">
+                    <span class="material-symbols-outlined absolute left-3 top-2.5 text-gray-400 text-[20px]">search</span>
                 </div>
 
                 @if ($batch->status === \App\Models\PayrollBatch::STATUS_PENDING_FINANCE)
@@ -200,6 +217,16 @@
                         </td>
                     </tr>
                     @endforeach
+
+                    @if($rows->count() > 0)
+                        <tr x-show="!hasVisibleRows" style="display: none;" x-transition>
+                            <td colspan="7" class="px-8 py-12 text-center text-gray-500 text-sm">
+                                <template x-if="search">
+                                    <span>Tidak ada karyawan yang sesuai dengan pencarian "<span x-text="search" class="font-medium text-gray-700"></span>".</span>
+                                </template>
+                            </td>
+                        </tr>
+                    @endif
                 </tbody>
                 <tfoot>
                     <tr class="bg-gray-100 border-t border-gray-200 text-sm font-medium text-gray-800">

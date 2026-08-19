@@ -18,12 +18,19 @@ class ReimbursementController extends Controller
             ->where('company_id', $companyId)
             ->whereIn('status', [Reimbursement::STATUS_PENDING_FINANCE, Reimbursement::STATUS_APPROVED]);
 
+        if ($request->filled('search')) {
+            $query->whereHas('employee', function ($q) use ($request) {
+                $q->where('full_name', 'like', '%' . $request->search . '%');
+            });
+        }
+
         $pendingAmount = (clone $query)->where('status', Reimbursement::STATUS_PENDING_FINANCE)->sum('amount');
         $pendingCount = (clone $query)->where('status', Reimbursement::STATUS_PENDING_FINANCE)->count();
         $approvedAmount = (clone $query)->where('status', Reimbursement::STATUS_APPROVED)->sum('amount');
         $avgAmount = (clone $query)->avg('amount') ?? 0;
 
-        $claims = $query->latest('claim_date')->paginate(10)->withQueryString();
+        $perPage = $request->input('per_page', 10);
+        $claims = $query->latest('claim_date')->paginate($perPage)->withQueryString();
 
         $stats = [
             ['label' => 'Total Klaim Menunggu Finance', 'value' => 'Rp' . number_format($pendingAmount, 0, ',', '.'), 'icon' => 'receipt_long', 'color' => 'text-amber-700'],

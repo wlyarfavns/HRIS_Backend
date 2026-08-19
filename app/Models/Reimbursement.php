@@ -97,6 +97,9 @@ class Reimbursement extends Model
 
     public function getReceiptUrlAttribute(): ?string
     {
-        return $this->receipt_path ? asset('storage/' . $this->receipt_path) : null;
+        if ($this->receipt_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($this->receipt_path)) {
+            return asset('storage/' . $this->receipt_path);
+        }
+        return null;
     }
 }

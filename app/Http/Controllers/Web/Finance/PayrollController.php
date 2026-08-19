@@ -44,7 +44,8 @@ class PayrollController extends Controller
     {
         abort_unless($batch->company_id === $request->user()->company_id, 403);
 
-        $payrolls = $batch->payrolls()->with(['employee.department', 'details.salaryComponent'])->paginate(10)->withQueryString();
+        $perPage = $request->query('per_page', 10);
+        $payrolls = $batch->payrolls()->with(['employee.department', 'details.salaryComponent'])->paginate($perPage)->withQueryString();
 
 
 
@@ -92,12 +93,12 @@ class PayrollController extends Controller
         $companyAddress = collect([$company?->address, $company?->city])->filter()->implode(', ');
 
         $slip = [
-            'nip' => $payroll->employee->employee_id ?? '-',
-            'name' => $payroll->employee->full_name ?? '-',
-            'avatar' => ($payroll->employee->id % 70) + 1,
-            'position' => $payroll->employee->position->name ?? '-',
-            'department' => $payroll->employee->department->name ?? '-',
-            'period' => $payroll->period_start->translatedFormat('F Y'),
+            'nip' => $payroll->employee?->employee_id ?? '-',
+            'name' => $payroll->employee?->full_name ?? '-',
+            'avatar' => ($payroll->employee?->id ? ($payroll->employee->id % 70) + 1 : 1),
+            'position' => $payroll->employee?->position?->name ?? '-',
+            'department' => $payroll->employee?->department?->name ?? '-',
+            'period' => $payroll->period_start?->translatedFormat('F Y') ?? '-',
             'company_name' => $company?->name ?? '-',
             'company_address' => $companyAddress ?: '-',
             'earnings' => collect([

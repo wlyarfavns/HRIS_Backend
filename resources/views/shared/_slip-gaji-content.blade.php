@@ -96,7 +96,7 @@
                 <span class="material-symbols-outlined text-[16px]">print</span>
                 Cetak
             </button>
-            <a href="?export=pdf"
+            <a href="?export=pdf" target="_blank"
                 class="bg-primary hover:brightness-110 text-white text-xs font-medium px-4 py-2.5 rounded-lg flex items-center gap-1.5 transition">
                 <span class="material-symbols-outlined text-[16px]">download</span>
                 Unduh PDF

@@ -5,6 +5,13 @@
 @section('page-desc', 'Klaim pengeluaran yang telah disetujui SPV & HR, menunggu verifikasi final Finance sebelum pencairan.')
 
 @section('content')
+@php
+    $alpineItems = collect($claims->items())->map(function($c) {
+        return [
+            'name' => strtolower($c->employee->full_name ?? '')
+        ];
+    })->toJson();
+@endphp
 <div x-data="{
     showReceiptModal: false,
     selectedClaim: null,
@@ -56,15 +63,24 @@
         } finally {
             this.processing = false;
         }
+    },
+    searchQuery: new URLSearchParams(window.location.search).get('search') || '',
+    items: {{ $alpineItems }},
+    get hasVisibleRows() {
+        return this.items.some(i => 
+            this.searchQuery === '' || i.name.includes(this.searchQuery.toLowerCase())
+        );
     }
 }">
 
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div id="stats-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         @foreach ($stats as $s)
             <div class="bg-white rounded-md p-6 border border-gray-100 shadow-sm relative overflow-hidden group hover:border-[#0B3D2E]/30 transition-colors">
                 <div class="flex items-center justify-between mb-4">
-                    
+                    <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-[20px] text-gray-500">{{ $s['icon'] }}</span>
+                    </div>
                     <span class="text-[11px] font-medium text-gray-400 uppercase tracking-wider">{{ $s['label'] }}</span>
                 </div>
                 <p class="text-3xl font-semibold  {{ $s['color'] }} leading-none mb-2">{{ $s['value'] }}</p>
@@ -83,14 +99,15 @@
 
             <div class="flex items-center gap-3">
                 <div class="relative">
-                    <input type="text" placeholder="Cari klaim..."
-                           class="w-64 pl-10 pr-4 py-2.5 bg-white rounded-md text-sm border border-gray-200
+                    <input type="text" x-model="searchQuery" placeholder="Cari klaim berdasarkan nama..."
+                           class="w-72 pl-10 pr-4 py-2.5 bg-white rounded-md text-sm border border-gray-200
                                   focus:outline-none focus:ring-2 focus:ring-[#0B3D2E]/20 focus:border-[#0B3D2E] transition shadow-sm">
+                    <span class="material-symbols-outlined absolute left-3 top-2.5 text-gray-400 text-[20px]">search</span>
                 </div>
             </div>
         </div>
 
-        <div class="overflow-x-auto">
+        <div id="table-container" class="overflow-x-auto relative">
             <table class="w-full text-sm text-left">
                 <thead class="bg-gray-50 border-b border-gray-100">
                     <tr class="text-[11px] font-medium text-gray-500 uppercase tracking-widest">
@@ -105,7 +122,8 @@
                 </thead>
                 <tbody class="divide-y divide-gray-100 text-gray-700">
                     @forelse ($claims as $c)
-                        <tr class="hover:bg-gray-50 transition group">
+                        <tr class="hover:bg-gray-50 transition group"
+                            x-show="searchQuery === '' || '{{ strtolower(addslashes($c->employee->full_name ?? '')) }}'.includes(searchQuery.toLowerCase())">
                             <td class="px-8 py-4">
                                 <div class="flex items-center gap-3">
                                     <img src="https://ui-avatars.com/api/?background=E9F3EF&color=0B3D2E&name={{ urlencode($c->employee->full_name ?? '-') }}"
@@ -174,6 +192,16 @@
                             </td>
                         </tr>
                     @endforelse
+                    
+                    @if($claims->count() > 0)
+                        <tr x-show="!hasVisibleRows" style="display: none;" x-transition>
+                            <td colspan="7" class="px-8 py-12 text-center text-gray-500 text-sm">
+                                <template x-if="searchQuery">
+                                    <span>Tidak ada klaim yang sesuai dengan pencarian "<span x-text="searchQuery" class="font-medium text-gray-700"></span>".</span>
+                                </template>
+                            </td>
+                        </tr>
+                    @endif
                 </tbody>
             </table>
         </div>
@@ -214,8 +242,8 @@
 
                 <div class="border-2 border-dashed border-gray-200 rounded-md p-6 bg-white flex flex-col items-center justify-center gap-3 text-center">
                     <div>
-                        <p class="font-medium text-gray-800" x-text="selectedClaim ? (selectedClaim.receipt_path ? selectedClaim.receipt_path.split('/').pop() : 'Tidak ada berkas') : ''"></p>
-                        <p class="text-[11px] text-gray-500 mt-1">Format file PDF/JPG terenkripsi &amp; terverifikasi digital</p>
+                        <p class="font-medium text-gray-800" x-text="selectedClaim ? (selectedClaim.receipt_url ? selectedClaim.receipt_path.split('/').pop() : 'Foto tidak ada') : ''"></p>
+                        <p class="text-[11px] text-gray-500 mt-1" x-show="selectedClaim && selectedClaim.receipt_url">Format file PDF/JPG terenkripsi &amp; terverifikasi digital</p>
                     </div>
                     <a :href="selectedClaim ? selectedClaim.receipt_url : '#'" target="_blank"
                        x-show="selectedClaim && selectedClaim.receipt_url"
@@ -239,13 +267,13 @@
             <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
                 <button type="button" @click="showReceiptModal = false" :disabled="processing"
                         class="px-5 py-2.5 rounded-md border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 transition shadow-sm disabled:opacity-50">
-                    Batal
+                    <span x-text="(selectedClaim && selectedClaim.status === 'pending_finance') ? 'Batal' : 'Tutup'"></span>
                 </button>
-                <button type="button" @click="submitAction('reject')" :disabled="processing"
+                <button type="button" @click="submitAction('reject')" :disabled="processing" x-show="selectedClaim && selectedClaim.status === 'pending_finance'"
                         class="px-5 py-2.5 rounded-md border border-gray-200 text-gray-700 bg-gray-50 hover:bg-gray-50 text-sm font-medium transition shadow-sm disabled:opacity-50">
                     <span x-text="rejecting ? 'Kirim Penolakan' : 'Tolak Klaim'"></span>
                 </button>
-                <button type="button" @click="submitAction('approve')" :disabled="processing" x-show="!rejecting"
+                <button type="button" @click="submitAction('approve')" :disabled="processing" x-show="selectedClaim && selectedClaim.status === 'pending_finance' && !rejecting"
                         class="px-6 py-2.5 rounded-md bg-[#0B3D2E] text-white text-sm font-medium hover:bg-[#043927] shadow-sm flex items-center gap-2 transition disabled:opacity-50">
                     <span class="material-symbols-outlined text-[16px]">check</span>
                     Verifikasi &amp; Masukkan Disbursement

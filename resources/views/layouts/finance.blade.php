@@ -8,6 +8,13 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/turbolinks/5.0.0/turbolinks.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            if (typeof Turbolinks !== 'undefined') {
+                Turbolinks.start();
+            }
+        });
+    </script>
     <style>
         .turbolinks-progress-bar {
             height: 3px;
@@ -126,10 +133,13 @@
                                         {{ $roleLabel }}
                                     </p>
                                 </div>
-                                <img src="https://ui-avatars.com/api/?name={{ urlencode($userName) }}&background=E9F3EF&color=043927"
-                                    alt="Foto profil"
-                                    class="w-9 h-9 rounded-full object-cover border border-gray-200 group-hover:border-[#0B3D2E] transition">
-                                </button>
+                                <div class="relative flex items-center">
+                                    <img src="https://ui-avatars.com/api/?name={{ urlencode($userName) }}&background=E9F3EF&color=043927"
+                                        alt="Foto profil"
+                                        class="w-9 h-9 rounded-full object-cover border border-gray-200 group-hover:border-[#0B3D2E] transition">
+                                    <span class="material-symbols-outlined text-[18px] text-gray-400 group-hover:text-gray-600 transition-transform duration-200 ml-1" :class="{'rotate-180': open}">expand_more</span>
+                                </div>
+                            </button>
 
                             <div x-show="open" x-transition.origin.top.right x-cloak
                                 class="absolute right-0 mt-3 w-56 bg-white rounded-md shadow-sm border border-gray-100 py-2 z-30">

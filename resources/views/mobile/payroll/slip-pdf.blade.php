@@ -175,8 +175,8 @@
                     <div class="period">{{ $payroll->period_start->translatedFormat('F Y') }}</div>
                 </td>
                 <td>
-                    <div class="company">{{ $payroll->company->name ?? '-' }}</div>
-                    <div class="address">{{ $payroll->company->address ?? '-' }}</div>
+                    <div class="company">{{ $payroll->company?->name ?? '-' }}</div>
+                    <div class="address">{{ $payroll->company?->address ?? '-' }}</div>
                 </td>
             </tr>
         </table>
@@ -185,17 +185,17 @@
     <div class="identity">
         <table>
             <tr>
-                <td class="name">{{ $payroll->employee->full_name ?? '-' }}</td>
-                <td style="text-align:right;">{{ $payroll->employee->employee_id ?? '-' }}</td>
+                <td class="name">{{ $payroll->employee?->full_name ?? '-' }}</td>
+                <td style="text-align:right;">{{ $payroll->employee?->employee_id ?? '-' }}</td>
             </tr>
             <tr>
                 <td>
                     <span class="label">Jabatan</span><br>
-                    {{ $payroll->employee->position->name ?? '-' }}
+                    {{ $payroll->employee?->position?->name ?? '-' }}
                 </td>
                 <td style="text-align:right;">
                     <span class="label">Departemen</span><br>
-                    {{ $payroll->employee->department->name ?? '-' }}
+                    {{ $payroll->employee?->department?->name ?? '-' }}
                 </td>
             </tr>
         </table>

@@ -1,3 +1,4 @@
+
 @extends('layouts.finance')
 
 @section('title', 'Disbursement & Slip Gaji')
@@ -165,8 +166,11 @@
                     </table>
 
                     <div x-show="search !== '' && matchingCount() === 0" x-cloak class="px-8 py-16 text-center bg-white">
-                        <p class="text-sm font-medium text-gray-500">Karyawan tidak ditemukan</p>
-                        <p class="text-xs text-gray-400 mt-1">Coba kata kunci nama atau NIP lain.</p>
+                        <p class="text-sm font-medium text-gray-500">
+                            <template x-if="search">
+                                <span>Tidak ada karyawan yang sesuai dengan pencarian "<span x-text="search" class="font-bold text-gray-700"></span>".</span>
+                            </template>
+                        </p>
                     </div>
                 </div>
 

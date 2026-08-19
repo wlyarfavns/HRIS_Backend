@@ -49,14 +49,19 @@ class DisbursementController extends Controller
                             'bank'       => $p->employee->bank_name ?? '-',
                             'rekening'   => $p->employee->bank_account_number ?? '-',
                             'period'     => $batch->period_start->translatedFormat('F Y'),
-                            'earnings'   => $earnings->map(fn ($d) => [
-                                'label'  => $d->salaryComponent->name ?? '-',
-                                'amount' => (float) $d->amount,
-                            ])->values(),
+                            'earnings'   => collect([
+                                ['label' => 'Gaji Pokok', 'amount' => (float) $p->basic_salary],
+                            ])->concat(
+                                $earnings->map(fn ($d) => [
+                                    'label'  => $d->salaryComponent->name ?? '-',
+                                    'amount' => (float) $d->amount,
+                                ])
+                            )->values(),
                             'deductions' => $deductions->map(fn ($d) => [
                                 'label'  => $d->salaryComponent->name ?? '-',
                                 'amount' => (float) $d->amount,
                             ])->values(),
+                            'net'        => (float) $p->net_salary,
                         ];
                     })->values(),
                 ];

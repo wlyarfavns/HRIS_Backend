@@ -116,9 +116,12 @@
                                     <p class="text-sm font-medium text-gray-800 leading-tight">{{ $userName }}</p>
                                     <p class="text-[10px] text-gray-500 font-medium uppercase tracking-wide">{{ $roleLabel }}</p>
                                 </div>
-                                <img src="https://ui-avatars.com/api/?name={{ urlencode($userName) }}&background=E9F3EF&color=043927"
-                                    alt="Foto profil"
-                                    class="w-9 h-9 rounded-full object-cover border border-gray-200 group-hover:border-[#0B3D2E] transition">
+                                <div class="relative flex items-center">
+                                    <img src="https://ui-avatars.com/api/?name={{ urlencode($userName) }}&background=E9F3EF&color=043927"
+                                        alt="Foto profil"
+                                        class="w-9 h-9 rounded-full object-cover border border-gray-200 group-hover:border-[#0B3D2E] transition">
+                                    <span class="material-symbols-outlined text-[18px] text-gray-400 group-hover:text-gray-600 transition-transform duration-200 ml-1" :class="{'rotate-180': open}">expand_more</span>
+                                </div>
                                 </button>
 
                             <div x-show="open" x-transition.origin.top.right x-cloak
