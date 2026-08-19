@@ -23,12 +23,36 @@
 @endphp
 
 @section('content')
+<div id="laporan-wrapper">
 
     <div class="bg-white rounded-md border border-gray-100 shadow-sm overflow-hidden mb-8">
 
         <form x-data="{ year: '{{ $selYear }}', month: '{{ $selMonth }}' }" 
               x-ref="filterForm" 
               method="GET" action="{{ route('supervisor.attendance.report') }}" 
+              @submit.prevent="
+                  let form = $event.target;
+                  let url = new URL(form.action);
+                  let formData = new FormData(form);
+                  for(let [k,v] of formData.entries()) url.searchParams.set(k,v);
+                  
+                  document.getElementById('laporan-wrapper').style.opacity = '0.5';
+                  document.getElementById('laporan-wrapper').style.pointerEvents = 'none';
+
+                  fetch(url.toString(), { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                      .then(res => res.text())
+                      .then(html => {
+                          let doc = new DOMParser().parseFromString(html, 'text/html');
+                          let newWrapper = doc.getElementById('laporan-wrapper');
+                          if (newWrapper) {
+                              document.getElementById('laporan-wrapper').outerHTML = newWrapper.outerHTML;
+                          } else {
+                              window.location.href = url.toString();
+                          }
+                      }).catch(() => {
+                          window.location.href = url.toString();
+                      });
+              "
               class="px-8 py-6 border-b border-gray-100 flex items-center justify-between gap-4 flex-wrap bg-gray-50/50">
 
             <div>
@@ -45,7 +69,7 @@
 
 
                 <div class="relative">
-                    <select x-model="month" @change="$nextTick(() => $refs.filterForm.submit())"
+                    <select x-model="month" @change="$nextTick(() => $refs.filterForm.dispatchEvent(new Event('submit', {bubbles: true, cancelable: true})))"
                             class="appearance-none pl-4 pr-10 py-2.5 bg-white rounded-md text-sm font-medium text-gray-700 border border-gray-200 hover:bg-gray-50 focus:border-[#0B3D2E] focus:ring-2 focus:ring-[#0B3D2E]/20 focus:outline-none transition cursor-pointer shadow-sm">
                         @foreach($months as $num => $name)
                             <option value="{{ $num }}">{{ $name }}</option>
@@ -56,7 +80,7 @@
 
 
                 <div class="relative">
-                    <select x-model="year" @change="$nextTick(() => $refs.filterForm.submit())"
+                    <select x-model="year" @change="$nextTick(() => $refs.filterForm.dispatchEvent(new Event('submit', {bubbles: true, cancelable: true})))"
                             class="appearance-none pl-4 pr-10 py-2.5 bg-white rounded-md text-sm font-medium text-gray-700 border border-gray-200 hover:bg-gray-50 focus:border-[#0B3D2E] focus:ring-2 focus:ring-[#0B3D2E]/20 focus:outline-none transition cursor-pointer shadow-sm">
                         @for ($i = $startYear; $i <= $endYear; $i++)
                             <option value="{{ $i }}">{{ $i }}</option>
@@ -117,4 +141,5 @@
         </div>
     </div>
 
+</div>
 @endsection

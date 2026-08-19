@@ -5,11 +5,28 @@
 @section('page-desc', 'Manajemen kalender roster, bulk assign shift, pengajuan tukar shift, dan geofencing office.')
 
 @section('content')
+<div id="shift-wrapper">
+    @php
+        $alpineItems = collect($roster)->map(function($r) {
+            return [
+                'name' => strtolower($r['name'] ?? ''),
+                'nip' => strtolower($r['nip'] ?? ''),
+                'dept' => strtolower($r['dept'] ?? '')
+            ];
+        })->toJson();
+    @endphp
     <div x-data="{
         showBulkModal: false,
         selectedDept: 'Semua',
         selectedShift: {{ $shiftTypes[0]['id'] ?? 'null' }},
         searchQuery: '',
+        items: {{ $alpineItems }},
+        get hasVisibleRows() {
+            return this.items.some(i => 
+                (this.selectedDept === 'Semua' || i.dept === this.selectedDept.toLowerCase()) &&
+                (this.searchQuery === '' || i.name.includes(this.searchQuery.toLowerCase()) || i.nip.includes(this.searchQuery.toLowerCase()))
+            );
+        },
         selectAll: false,
         selectedEmployees: [],
         allEmployeeIds: {{ $roster->pluck('id')->toJson() }},
@@ -109,46 +126,71 @@
                 </div>
 
 
-                <div class="flex items-center gap-4 flex-wrap">
+                <form method="GET" action="{{ route('hr.shift.index') }}" class="flex items-center gap-4 flex-wrap"
+                    @submit.prevent="
+                        let form = $event.target;
+                        let url = new URL(form.action);
+                        let formData = new FormData(form);
+                        for(let [k,v] of formData.entries()) url.searchParams.set(k,v);
+                        
+                        // Add opacity to show loading state
+                        document.getElementById('shift-wrapper').style.opacity = '0.5';
+                        document.getElementById('shift-wrapper').style.pointerEvents = 'none';
+
+                        fetch(url.toString(), { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                            .then(res => res.text())
+                            .then(html => {
+                                let doc = new DOMParser().parseFromString(html, 'text/html');
+                                let newWrapper = doc.getElementById('shift-wrapper');
+                                if (newWrapper) {
+                                    document.getElementById('shift-wrapper').outerHTML = newWrapper.outerHTML;
+                                } else {
+                                    window.location.href = url.toString();
+                                }
+                            }).catch(() => {
+                                window.location.href = url.toString();
+                            });
+                    ">
                     <div class="relative">
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 material-symbols-outlined text-[18px]">search</span>
                         <input type="text" x-model="searchQuery" placeholder="Cari karyawan / NIP..."
-                            class="pl-10 pr-4 py-2.5 text-sm border border-gray-200 rounded-md focus:ring-2 focus:ring-[#0B3D2E]/20 focus:border-[#0B3D2E] w-64 bg-white transition">
-                        </div>
+                            class="pl-10 pr-4 py-2 text-sm border border-gray-200 rounded-md focus:ring-2 focus:ring-[#0B3D2E]/20 focus:border-[#0B3D2E] w-64 bg-white transition">
+                    </div>
 
                     <select x-model="selectedDept"
-                        class="text-sm border border-gray-200 rounded-md pl-4 pr-10 py-2.5 bg-white focus:ring-2 focus:ring-[#0B3D2E]/20 focus:border-[#0B3D2E] cursor-pointer transition">
+                        class="text-sm border border-gray-200 rounded-md pl-4 pr-10 py-2 bg-white focus:ring-2 focus:ring-[#0B3D2E]/20 focus:border-[#0B3D2E] cursor-pointer transition">
                         <option value="Semua">Semua Departemen</option>
                         @foreach ($departments as $dept)
                             <option value="{{ $dept }}">{{ $dept }}</option>
                         @endforeach
                     </select>
 
-                    <div class="flex items-center border border-gray-200 rounded-md p-1 bg-white">
-                        <a href="{{ route('hr.shift.index', ['week_start' => $weekStart->copy()->subWeek()->toDateString()]) }}"
-                            class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-gray-100 text-gray-500 transition">
+                    <div class="h-6 w-px bg-gray-200 mx-1"></div>
+
+                    <div class="flex items-center border border-gray-200 rounded-md p-1 bg-white shadow-sm">
+                        <button type="button" onclick="const dateInput = this.nextElementSibling.querySelector('input'); dateInput.value = '{{ $weekStart->copy()->subWeek()->toDateString() }}'; dateInput.dispatchEvent(new Event('change'));"
+                            class="w-7 h-7 rounded flex items-center justify-center hover:bg-gray-100 text-gray-500 transition cursor-pointer">
                             <span class="material-symbols-outlined text-[18px]">chevron_left</span>
-                        </a>
-                        <span class="text-sm font-medium px-3 text-gray-700">{{ $weekStart->translatedFormat('d M') }} -
-                            {{ $weekEnd->translatedFormat('d M') }}</span>
-                        <a href="{{ route('hr.shift.index', ['week_start' => $weekStart->copy()->addWeek()->toDateString()]) }}"
-                            class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-gray-100 text-gray-500 transition">
-                            <span class="material-symbols-outlined text-[18px]">chevron_right</span>
-                        </a>
-                    </div>
-
-
-                    <div class="relative">
-                        <input type="month" value="{{ $weekStart->format('Y-m') }}"
-                            onchange="if(this.value){ window.location.href = '{{ route('hr.shift.index') }}?week_start=' + this.value + '-01'; }"
-                            class="text-sm border border-gray-200 rounded-md pl-10 pr-4 py-2.5 bg-white text-gray-700
-                                      hover:border-[#0B3D2E]/40 focus:ring-2 focus:ring-[#0B3D2E]/20 focus:border-[#0B3D2E] cursor-pointer transition">
+                        </button>
+                        
+                        <div class="relative flex items-center px-3 group">
+                            <span class="material-symbols-outlined text-[16px] text-[#0B3D2E] mr-2">calendar_month</span>
+                            <input type="date" id="week_start_input" name="week_start" value="{{ $weekStart->format('Y-m-d') }}" onchange="this.form.dispatchEvent(new Event('submit', {bubbles: true, cancelable: true}))"
+                                class="text-sm font-semibold text-gray-700 bg-transparent border-none p-0 focus:ring-0 cursor-pointer text-center" title="Pilih Tanggal Mulai" style="width: 135px;">
                         </div>
 
-                    <button type="button" onclick="window.location.href = '{{ route('hr.shift.index') }}'"
-                        class="text-xs font-medium text-gray-700 hover:text-gray-700 transition px-2">
+                        <button type="button" onclick="const dateInput = this.previousElementSibling.querySelector('input'); dateInput.value = '{{ $weekStart->copy()->addWeek()->toDateString() }}'; dateInput.dispatchEvent(new Event('change'));"
+                            class="w-7 h-7 rounded flex items-center justify-center hover:bg-gray-100 text-gray-500 transition cursor-pointer">
+                            <span class="material-symbols-outlined text-[18px]">chevron_right</span>
+                        </button>
+                    </div>
+
+                    <button type="button" onclick="const dateInput = document.getElementById('week_start_input'); dateInput.value = '{{ now()->startOfWeek()->toDateString() }}'; dateInput.dispatchEvent(new Event('change'));"
+                        class="text-xs font-semibold text-gray-600 hover:text-[#0B3D2E] transition px-3 py-2 flex items-center gap-1.5 bg-gray-50 hover:bg-gray-100 rounded-md border border-gray-200 shadow-sm cursor-pointer">
+                        <span class="material-symbols-outlined text-[14px]">today</span>
                         Minggu Ini
                     </button>
-                </div>
+                </form>
             </div>
 
 
@@ -213,6 +255,19 @@
                                 </td>
                             </tr>
                         @endforelse
+                        
+                        @if(count($roster) > 0)
+                            <tr x-show="!hasVisibleRows" style="display: none;" x-transition>
+                                <td colspan="{{ 2 + count($labels) }}" class="px-6 py-12 text-center text-sm text-gray-500">
+                                    <template x-if="searchQuery">
+                                        <span>Tidak ada karyawan yang sesuai dengan pencarian "<span x-text="searchQuery" class="font-medium text-gray-700"></span>" di departemen ini.</span>
+                                    </template>
+                                    <template x-if="!searchQuery">
+                                        <span>Tidak ada data roster untuk departemen ini.</span>
+                                    </template>
+                                </td>
+                            </tr>
+                        @endif
                     </tbody>
                 </table>
             </div>
@@ -600,4 +655,5 @@
         </div>
 
     </div>
+</div>
 @endsection

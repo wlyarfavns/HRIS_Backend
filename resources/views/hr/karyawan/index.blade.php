@@ -21,7 +21,27 @@
     </div>
 
 
-    <div class="bg-white border border-gray-200 rounded-md overflow-hidden mt-6">
+    @php
+        $alpineItems = collect($employees->items())->map(function($e) {
+            return [
+                'name' => strtolower($e->full_name ?? ''),
+                'nip' => strtolower($e->employee_id ?? ''),
+                'dept' => strtolower($e->department_id ?? '')
+            ];
+        })->toJson();
+    @endphp
+    <div class="bg-white border border-gray-200 rounded-md overflow-hidden mt-6"
+        x-data="{
+            searchQuery: '{{ request('search') }}',
+            selectedDept: '{{ request('department', 'Semua Departemen') }}',
+            items: {{ $alpineItems }},
+            get hasVisibleRows() {
+                return this.items.some(i => 
+                    (this.selectedDept === 'Semua Departemen' || i.dept === this.selectedDept) &&
+                    (this.searchQuery === '' || i.name.includes(this.searchQuery.toLowerCase()) || i.nip.includes(this.searchQuery.toLowerCase()))
+                );
+            }
+        }">
 
         <div class="px-6 py-5 border-b border-gray-100 flex items-center justify-between gap-4 flex-wrap">
             <div>
@@ -29,18 +49,15 @@
                 <p class="text-xs text-gray-500 mt-1">{{ count($employees) }} karyawan ditampilkan</p>
             </div>
 
-            <form method="GET" action="{{ route('hr.employees.index') }}" class="flex items-center gap-3">
+            <div class="flex items-center gap-3">
 
 
                 <div class="relative">
-                    <select name="department" onchange="this.form.submit()"
+                    <select x-model="selectedDept"
                         class="appearance-none text-xs font-medium border border-gray-200 rounded-lg pl-3 pr-8 py-2 bg-gray-50 text-gray-700 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0B3D2E]/20 transition cursor-pointer">
-                        <option value="Semua Departemen" {{ request('department') == 'Semua Departemen' ? 'selected' : '' }}>
-                            Semua Departemen</option>
+                        <option value="Semua Departemen">Semua Departemen</option>
                         @foreach ($departments as $dept)
-                            <option value="{{ $dept->id }}" {{ request('department') == $dept->id ? 'selected' : '' }}>
-                                {{ $dept->name }}
-                            </option>
+                            <option value="{{ $dept->id }}">{{ $dept->name }}</option>
                         @endforeach
                     </select>
                     <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
@@ -48,9 +65,9 @@
 
 
                 <div class="relative">
-                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari NIP atau nama..."
-                        onkeydown="if(event.keyCode==13){this.form.submit();}"
+                    <input type="text" x-model="searchQuery" placeholder="Cari NIP atau nama..."
                         class="w-56 pl-9 pr-3 py-2 bg-gray-50 rounded-lg text-xs font-medium border border-gray-200 text-gray-700 placeholder-gray-400 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0B3D2E]/20 transition">
+                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 material-symbols-outlined text-[18px]">search</span>
                 </div>
 
                 <a href="{{ route('hr.employees.onboarding') }}"
@@ -58,7 +75,7 @@
                     <span class="material-symbols-outlined text-[16px]">person_add</span>
                     Onboarding Karyawan
                 </a>
-            </form>
+            </div>
         </div>
 
         <div class="overflow-x-auto">
@@ -76,7 +93,8 @@
                 </thead>
                 <tbody class="divide-y divide-gray-100 text-gray-700 text-sm">
                     @forelse ($employees as $e)
-                        <tr class="hover:bg-gray-50 transition">
+                        <tr class="hover:bg-gray-50 transition"
+                            x-show="(selectedDept === 'Semua Departemen' || selectedDept === '{{ $e->department_id }}') && (searchQuery === '' || '{{ strtolower(addslashes($e->full_name)) }}'.includes(searchQuery.toLowerCase()) || '{{ strtolower(addslashes($e->employee_id)) }}'.includes(searchQuery.toLowerCase()))">
                             <td class="px-6 py-4  font-medium">{{ $e->employee_id }}</td>
                             <td class="px-6 py-4">
                                 <a href="{{ route('hr.employees.show', $e->employee_id) }}"
@@ -141,6 +159,19 @@
                             <td colspan="7" class="px-6 py-8 text-center text-gray-500">Belum ada data karyawan.</td>
                         </tr>
                     @endforelse
+                    
+                    @if($employees->count() > 0)
+                        <tr x-show="!hasVisibleRows" style="display: none;" x-transition>
+                            <td colspan="7" class="px-6 py-12 text-center text-sm text-gray-500">
+                                <template x-if="searchQuery">
+                                    <span>Tidak ada karyawan yang sesuai dengan pencarian "<span x-text="searchQuery" class="font-medium text-gray-700"></span>".</span>
+                                </template>
+                                <template x-if="!searchQuery">
+                                    <span>Tidak ada karyawan di departemen ini.</span>
+                                </template>
+                            </td>
+                        </tr>
+                    @endif
                 </tbody>
             </table>
         </div>

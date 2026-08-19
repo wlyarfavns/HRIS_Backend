@@ -42,7 +42,7 @@ class LeaveApprovalController extends Controller
                     ->where('company_id', $companyId)
                     ->where('supervisor_id', $supervisor->id)
             )
-            ->whereIn('status', ['pending_hr', 'approved', 'rejected'])
+            ->where(fn($q) => $q->whereIn('status', ['pending_hr', 'approved'])->orWhere(fn($sub) => $sub->where('status', 'rejected')->where('approved_by', $supervisor->id)))
             ->latest('approved_at')
             ->paginate(10)
             ->withQueryString()
@@ -53,7 +53,7 @@ class LeaveApprovalController extends Controller
             ['label' => 'MENUNGGU REVIEW', 'value' => $pending->total() . ' Pengajuan', 'icon' => 'assignment_late', 'color' => 'text-amber-800'],
             ['label' => 'DISETUJUI SPV', 'value' => LeaveRequest::whereHas('employee', fn($q) => $q->where('supervisor_id', $supervisor->id))->whereIn('status', ['pending_hr', 'approved'])->count() . ' Total', 'icon' => 'check_circle', 'color' => 'text-green-700'],
             ['label' => 'SEDANG CUTI', 'value' => LeaveRequest::whereHas('employee', fn($q) => $q->where('supervisor_id', $supervisor->id))->where('status', 'approved')->coveringDate(now()->toDateString())->count() . ' Orang', 'icon' => 'event_busy', 'color' => 'text-primary'],
-            ['label' => 'DITOLAK', 'value' => LeaveRequest::whereHas('employee', fn($q) => $q->where('supervisor_id', $supervisor->id))->where('status', 'rejected')->count() . ' Total', 'icon' => 'cancel', 'color' => 'text-red-700'],
+            ['label' => 'DITOLAK', 'value' => LeaveRequest::whereHas('employee', fn($q) => $q->where('supervisor_id', $supervisor->id))->where('status', 'rejected')->where('approved_by', $supervisor->id)->count() . ' Total', 'icon' => 'cancel', 'color' => 'text-red-700'],
         ];
 
         return view('supervisor.persetujuan.cuti', compact('pending', 'history', 'stats'));

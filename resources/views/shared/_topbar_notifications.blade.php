@@ -2,7 +2,7 @@
 
 
     <button @click="open = !open"
-        class="relative p-2 text-on-surface-variant/60 hover:text-primary transition-colors focus:outline-none rounded-full hover:bg-black/5">
+        class="relative p-2 text-on-surface-variant/60 hover:text-primary transition-colors focus:outline-none rounded-full hover:bg-black/5 cursor-pointer">
         <span class="material-symbols-outlined text-[24px]">notifications</span>
         <span x-show="unreadCount > 0" x-cloak class="absolute top-1.5 right-1.5 flex h-2.5 w-2.5">
             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-error opacity-75"></span>

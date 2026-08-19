@@ -15,7 +15,7 @@
 @section('content')
     <div x-data="{
 
-                    view: 'rules',
+                    view: '{{ session('success') || request()->has('period') ? 'review' : 'rules' }}',
 
 
                     showAddModal: false,
@@ -80,7 +80,7 @@
                         </button>
                         @if($payrolls->count() > 0)
                             <button type="button" @click="view = 'review'"
-                                class="border border-[#0B3D2E] bg-white text-[#0B3D2E] hover:bg-[#0B3D2E] hover:text-white text-sm font-medium px-5 py-2.5 rounded-md flex items-center gap-2 shadow-sm transition">
+                                class="border border-[#0B3D2E] bg-white text-[#0B3D2E] hover:bg-[#0B3D2E] hover:text-white text-sm font-medium px-5 py-2.5 rounded-md flex items-center gap-2 shadow-sm transition group">
                                 <span class="material-symbols-outlined text-[18px]">fact_check</span>
                                 Lihat Draft Payroll
                             </button>
@@ -162,15 +162,15 @@
         <div x-show="view === 'review'" x-cloak>
             <button type="button" @click="view = 'rules'"
                 class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-[#0B3D2E] transition mb-6">
-                <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+                <span class="material-symbols-outlined text-[18px] group-hover:-translate-x-1 transition-transform">arrow_back</span>
                 Kembali ke Komponen Gaji
             </button>
 
             <div class="bg-white rounded-md border border-gray-200 overflow-hidden">
                 <div class="px-6 py-5 border-b border-gray-100 flex items-center justify-between gap-4 flex-wrap bg-gray-50/50">
                     <div>
-                        <h2 class="text-base font-medium text-gray-800">Pratinjau Payroll
-                            {{ $start->translatedFormat('F Y') }}
+                        <h2 class="text-base font-medium text-gray-800">Pratinjau Payroll Periode
+                            {{ $period->translatedFormat('F Y') }}
                         </h2>
                         <p class="text-xs text-gray-500 mt-1">Klik ikon mata untuk melihat detail per
                             karyawan</p>

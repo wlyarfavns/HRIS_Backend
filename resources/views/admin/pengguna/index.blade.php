@@ -34,10 +34,10 @@
                 <p class="text-xs text-gray-500 mt-1">{{ count($users) }} pengguna terdaftar</p>
             </div>
 
-            <form method="GET" action="{{ route('admin.users.index') }}" class="flex items-center gap-3">
+            <form id="filter-form" method="GET" action="{{ route('admin.users.index') }}" class="flex items-center gap-3" onsubmit="event.preventDefault(); window.fetchData();">
 
                 <div class="relative">
-                    <select name="role" onchange="this.form.submit()"
+                    <select name="role" onchange="window.fetchData()"
                         class="appearance-none text-xs font-medium border border-gray-200 rounded-lg pl-3 pr-8 py-2 bg-gray-50 text-gray-700 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0B3D2E]/20 transition cursor-pointer">
                         <option value="Semua Role" {{ request('role') == 'Semua Role' ? 'selected' : '' }}>Semua Role</option>
                         @foreach ($roles as $r)
@@ -53,7 +53,7 @@
                 <div class="relative">
                     <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama atau email..."
                         class="w-64 pl-9 pr-3 py-2 bg-gray-50 rounded-lg text-xs font-medium border border-gray-200 text-gray-700 placeholder-gray-400 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0B3D2E]/20 transition"
-                        onkeydown="if(event.keyCode==13){this.form.submit();}">
+                        oninput="window.debounceFetchData()">
                 </div>
 
                 <a href="{{ route('admin.users.create') }}"
@@ -64,6 +64,7 @@
             </form>
         </div>
 
+        <div id="table-container">
         <div class="overflow-x-auto">
             <table class="w-full text-sm text-left whitespace-nowrap">
                 <thead class="text-[11px] text-gray-500 bg-gray-50 border-y border-gray-100">
@@ -128,6 +129,81 @@
         <div class="mt-4 px-6 pb-6">
             {{ $users->links() }}
         </div>
+        </div>
     </div>
 </div>
+
+<script>
+    let searchTimeout;
+    window.debounceFetchData = function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(window.fetchData, 400);
+    };
+
+    window.fetchData = function() {
+        const form = document.getElementById("filter-form");
+        const url = new URL(form.action);
+        const formData = new FormData(form);
+        
+        formData.forEach((value, key) => {
+            if(value && value !== "Semua Role") url.searchParams.set(key, value);
+        });
+
+        const tableContainer = document.getElementById("table-container");
+        tableContainer.style.opacity = "0.5";
+
+        fetch(url, {
+            headers: {
+                "X-Requested-With": "XMLHttpRequest"
+            }
+        })
+        .then(response => response.text())
+        .then(html => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, "text/html");
+            const newContent = doc.getElementById("table-container");
+            if (newContent) {
+                tableContainer.innerHTML = newContent.innerHTML;
+            }
+            tableContainer.style.opacity = "1";
+            interceptPagination();
+        })
+        .catch(() => {
+            tableContainer.style.opacity = "1";
+        });
+    };
+
+    function interceptPagination() {
+        const links = document.querySelectorAll("#table-container nav a");
+        links.forEach(link => {
+            link.addEventListener("click", function(e) {
+                e.preventDefault();
+                const url = new URL(this.href);
+                const form = document.getElementById("filter-form");
+                const formData = new FormData(form);
+                formData.forEach((value, key) => {
+                    if(value && value !== "Semua Role" && !url.searchParams.has(key)) url.searchParams.set(key, value);
+                });
+                
+                const tableContainer = document.getElementById("table-container");
+                tableContainer.style.opacity = "0.5";
+                
+                fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" } })
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, "text/html");
+                    const newContent = doc.getElementById("table-container");
+                    if (newContent) {
+                        tableContainer.innerHTML = newContent.innerHTML;
+                    }
+                    tableContainer.style.opacity = "1";
+                    interceptPagination();
+                });
+            });
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", interceptPagination);
+</script>
 @endsection

@@ -43,7 +43,7 @@ class CompanyProfileController extends Controller
 
         $stats = [
             ['label' => 'Total Karyawan Terdaftar', 'value' => User::where('company_id', $companyId)->count(), 'icon' => 'groups'],
-            ['label' => 'Total Departemen', 'value' => '0', 'icon' => 'account_tree'],
+            ['label' => 'Total Departemen', 'value' => \App\Models\Department::where('company_id', $companyId)->count(), 'icon' => 'account_tree'],
             ['label' => 'Status Perusahaan', 'value' => 'Aktif', 'icon' => 'verified'],
         ];
 

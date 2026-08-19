@@ -17,7 +17,7 @@ class DashboardController extends Controller
 
         $totalEmployees = Employee::where('company_id', $companyId)->where('status', 'active')->count();
         $totalDepartments = Department::where('company_id', $companyId)->count();
-        $totalUsers = User::where('company_id', $companyId)->count();
+        $totalUsers = User::where('company_id', $companyId)->role(['hr', 'finance', 'supervisor'])->count();
 
 
         $recentEmployees = Employee::with('department')

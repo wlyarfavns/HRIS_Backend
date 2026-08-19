@@ -27,6 +27,10 @@ class ReimbursementApprovalController extends Controller
         $history = Reimbursement::with('employee')
             ->whereIn('employee_id', $subordinateIds)
             ->where('spv_id', $user->id)
+            ->where(function($q) {
+                $q->where('status', '!=', Reimbursement::STATUS_REJECTED)
+                  ->orWhereNull('hr_reviewed_by');
+            })
             ->latest('spv_approved_at')
             ->paginate(10)->withQueryString();
 

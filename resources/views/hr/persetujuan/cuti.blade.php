@@ -5,8 +5,24 @@
 @section('page-desc', 'Board persetujuan terpadu untuk pengajuan cuti tahunan, sakit, dan izin karyawan.')
 
 @section('content')
+@php
+    $alpineItems = collect($leaveRequests->items())->map(function($i) {
+        return [
+            'tab' => strtolower($i->leaveType->name ?? 'Izin'),
+            'name' => strtolower($i->employee->full_name ?? '')
+        ];
+    })->toJson();
+@endphp
 <div x-data="{
         activeTab: 'Semua',
+        searchQuery: '',
+        items: {{ $alpineItems }},
+        get hasVisibleRows() {
+            return this.items.some(i => 
+                (this.activeTab === 'Semua' || i.tab === this.activeTab.toLowerCase()) &&
+                (this.searchQuery === '' || i.name.includes(this.searchQuery.toLowerCase()))
+            );
+        },
         showDetailModal: false,
         showRejectModal: false,
         selectedRequest: null,
@@ -74,8 +90,15 @@
             </div>
 
 
-            <div class="flex items-center gap-1.5 p-1.5 rounded-md bg-gray-50 border border-gray-200 text-xs font-medium flex-wrap">
-                <button type="button" @click="activeTab = 'Semua'"
+            <div class="flex items-center gap-3 flex-wrap">
+                <div class="relative">
+                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 material-symbols-outlined text-[18px]">search</span>
+                    <input type="text" x-model="searchQuery" placeholder="Cari nama karyawan..."
+                        class="w-56 pl-9 pr-4 py-2 bg-white rounded-md text-sm border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#0B3D2E]/20 focus:border-[#0B3D2E] transition">
+                </div>
+
+                <div class="flex items-center gap-1.5 p-1.5 rounded-md bg-gray-50 border border-gray-200 text-xs font-medium flex-wrap">
+                    <button type="button" @click="activeTab = 'Semua'"
                     class="px-4 py-2 rounded-lg transition cursor-pointer"
                     :class="activeTab === 'Semua' ? 'bg-white text-[#0B3D2E] shadow-sm font-medium' : 'text-gray-500 hover:text-gray-800'">
                     Semua
@@ -87,6 +110,7 @@
                         {{ $lt->name }}
                     </button>
                 @endforeach
+                </div>
             </div>
         </div>
 
@@ -147,7 +171,7 @@
                         @endphp
 
                         <tr class="hover:bg-gray-50 transition"
-                            x-show="activeTab === 'Semua' || '{{ addslashes($typeName) }}' === activeTab">
+                            x-show="(activeTab === 'Semua' || '{{ addslashes($typeName) }}' === activeTab) && (searchQuery === '' || '{{ strtolower(addslashes($item->employee->full_name ?? '')) }}'.includes(searchQuery.toLowerCase()))">
 
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-3">
@@ -231,6 +255,19 @@
                             </td>
                         </tr>
                     @endforelse
+                    
+                    @if($leaveRequests->count() > 0)
+                        <tr x-show="!hasVisibleRows" style="display: none;" x-transition>
+                            <td colspan="5" class="px-6 py-12 text-center text-sm text-gray-500">
+                                <template x-if="searchQuery">
+                                    <span>Tidak ada pengajuan atas nama "<span x-text="searchQuery" class="font-medium text-gray-700"></span>" di tab ini.</span>
+                                </template>
+                                <template x-if="!searchQuery">
+                                    <span>Tidak ada pengajuan di tab ini.</span>
+                                </template>
+                            </td>
+                        </tr>
+                    @endif
                 </tbody>
             </table>
         </div>

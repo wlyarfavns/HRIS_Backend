@@ -39,7 +39,28 @@
         </div>
 
 
-        <div class="bg-white rounded-md border border-gray-200 overflow-hidden">
+        @php
+        $alpineItems = collect($requests->items())->map(function($r) {
+            return [
+                'name' => strtolower($r->employee->full_name ?? ''),
+                'project' => strtolower($r->project ?? ''),
+                'nip' => strtolower($r->employee->employee_id ?? '')
+            ];
+        })->toJson();
+        @endphp
+        <div class="bg-white rounded-md border border-gray-200 overflow-hidden"
+            x-data="{
+                searchQuery: '{{ request('q') }}',
+                items: {{ $alpineItems }},
+                get hasVisibleRows() {
+                    return this.items.some(i => 
+                        this.searchQuery === '' || 
+                        i.name.includes(this.searchQuery.toLowerCase()) || 
+                        i.project.includes(this.searchQuery.toLowerCase()) ||
+                        i.nip.includes(this.searchQuery.toLowerCase())
+                    );
+                }
+            }">
             <div class="px-6 py-5 border-b border-gray-100 flex items-center justify-between gap-4 flex-wrap bg-gray-50/50">
                 <div>
                     <h2 class="text-base font-medium text-gray-800">Daftar Surat Perintah Lembur (SPL)</h2>
@@ -47,8 +68,9 @@
                 </div>
 
                 <div class="flex items-center gap-3">
-                    <form method="GET" action="{{ route('hr.approvals.overtime') }}" class="relative">
-                        <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari nama atau proyek..."
+                    <form method="GET" action="{{ route('hr.approvals.overtime') }}" class="relative" @submit.prevent>
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 material-symbols-outlined text-[18px]">search</span>
+                        <input type="text" name="q" x-model="searchQuery" placeholder="Cari nama atau proyek..." autocomplete="off"
                             class="w-64 pl-10 pr-4 py-2.5 bg-white rounded-md text-sm border border-gray-200
                                       focus:outline-none focus:ring-2 focus:ring-[#0B3D2E]/20 focus:border-[#0B3D2E] transition">
                     </form>
@@ -74,7 +96,8 @@
                                     ?? \App\Models\OvertimeRequest::calculateOvertimePay($r->salary_snapshot, $r->hours);
                                 $initials = strtoupper(substr($r->employee->full_name ?? '?', 0, 1));
                             @endphp
-                            <tr class="hover:bg-gray-50 transition" id="spl-row-{{ $r->id }}">
+                            <tr class="hover:bg-gray-50 transition" id="spl-row-{{ $r->id }}"
+                                x-show="searchQuery === '' || '{{ strtolower(addslashes($r->employee->full_name ?? '')) }}'.includes(searchQuery.toLowerCase()) || '{{ strtolower(addslashes($r->project ?? '')) }}'.includes(searchQuery.toLowerCase()) || '{{ strtolower(addslashes($r->employee->employee_id ?? '')) }}'.includes(searchQuery.toLowerCase())">
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-3">
                                         <div class="w-9 h-9 rounded-full bg-gray-200 text-gray-600 border border-gray-300
@@ -154,6 +177,16 @@
                                 </td>
                             </tr>
                         @endforelse
+                        
+                        @if($requests->count() > 0)
+                            <tr x-show="!hasVisibleRows" style="display: none;" x-transition>
+                                <td colspan="6" class="px-6 py-12 text-center text-sm text-gray-500">
+                                    <template x-if="searchQuery">
+                                        <span>Tidak ada lembur yang sesuai dengan pencarian "<span x-text="searchQuery" class="font-medium text-gray-700"></span>".</span>
+                                    </template>
+                                </td>
+                            </tr>
+                        @endif
                     </tbody>
                 </table>
             </div>

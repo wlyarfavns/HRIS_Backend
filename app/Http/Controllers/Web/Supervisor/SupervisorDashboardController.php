@@ -241,6 +241,7 @@ class SupervisorDashboardController extends Controller
         $reimbRejected = Reimbursement::whereIn('employee_id', $teamIds)
             ->where('status', Reimbursement::STATUS_REJECTED)
             ->where('spv_id', $supervisorId)
+            ->whereNull('hr_reviewed_by')
             ->where('spv_approved_at', '>=', $since)
             ->count();
 

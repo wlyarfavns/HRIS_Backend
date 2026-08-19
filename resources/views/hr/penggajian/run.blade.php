@@ -216,8 +216,9 @@
     <div x-show="loading" x-cloak class="fixed inset-0 bg-[#043927]/90  z-[100] flex items-center justify-center p-4">
         <div class="max-w-lg w-full text-center space-y-8 animate-in fade-in zoom-in duration-300">
             <div class="relative flex items-center justify-center">
-                <div class="w-28 h-28 rounded-md flex items-center justify-center shadow-sm transition-all duration-500" :class="loadingDone ? 'bg-gray-500/20 ring-8 ring-emerald-500/30' : 'bg-white/10 ring-4 ring-white/10'">
-                    </div>
+                <div class="w-28 h-28 rounded-md flex items-center justify-center shadow-sm transition-all duration-500" :class="loadingDone ? 'bg-emerald-500/30 ring-8 ring-emerald-500/40' : 'bg-white/10 ring-4 ring-white/10'">
+    <span class="material-symbols-outlined text-[64px] text-white transition-all duration-500" :class="loadingDone ? '' : 'animate-spin'" x-text="loadingDone ? 'check_circle' : 'autorenew'"></span>
+</div>
             </div>
             <div>
                 <h2 class="text-2xl font-semibold text-white mb-2" x-text="loadingDone ? 'Kalkulasi Selesai!' : 'Payroll Engine Berjalan...'"></h2>

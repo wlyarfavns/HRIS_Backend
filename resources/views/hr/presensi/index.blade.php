@@ -5,6 +5,7 @@
 @section('page-desc', 'Pencatatan jam masuk & keluar via GPS Haversine + live selfie capture.')
 
 @section('content')
+<div id="presensi-wrapper">
     <div x-data="{
         activePreview: null,
         showClockWidget: false,
@@ -36,9 +37,51 @@
         </div>
 
 
-        <div class="bg-white rounded-md border border-gray-200 overflow-hidden">
+        @php
+        $alpineItems = collect(is_object($logs) && method_exists($logs, 'items') ? $logs->items() : $logs)->map(function($l) {
+            return [
+                'name' => strtolower($l['name'] ?? ''),
+                'nip' => strtolower($l['nip'] ?? ''),
+            ];
+        })->toJson();
+        @endphp
+        <div class="bg-white rounded-md border border-gray-200 overflow-hidden"
+            x-data="{
+                searchQuery: '{{ $search }}',
+                items: {{ $alpineItems }},
+                get hasVisibleRows() {
+                    return this.items.some(i => 
+                        this.searchQuery === '' || 
+                        i.name.includes(this.searchQuery.toLowerCase()) || 
+                        i.nip.includes(this.searchQuery.toLowerCase())
+                    );
+                }
+            }">
             <form method="GET" action="{{ route('hr.attendance.index') }}"
-                class="px-6 py-5 border-b border-gray-100 flex items-center justify-between gap-4 flex-wrap bg-gray-50/50">
+                class="px-6 py-5 border-b border-gray-100 flex items-center justify-between gap-4 flex-wrap bg-gray-50/50"
+                @submit.prevent="
+                    let form = $event.target;
+                    let url = new URL(form.action);
+                    let formData = new FormData(form);
+                    for(let [k,v] of formData.entries()) url.searchParams.set(k,v);
+                    
+                    document.getElementById('presensi-wrapper').style.opacity = '0.5';
+                    document.getElementById('presensi-wrapper').style.pointerEvents = 'none';
+
+                    fetch(url.toString(), { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                        .then(res => res.text())
+                        .then(html => {
+                            let doc = new DOMParser().parseFromString(html, 'text/html');
+                            let newWrapper = doc.getElementById('presensi-wrapper');
+                            if (newWrapper) {
+                                document.getElementById('presensi-wrapper').outerHTML = newWrapper.outerHTML;
+                            } else {
+                                window.location.href = url.toString();
+                            }
+                        }).catch(() => {
+                            window.location.href = url.toString();
+                        });
+                ">
                 <div>
                     <h2 class="text-base font-medium text-gray-800">Log Presensi &amp; Live Attendance</h2>
                     <p class="text-xs text-gray-500 mt-1">{{ count($logs) }} karyawan tercatat · klik foto
@@ -47,11 +90,12 @@
 
                 <div class="flex items-center gap-3">
                     <div class="relative">
-                        <input type="text" name="search" value="{{ $search }}" placeholder="Cari nama karyawan..."
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 material-symbols-outlined text-[20px]">search</span>
+                        <input type="text" name="search" x-model="searchQuery" placeholder="Cari NIP atau nama..." autocomplete="off"
                             class="w-64 pl-10 pr-4 py-2.5 bg-white rounded-md text-sm border border-gray-200
                                       focus:outline-none focus:ring-2 focus:ring-[#0B3D2E]/20 focus:border-[#0B3D2E] transition">
                     </div>
-                    <input type="date" name="date" value="{{ $date }}" onchange="this.form.submit()"
+                    <input type="date" name="date" value="{{ $date }}" onchange="this.form.dispatchEvent(new Event('submit', {bubbles: true, cancelable: true}))"
                         class="text-sm border border-gray-200 rounded-md px-4 py-2.5 bg-white text-gray-700
                                   focus:outline-none focus:ring-2 focus:ring-[#0B3D2E]/20 focus:border-[#0B3D2E] transition cursor-pointer">
                     <a href="{{ route('hr.attendance.export', ['date' => $date]) }}"
@@ -77,7 +121,8 @@
                     </thead>
                     <tbody class="divide-y divide-gray-100 text-gray-700">
                         @forelse ($logs as $l)
-                            <tr class="hover:bg-gray-50 transition">
+                            <tr class="hover:bg-gray-50 transition"
+                                x-show="searchQuery === '' || '{{ strtolower(addslashes($l['name'])) }}'.includes(searchQuery.toLowerCase()) || '{{ strtolower(addslashes($l['nip'])) }}'.includes(searchQuery.toLowerCase())">
                                 <td class="px-6 py-4">
                                     <div class="flex flex-col">
                                         <p class="font-medium text-gray-800 text-sm leading-tight">{{ $l['name'] }}</p>
@@ -144,6 +189,16 @@
                                 </td>
                             </tr>
                         @endforelse
+                        
+                        @if(count($logs) > 0)
+                            <tr x-show="!hasVisibleRows" style="display: none;" x-transition>
+                                <td colspan="7" class="px-6 py-12 text-center text-sm text-gray-500">
+                                    <template x-if="searchQuery">
+                                        <span>Tidak ada karyawan yang sesuai dengan pencarian "<span x-text="searchQuery" class="font-medium text-gray-700"></span>".</span>
+                                    </template>
+                                </td>
+                            </tr>
+                        @endif
                     </tbody>
                 </table>
             </div>
@@ -203,4 +258,5 @@
         @endforeach
 
     </div>
+</div>
 @endsection

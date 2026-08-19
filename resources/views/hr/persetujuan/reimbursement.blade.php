@@ -15,7 +15,26 @@
 @endphp
 
 @section('content')
+@php
+$alpineItems = collect($claims->items())->map(function($c) {
+    return [
+        'name' => strtolower($c->employee->full_name ?? ''),
+        'category' => strtolower($c->category ?? ''),
+        'nip' => strtolower($c->employee->employee_id ?? '')
+    ];
+})->toJson();
+@endphp
 <div x-data="{
+    searchQuery: '{{ request('q') }}',
+    items: {{ $alpineItems }},
+    get hasVisibleRows() {
+        return this.items.some(i => 
+            this.searchQuery === '' || 
+            i.name.includes(this.searchQuery.toLowerCase()) || 
+            i.category.includes(this.searchQuery.toLowerCase()) ||
+            i.nip.includes(this.searchQuery.toLowerCase())
+        );
+    },
     showReceiptModal: false,
     selectedClaim: null,
     rejecting: false,
@@ -103,10 +122,10 @@
 
             <div class="flex items-center gap-3">
                 <div class="relative">
-                    <input type="text" id="searchClaim" placeholder="Cari nama atau kategori..."
+                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 material-symbols-outlined text-[18px]">search</span>
+                    <input type="text" x-model="searchQuery" placeholder="Cari nama atau kategori..." autocomplete="off"
                            class="w-64 pl-10 pr-4 py-2.5 bg-white rounded-md text-sm border border-gray-200
-                                  focus:outline-none focus:ring-2 focus:ring-[#0B3D2E]/20 focus:border-[#0B3D2E] transition"
-                           onkeydown="if(event.key==='Enter'){window.location.href='{{ route('hr.approvals.reimbursement') }}?q='+encodeURIComponent(this.value)}">
+                                  focus:outline-none focus:ring-2 focus:ring-[#0B3D2E]/20 focus:border-[#0B3D2E] transition">
                 </div>
             </div>
         </div>
@@ -126,7 +145,8 @@
                 </thead>
                 <tbody class="divide-y divide-gray-100 text-gray-700">
                     @forelse ($claims as $c)
-                        <tr class="hover:bg-gray-50 transition">
+                        <tr class="hover:bg-gray-50 transition"
+                            x-show="searchQuery === '' || '{{ strtolower(addslashes($c->employee->full_name ?? '')) }}'.includes(searchQuery.toLowerCase()) || '{{ strtolower(addslashes($c->category ?? '')) }}'.includes(searchQuery.toLowerCase()) || '{{ strtolower(addslashes($c->employee->nip ?? '')) }}'.includes(searchQuery.toLowerCase())">
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-3">
                                     @php
@@ -152,11 +172,18 @@
                                 Rp{{ number_format($c->amount, 0, ',', '.') }}
                             </td>
                             <td class="px-6 py-4">
-                                <button type="button" @click="openReceipt(@js($c))"
-                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-200 hover:text-[#0B3D2E] text-[11px] font-semibold text-gray-600 transition whitespace-nowrap shadow-sm">
-                                    <span class="material-symbols-outlined text-[16px]">receipt_long</span>
-                                    Lihat Struk
-                                </button>
+                                @if($c->receipt_path)
+                                    <button type="button" @click="openReceipt(@js($c))"
+                                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-200 hover:text-[#0B3D2E] text-[11px] font-semibold text-gray-600 transition whitespace-nowrap shadow-sm">
+                                        <span class="material-symbols-outlined text-[16px]">receipt_long</span>
+                                        Lihat Struk
+                                    </button>
+                                @else
+                                    <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] font-medium text-gray-400 bg-gray-50 whitespace-nowrap">
+                                        <span class="material-symbols-outlined text-[14px]">hide_image</span>
+                                        Tidak ada bukti
+                                    </span>
+                                @endif
                             </td>
                             <td class="px-6 py-4">
                                 <span class="inline-flex items-center gap-1.5 text-xs font-medium text-gray-700">
@@ -209,6 +236,16 @@
                             </td>
                         </tr>
                     @endforelse
+                    
+                    @if(count($claims) > 0)
+                        <tr x-show="!hasVisibleRows" style="display: none;" x-transition>
+                            <td colspan="7" class="px-6 py-12 text-center text-sm text-gray-500">
+                                <template x-if="searchQuery">
+                                    <span>Tidak ada klaim yang sesuai dengan pencarian "<span x-text="searchQuery" class="font-medium text-gray-700"></span>".</span>
+                                </template>
+                            </td>
+                        </tr>
+                    @endif
                 </tbody>
             </table>
         </div>
@@ -245,14 +282,36 @@
                 </div>
 
 
-                <div class="border-2 border-dashed border-gray-200 rounded-md p-6 bg-white flex flex-col items-center justify-center gap-3 text-center">
-                    <div>
-                        <p class="font-medium text-gray-800 text-sm" x-text="selectedClaim ? (selectedClaim.receipt_path ? selectedClaim.receipt_path.split('/').pop() : 'Tidak ada berkas') : ''"></p>
+                <div class="border-2 border-dashed border-gray-200 rounded-md bg-white flex flex-col items-center justify-center text-center overflow-hidden relative min-h-[120px]">
+                    <div x-show="!selectedClaim || !selectedClaim.receipt_url" class="p-6">
+                        <p class="font-medium text-gray-800 text-sm">Tidak ada berkas</p>
                         <p class="text-[11px] text-gray-500 mt-1">Format file PDF/JPG terenkripsi &amp; terverifikasi digital</p>
                     </div>
-                    <a :href="selectedClaim ? selectedClaim.receipt_url : '#'" target="_blank"
-                       x-show="selectedClaim && selectedClaim.receipt_url"
-                       class="mt-2 text-xs font-medium text-gray-700 hover:text-gray-700 hover:underline">Cek Berkas</a>
+                    <template x-if="selectedClaim && selectedClaim.receipt_url">
+                        <div class="w-full h-full relative group flex items-center justify-center">
+                            <template x-if="selectedClaim.receipt_url.toLowerCase().endsWith('.pdf')">
+                                <div class="p-8 text-center w-full">
+                                    <span class="material-symbols-outlined text-[48px] text-red-500 mb-2">picture_as_pdf</span>
+                                    <p class="font-medium text-gray-800 text-sm mb-3" x-text="selectedClaim.receipt_path.split('/').pop()"></p>
+                                    <a :href="selectedClaim.receipt_url" target="_blank" class="px-4 py-2 bg-gray-50 border border-gray-200 text-gray-800 text-xs font-medium rounded shadow-sm hover:bg-gray-100 transition inline-flex items-center gap-2">
+                                        <span class="material-symbols-outlined text-[16px]">open_in_new</span>
+                                        Buka PDF
+                                    </a>
+                                </div>
+                            </template>
+                            <template x-if="!selectedClaim.receipt_url.toLowerCase().endsWith('.pdf')">
+                                <div class="w-full relative">
+                                    <img :src="selectedClaim.receipt_url" alt="Bukti Pengeluaran" class="w-full max-h-[300px] object-contain bg-gray-50" />
+                                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 bg-black/40 transition-opacity duration-300">
+                                        <a :href="selectedClaim.receipt_url" target="_blank" class="px-5 py-2.5 bg-white text-gray-900 text-xs font-semibold rounded-full shadow hover:bg-gray-50 transition inline-flex items-center gap-2">
+                                            <span class="material-symbols-outlined text-[18px]">zoom_in</span>
+                                            Lihat Layar Penuh
+                                        </a>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
                 </div>
 
                 <div>
@@ -274,18 +333,20 @@
                 <button type="button" @click="showReceiptModal = false"
                         class="px-5 py-2.5 rounded-md bg-gray-100 text-sm font-medium text-gray-700 hover:bg-gray-200 transition"
                         :disabled="processing">
-                    Batal
+                    <span x-text="selectedClaim && selectedClaim.status !== 'pending_hr' ? 'Tutup' : 'Batal'"></span>
                 </button>
-                <button type="button" @click="submitAction('reject')" :disabled="processing"
-                        class="px-5 py-2.5 rounded-md border border-gray-200 text-gray-700 bg-gray-50 hover:bg-gray-50 text-sm font-medium transition disabled:opacity-50">
-                    <span x-text="rejecting ? 'Kirim Penolakan' : 'Tolak Klaim'"></span>
-                </button>
-                <button type="button" @click="submitAction('approve')" :disabled="processing"
-                        x-show="!rejecting"
-                        class="px-6 py-2.5 rounded-md bg-[#0B3D2E] text-white text-sm font-medium hover:bg-[#043927] shadow-sm flex items-center gap-2 transition disabled:opacity-50">
-                    <span class="material-symbols-outlined text-[18px]">send</span>
-                    Teruskan ke Finance
-                </button>
+                <div class="flex gap-3" x-show="selectedClaim && selectedClaim.status === 'pending_hr'">
+                    <button type="button" @click="submitAction('reject')" :disabled="processing"
+                            class="px-5 py-2.5 rounded-md border border-gray-200 text-gray-700 bg-gray-50 hover:bg-gray-50 text-sm font-medium transition disabled:opacity-50">
+                        <span x-text="rejecting ? 'Kirim Penolakan' : 'Tolak Klaim'"></span>
+                    </button>
+                    <button type="button" @click="submitAction('approve')" :disabled="processing"
+                            x-show="!rejecting"
+                            class="px-6 py-2.5 rounded-md bg-[#0B3D2E] text-white text-sm font-medium hover:bg-[#043927] shadow-sm flex items-center gap-2 transition disabled:opacity-50">
+                        <span class="material-symbols-outlined text-[18px]">send</span>
+                        Teruskan ke Finance
+                    </button>
+                </div>
             </div>
         </div>
     </div>

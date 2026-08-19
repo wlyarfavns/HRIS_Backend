@@ -24,7 +24,12 @@ class PayrollController extends Controller
     public function index(Request $request)
     {
         $companyId = $request->user()->company_id;
-        $period = $request->filled('period') ? Carbon::parse($request->input('period') . '-01') : now();
+                if ($request->filled('period')) {
+            $period = Carbon::parse($request->input('period') . '-01');
+        } else {
+            $latestPayroll = \App\Models\Payroll::where('company_id', $companyId)->latest('period_end')->first();
+            $period = $latestPayroll ? Carbon::parse($latestPayroll->period_end)->startOfMonth() : now();
+        }
 
         $payrolls = Payroll::with(['employee.department', 'details.salaryComponent'])
             ->where('company_id', $companyId)

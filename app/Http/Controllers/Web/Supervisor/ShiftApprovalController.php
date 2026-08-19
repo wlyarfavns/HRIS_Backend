@@ -30,7 +30,7 @@ class ShiftApprovalController extends Controller
 
         $history = ShiftSwapRequest::with(['fromEmployee', 'toEmployee', 'fromAssignment.shiftType', 'toAssignment.shiftType'])
             ->where('company_id', $companyId)
-            ->whereIn('status', ['pending_hr', 'approved', 'rejected'])
+            ->where(fn($q) => $q->whereIn('status', ['pending_hr', 'approved'])->orWhere(fn($sub) => $sub->where('status', 'rejected')->where('approved_by', $supervisor->id)))
             ->where('approved_by', $supervisor->id) 
             ->latest('approved_at')
             ->paginate(10)->withQueryString();

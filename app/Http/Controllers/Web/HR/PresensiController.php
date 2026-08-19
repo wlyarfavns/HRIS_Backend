@@ -41,7 +41,7 @@ class PresensiController extends Controller
         if ($search) {
             $leaveQuery->whereHas('employee', function ($q) use ($search) {
                 $q->where('full_name', 'like', "%{$search}%")
-                    ->orWhere('name', 'like', "%{$search}%");
+                    ->orWhere('employee_id', 'like', "%{$search}%");
             });
         }
 

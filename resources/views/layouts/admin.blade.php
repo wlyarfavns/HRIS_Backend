@@ -98,13 +98,14 @@
 
 
                     <div class="relative" x-data="{ open: false }" @click.outside="open = false">
-                        <button @click="open = !open" class="flex items-center gap-3 group">
+                        <button @click="open = !open" class="flex items-center gap-3 group cursor-pointer">
                             <div class="text-right hidden sm:block">
                                 <p class="text-sm font-medium text-gray-800 leading-tight">{{ $user->name }}</p>
                                 <p class="text-[10px] text-gray-500 font-medium uppercase tracking-wide">Super Admin</p>
                             </div>
                             <img src="https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&background=E9F3EF&color=043927" alt="Foto profil"
                                  class="w-9 h-9 rounded-full object-cover border border-gray-200 group-hover:border-[#0B3D2E] transition">
+                            <span class="material-symbols-outlined text-gray-400 group-hover:text-gray-700 transition" :class="{ 'rotate-180': open }">expand_more</span>
                             </button>
 
                         <div x-show="open" x-transition.origin.top.right
@@ -139,6 +140,119 @@
     </div>
 </div>
 @include('shared._toast')
+
+
+<script id="ajax-search-script">
+function initAjaxForms() {
+    const filterForms = document.querySelectorAll('main form[method="GET"]');
+    
+    filterForms.forEach(form => {
+        // Remove existing listener to prevent duplicates if re-initialized
+        const newForm = form.cloneNode(true);
+        form.parentNode.replaceChild(newForm, form);
+        
+        newForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            fetchResults(newForm);
+        });
+
+        const inputs = newForm.querySelectorAll('select, input');
+        inputs.forEach(input => {
+            if(input.hasAttribute('onchange')) {
+                input.removeAttribute('onchange');
+                input.addEventListener('change', () => fetchResults(newForm));
+            }
+            if(input.hasAttribute('onkeydown')) {
+                const oldOnKeyDown = input.getAttribute('onkeydown');
+                if (oldOnKeyDown.includes('submit')) {
+                    input.removeAttribute('onkeydown');
+                    input.addEventListener('keydown', (e) => {
+                        if(e.key === 'Enter') {
+                            e.preventDefault();
+                            fetchResults(newForm);
+                        }
+                    });
+                }
+            }
+            
+            // New auto-search handler
+            if(input.hasAttribute('data-auto-search') || input.name === 'search') {
+                input.addEventListener('input', function() {
+                    clearTimeout(this.delay);
+                    this.delay = setTimeout(() => {
+                        fetchResults(newForm);
+                    }, 400);
+                });
+            }
+        });
+    });
+}
+
+function fetchResults(form) {
+    const url = new URL(form.action || window.location.href);
+    const formData = new FormData(form);
+    const searchParams = new URLSearchParams();
+    
+    for (const [key, value] of formData.entries()) {
+        if(value) searchParams.append(key, value);
+    }
+    
+    url.search = searchParams.toString();
+
+    // Save focus state before fetch
+    const activeElement = document.activeElement;
+    const focusState = activeElement && activeElement.name ? {
+        name: activeElement.name,
+        selectionStart: activeElement.selectionStart,
+        selectionEnd: activeElement.selectionEnd
+    } : null;
+
+    fetch(url, {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(res => res.text())
+    .then(html => {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        
+        const currentMain = document.querySelector('main');
+        const newMain = doc.querySelector('main');
+        
+        if (currentMain && newMain) {
+            currentMain.innerHTML = newMain.innerHTML;
+            
+            // Re-initialize AJAX forms inside the new main content
+            initAjaxForms();
+            
+            // Restore focus
+            if (focusState) {
+                const inputToFocus = document.querySelector(`main input[name="${focusState.name}"]`);
+                if (inputToFocus) {
+                    inputToFocus.focus();
+                    try {
+                        inputToFocus.setSelectionRange(focusState.selectionStart, focusState.selectionEnd);
+                    } catch(e) {} // ignore for non-text inputs
+                }
+            }
+            
+            // Update URL without reload
+            window.history.pushState({}, '', url);
+            
+            // Re-initialize Alpine.js components
+            if (window.Alpine) {
+                window.Alpine.discoverUninitializedComponents(function(el) {
+                    window.Alpine.initializeComponent(el);
+                });
+            }
+        }
+    })
+    .catch(err => console.error('Error fetching data:', err));
+}
+
+document.addEventListener('DOMContentLoaded', initAjaxForms);
+</script>
 </body>
 </html>
 
