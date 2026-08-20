@@ -143,11 +143,11 @@
                                         class="text-gray-400 hover:text-[#0B3D2E] transition cursor-pointer">
                                         <span class="material-symbols-outlined text-[18px]">visibility</span>
                                     </a>
-                                    <a href="{{ route('hr.employees.edit', $e->employee_id) }}" title="Edit"
+                                    <a href="{{ route('hr.employees.edit', $e->id) }}" title="Edit Karyawan"
                                         class="text-gray-400 hover:text-gray-700 transition cursor-pointer">
                                         <span class="material-symbols-outlined text-[18px]">edit</span>
                                     </a>
-                                    <a href="{{ route('hr.employees.documents', $e->employee_id) }}" title="Dokumen"
+                                    <a href="{{ route('hr.employees.documents', $e->id) }}" title="Dokumen"
                                         class="text-gray-400 hover:text-gray-700 transition cursor-pointer">
                                         <span class="material-symbols-outlined text-[18px]">folder_open</span>
                                     </a>

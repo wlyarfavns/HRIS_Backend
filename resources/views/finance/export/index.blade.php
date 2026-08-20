@@ -5,18 +5,23 @@
 @section('page-desc', 'Unduh format mass transfer batch payroll yang telah disetujui Finance untuk diunggah ke portal bank.')
 
 @section('content')
-<div x-data="{
-    showExportModal: false,
-    activeBatch: null,
-    bankLogos: {
-        BCA: 'https://i.pinimg.com/736x/27/71/54/2771540fa7259e0bd0cdfae464385480.jpg',
-        MANDIRI: 'https://i.pinimg.com/736x/0b/ed/5c/0bed5c44c43dc1efd1cbf6acf3aa1d89.jpg',
-        BNI: 'https://i.pinimg.com/1200x/7a/ca/e2/7acae2a6ac351b72a5c89e2fbc545758.jpg'
-    },
-    openExport(batch) { this.activeBatch = batch; this.showExportModal = true; },
-    toast: { show: false, message: '' },
-    showToast(msg) { this.toast.message = msg; this.toast.show = true; setTimeout(() => this.toast.show = false, 3000); }
-}" x-init="if ('{{ session('success') }}') showToast('{{ session('success') }}')">
+<div x-data="exportBank()" x-init="if ('{{ session('success') }}') showToast('{{ session('success') }}')">
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('exportBank', () => ({
+                showExportModal: false,
+                activeBatch: null,
+                bankLogos: {
+                    BCA: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Bank_Central_Asia.svg/1200px-Bank_Central_Asia.svg.png',
+                    MANDIRI: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Bank_Mandiri_logo_2016.svg/1200px-Bank_Mandiri_logo_2016.svg.png',
+                    BNI: 'https://upload.wikimedia.org/wikipedia/id/thumb/5/55/BNI_logo.svg/1200px-BNI_logo.svg.png'
+                },
+                openExport(batch) { this.activeBatch = batch; this.showExportModal = true; },
+                toast: { show: false, message: '' },
+                showToast(msg) { this.toast.message = msg; this.toast.show = true; setTimeout(() => this.toast.show = false, 3000); }
+            }));
+        });
+    </script>
 
     <div class="bg-gray-50 border border-gray-200 rounded-md px-5 py-3.5 flex items-center gap-3 mb-6">
         <span class="material-symbols-outlined text-[20px] text-[#0B3D2E] shrink-0">info</span>
@@ -157,7 +162,7 @@
                             </div>
                             <div class="min-w-0">
                                 <p class="text-sm font-medium text-gray-800 truncate" x-text="bank.name"></p>
-                                <p class="text-[11px]  text-gray-500 truncate mt-1" x-text="bank.format + ' · ' + bank.accounts + ' rekening · Rp' + bank.total.toLocaleString('id-ID')"></p>
+                                <p class="text-[11px]  text-gray-500 truncate mt-1" x-text="bank.format + ' &bull; ' + bank.accounts + ' rekening &bull; Rp' + bank.total.toLocaleString('id-ID')"></p>
                             </div>
                         </div>
                         <a :href="activeBatch.download_url.replace('__BANK__', bank.code)"

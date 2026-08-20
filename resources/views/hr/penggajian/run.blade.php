@@ -217,12 +217,12 @@
         <div class="max-w-lg w-full text-center space-y-8 animate-in fade-in zoom-in duration-300">
             <div class="relative flex items-center justify-center">
                 <div class="w-28 h-28 rounded-md flex items-center justify-center shadow-sm transition-all duration-500" :class="loadingDone ? 'bg-emerald-500/30 ring-8 ring-emerald-500/40' : 'bg-white/10 ring-4 ring-white/10'">
-    <span class="material-symbols-outlined text-[64px] text-white transition-all duration-500" :class="loadingDone ? '' : 'animate-spin'" x-text="loadingDone ? 'check_circle' : 'autorenew'"></span>
-</div>
+                    <span class="material-symbols-outlined text-[64px] text-white transition-all duration-500" :class="loadingDone ? '' : 'animate-pulse'" x-text="loadingDone ? 'task_alt' : (loadingStep > 0 && loadingSteps[loadingStep-1] ? loadingSteps[loadingStep-1].icon : 'sync')"></span>
+                </div>
             </div>
             <div>
                 <h2 class="text-2xl font-semibold text-white mb-2" x-text="loadingDone ? 'Kalkulasi Selesai!' : 'Payroll Engine Berjalan...'"></h2>
-                <p class="text-emerald-100/70 text-sm font-medium">Menyimpan draft dan mengalihkan ke halaman Review...</p>
+                <p class="text-emerald-100/70 text-sm font-medium" x-text="loadingDone ? 'Menyimpan draft dan mengalihkan ke halaman Review...' : (loadingStep > 0 && loadingSteps[loadingStep-1] ? loadingSteps[loadingStep-1].label : 'Memulai...')"></p>
             </div>
             <div class="max-w-sm mx-auto space-y-2">
                 <div class="h-2 bg-black/20 rounded-full overflow-hidden shadow-sm">

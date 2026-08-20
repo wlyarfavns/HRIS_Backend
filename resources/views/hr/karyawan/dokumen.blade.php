@@ -51,7 +51,7 @@
         <img src="https://i.pravatar.cc/56?img={{ $employee['avatar'] }}" class="w-14 h-14 rounded-full object-cover border border-gray-200" alt="{{ $employee['full_name'] }}">
         <div class="flex-1">
             <p class="text-lg font-medium text-gray-800">{{ $employee['full_name'] }}</p>
-            <p class="text-xs text-gray-500  mt-0.5">{{ $employee['nip'] }} · {{ $employee['department'] }}</p>
+            <p class="text-xs text-gray-500  mt-0.5">{{ $employee['nip'] }} &bull; {{ $employee['department'] }}</p>
         </div>
         <span class="text-[11px] font-medium px-3 py-1.5 rounded-lg {{ $employee['contract_type'] === 'PKWTT' ? 'bg-gray-50 text-[#0B3D2E]' : 'bg-gray-50 text-gray-700' }}">
             {{ $employee['contract_type'] }}
