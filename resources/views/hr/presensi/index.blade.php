@@ -98,7 +98,7 @@
                     <input type="date" name="date" value="{{ $date }}" onchange="this.form.dispatchEvent(new Event('submit', {bubbles: true, cancelable: true}))"
                         class="text-sm border border-gray-200 rounded-md px-4 py-2.5 bg-white text-gray-700
                                   focus:outline-none focus:ring-2 focus:ring-[#0B3D2E]/20 focus:border-[#0B3D2E] transition cursor-pointer">
-                    <a href="{{ route('hr.attendance.export', ['date' => $date]) }}"
+                    <a href="{{ route('hr.attendance.export', ['date' => $date]) }}" data-turbolinks="false" target="_blank"
                         class="border border-gray-200 bg-white hover:bg-gray-50 px-4 py-2.5 rounded-md text-sm font-medium text-gray-700 flex items-center gap-2 transition shadow-sm">
                         <span class="material-symbols-outlined text-[18px]">download</span> Export Rekap
                     </a>
