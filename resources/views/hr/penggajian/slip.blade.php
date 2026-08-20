@@ -35,7 +35,7 @@
         'nip'        => $payroll->employee->employee_id ?? '-',
         'name'       => $payroll->employee->full_name ?? '-',
         'position'   => $payroll->employee->position->name ?? '-',
-        'department' => $payroll->employee->department->name ?? '-',
+        'department' => $payroll->employee->department?->name ?? '-',
         'period'     => $payroll->period_start->translatedFormat('F Y'),
 
         'company_name'    => $payroll->company->name ?? '-',

@@ -182,7 +182,7 @@
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="px-6 py-4 text-sm text-gray-600">{{ $e->department->name ?? '-' }}</td>
+                                    <td class="px-6 py-4 text-sm text-gray-600">{{ $e->department?->name ?? '-' }}</td>
                                     <td class="px-6 py-4 text-center">
                                         <span class="text-[10px] font-medium px-2.5 py-1 rounded-md bg-gray-50 text-[#0B3D2E] uppercase tracking-wider">Aktif</span>
                                     </td>

@@ -132,7 +132,7 @@
                                     <div>
                                         <p class="font-medium text-gray-800 text-sm group-hover:text-[#0B3D2E] transition-colors">{{ $c->employee->full_name ?? '-' }}</p>
                                         <p class="text-[11px]  text-gray-500 mt-0.5">
-                                            {{ $c->employee->employee_id ?? '-' }} &bull; {{ $c->employee->department->name ?? '-' }}
+                                            {{ $c->employee->employee_id ?? '-' }} &bull; {{ $c->employee->department?->name ?? '-' }}
                                         </p>
                                     </div>
                                 </div>

@@ -150,7 +150,7 @@
                                 'id'          => $item->id,
                                 'name'        => $item->employee->full_name ?? '-',
                                 'nip'         => $item->employee->employee_id ?? '-',
-                                'dept'        => $item->employee->department->name ?? '-',
+                                'dept'        => $item->employee->department?->name ?? '-',
                                 'type'        => $typeName,
                                 'detail'      => $item->total_days . ' Hari (' . $range . ')',
                                 'status'      => $badge['label'],
@@ -186,7 +186,7 @@
                                         <p class="text-[11px]  text-gray-500 mt-0.5">
                                             {{ $item->employee->employee_id ?? '-' }}
                                             @if ($item->employee?->department)
-                                                · {{ $item->employee->department->name }}
+                                                · {{ $item->employee->department?->name }}
                                             @endif
                                         </p>
                                     </div>

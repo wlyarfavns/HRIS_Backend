@@ -17,7 +17,7 @@
             'id'       => $p->id,
             'nip'      => $p->employee->employee_id ?? '-',
             'name'     => $p->employee->full_name ?? '-',
-            'dept'     => $p->employee->department->name ?? '-',
+            'dept'     => $p->employee->department?->name ?? '-',
             'bank'     => $p->employee->bank_name ?? '-',
             'rekening' => $p->employee->bank_account_number ?? '-',
             'gross'    => $p->basic_salary + $p->total_allowances,

@@ -106,7 +106,7 @@
                                 </a>
                             </td>
                             <td class="px-6 py-4 text-gray-600">
-                                {{ $e->department->name ?? '-' }} <span class="text-gray-300 mx-1">·</span>
+                                {{ $e->department?->name ?? '-' }} <span class="text-gray-300 mx-1">·</span>
                                 {{ $e->position->name ?? '-' }}
                             </td>
                             <td class="px-6 py-4">

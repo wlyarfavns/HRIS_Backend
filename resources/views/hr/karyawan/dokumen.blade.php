@@ -14,7 +14,7 @@
         'id' => $emp->id,
         'nip' => $emp->employee_id, 
         'full_name' => $emp->full_name, 
-        'department' => $emp->department ? $emp->department->name : '-', 
+        'department' => $emp->department ? $emp->department?->name : '-', 
         'contract_type' => $emp->contract_type ?? 'PKWT', 
         'avatar' => $emp->id % 70, 
     ]; 

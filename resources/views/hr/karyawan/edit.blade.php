@@ -21,7 +21,7 @@
         </div>
         <div class="flex-1">
             <p class="text-lg font-medium text-gray-800">{{ $employee->full_name }}</p>
-            <p class="text-xs text-gray-500  mt-0.5">{{ $employee->employee_id }} · {{ $employee->department->name ?? 'Tanpa Departemen' }}</p>
+            <p class="text-xs text-gray-500  mt-0.5">{{ $employee->employee_id }} · {{ $employee->department?->name ?? 'Tanpa Departemen' }}</p>
         </div>
         <span class="text-[11px] font-medium px-3 py-1.5 rounded-lg {{ $employee->employment_status === 'PKWTT' ? 'bg-gray-50 text-[#0B3D2E]' : 'bg-gray-50 text-gray-700' }}">
             {{ $employee->employment_status }}

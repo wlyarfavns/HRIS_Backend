@@ -215,7 +215,7 @@
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 text-sm text-gray-600">
-                                        {{ $p->employee->department->name ?? '-' }}
+                                        {{ $p->employee->department?->name ?? '-' }}
                                     </td>
                                     <td
                                         class="px-6 py-4 text-right  text-sm text-gray-600 font-semibold">

@@ -38,7 +38,7 @@
                             </div>
                         </td>
                         <td class="px-6 py-4">
-                            {{ $member->department->name ?? '-' }}
+                            {{ $member->department?->name ?? '-' }}
                         </td>
                         <td class="px-6 py-4">
                             {{ $member->position->name ?? '-' }}

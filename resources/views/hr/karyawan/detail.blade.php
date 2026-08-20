@@ -62,7 +62,7 @@
             <p class="text-sm font-medium text-gray-600 mt-1.5">
                 {{ $employee->position->name ?? '-' }}
                 <span class="text-gray-300 mx-1">&bull;</span>
-                {{ $employee->department->name ?? '-' }}
+                {{ $employee->department?->name ?? '-' }}
             </p>
             <p class="text-xs text-gray-400  mt-1">
                 {{ $employee->employee_id }}

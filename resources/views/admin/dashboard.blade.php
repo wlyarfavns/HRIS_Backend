@@ -102,7 +102,7 @@
                                     </td>
                                     <td class="px-6 py-4">
                                         <span class="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-md bg-gray-100 text-gray-600 border border-gray-200">
-                                            {{ $emp->department->name ?? '-' }}
+                                            {{ $emp->department?->name ?? '-' }}
                                         </span>
                                     </td>
                                     <td class="px-8 py-4 text-right text-xs text-gray-500 ">
