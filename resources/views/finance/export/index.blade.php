@@ -166,6 +166,7 @@
                             </div>
                         </div>
                         <a :href="activeBatch.download_url.replace('__BANK__', bank.code)"
+                           data-turbolinks="false" target="_blank"
                            class="shrink-0 ml-4 w-10 h-10 rounded-md flex items-center justify-center bg-gray-50 text-[#0B3D2E] hover:bg-[#0B3D2E] hover:text-white transition shadow-sm border border-gray-200">
                             <span class="material-symbols-outlined text-[20px]">download</span>
                         </a>
