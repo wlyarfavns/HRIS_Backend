@@ -9,11 +9,7 @@
     tab: 'pending',
     showArchiveModal: false,
     archiveBatch: null,
-    bankLogos: {
-        BCA: 'https://i.pinimg.com/736x/27/71/54/2771540fa7259e0bd0cdfae464385480.jpg',
-        MANDIRI: 'https://i.pinimg.com/736x/0b/ed/5c/0bed5c44c43dc1efd1cbf6acf3aa1d89.jpg',
-        BNI: 'https://i.pinimg.com/1200x/7a/ca/e2/7acae2a6ac351b72a5c89e2fbc545758.jpg'
-    },
+    bankLogos: {},
     toastMsg: '',
     showToast: false,
     openArchive(batch) { this.archiveBatch = batch; this.showArchiveModal = true; },
@@ -315,7 +311,7 @@
                 </div>
                 <div>
                     <p class="text-[11px] font-medium uppercase tracking-widest text-gray-500">Grand Total Nett</p>
-                    <p class="font-semibold  text-[#0B3D2E] mt-1.5" x-text="'Rp' + (archiveBatch?.grand_nett || 0).toLocaleString('id-ID')"></p>
+                    <p class="font-semibold  text-[#0B3D2E] mt-1.5" x-text="'Rp' + Number(archiveBatch?.grand_nett || 0).toLocaleString('id-ID')"></p>
                 </div>
             </div>
 
@@ -326,11 +322,11 @@
                         <div class="flex items-center justify-between p-4 rounded-md border border-gray-200 hover:border-[#0B3D2E]/30 transition group bg-white shadow-sm">
                             <div class="flex items-center gap-4 min-w-0">
                                 <div class="w-12 h-12 rounded-md bg-white border border-gray-100 flex items-center justify-center shrink-0 overflow-hidden p-1.5 shadow-sm">
-                                    <template x-if="bankLogos[bank.code]">
+                                    <template x-if="false && bankLogos[bank.code]">
                                         <img :src="bankLogos[bank.code]" :alt="bank.name" class="w-full h-full object-contain">
                                     </template>
                                     <template x-if="!bankLogos[bank.code]">
-                                        <span class="text-[11px] font-black text-gray-500" x-text="bank.code"></span>
+                                        <span class="text-[10px] font-black text-gray-500 truncate w-full text-center" x-text="bank.code.substring(0, 4)"></span>
                                     </template>
                                 </div>
                                 <div class="min-w-0">
@@ -338,7 +334,7 @@
                                     <p class="text-[11px]  text-gray-500 truncate mt-1" x-text="bank.format + ' · ' + bank.accounts + ' rekening · Rp' + bank.total.toLocaleString('id-ID')"></p>
                                 </div>
                             </div>
-                            <a :href="archiveBatch.download_url.replace('__BANK__', bank.code)"
+                            <a data-turbolinks="false" target="_blank" @click="downloadFile(bank.name)" :href="archiveBatch.download_url.replace('__BANK__', bank.code)"
                                class="shrink-0 ml-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-md bg-gray-50 text-[#0B3D2E] hover:bg-[#0B3D2E] hover:text-white text-xs font-medium transition shadow-sm border border-gray-200">
                                 <span class="material-symbols-outlined text-[16px]">download</span>
                                 Unduh

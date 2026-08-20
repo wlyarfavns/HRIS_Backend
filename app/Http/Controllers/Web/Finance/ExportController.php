@@ -34,9 +34,10 @@ class ExportController extends Controller
         abort_unless($batch->company_id === $request->user()->company_id, 403);
         $csv = $this->payrollService->buildBankCsvContent($batch, $bankCode);
 
-        return response($csv, 200, [
+        return response()->streamDownload(function () use ($csv) {
+            echo $csv;
+        }, "{$bankCode}_PAYROLL_{$batch->period_start->format('MY')}.csv", [
             'Content-Type' => 'text/csv',
-            'Content-Disposition' => "attachment; filename=\"{$bankCode}_PAYROLL_{$batch->period_start->format('MY')}.csv\"",
         ]);
     }
 }

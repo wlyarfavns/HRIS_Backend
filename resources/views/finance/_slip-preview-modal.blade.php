@@ -94,7 +94,7 @@
         </div>
 
         <div class="px-6 py-4 border-t border-gray-100 flex items-center justify-between shrink-0 bg-white">
-            <a :href="slipEmployee ? '{{ url('finance/disbursement') }}/' + slipEmployee.payroll_id + '/slip' : '#'"
+            <a @click="showSlipModal = false" :href="slipEmployee ? '{{ url('finance/disbursement') }}/' + (slipEmployee.id || slipEmployee.payroll_id) + '/slip' : '#'"
                class="inline-flex items-center gap-1.5 text-xs font-medium text-[#0B3D2E] hover:bg-gray-50 px-3 py-1.5 rounded-md transition">
                 Lihat Detail Lengkap <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
             </a>
