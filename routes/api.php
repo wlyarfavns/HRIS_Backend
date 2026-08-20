@@ -2,21 +2,21 @@
 
 use Illuminate\Support\Facades\Route;
 
-use App\Http\Controllers\Mobile\Auth\AuthController;
-use App\Http\Controllers\Mobile\Auth\ForgotPasswordController;
-use App\Http\Controllers\Mobile\Employee\AttendanceController;
-use App\Http\Controllers\Mobile\Employee\ProfileController;
-use App\Http\Controllers\Mobile\Employee\OvertimeController;
-use App\Http\Controllers\Mobile\Employee\PayrollController;
-use App\Http\Controllers\Mobile\Employee\ReimbursementController;
-use App\Http\Controllers\Mobile\Employee\ShiftController as EmployeeShiftController;
-use App\Http\Controllers\Mobile\Employee\NotificationController;
+use App\Http\Controllers\Api\Auth\AuthController;
+use App\Http\Controllers\Api\Auth\ForgotPasswordController;
+use App\Http\Controllers\Api\Employee\AttendanceController;
+use App\Http\Controllers\Api\Employee\ProfileController;
+use App\Http\Controllers\Api\Employee\OvertimeController;
+use App\Http\Controllers\Api\Employee\PayrollController;
+use App\Http\Controllers\Api\Employee\ReimbursementController;
+use App\Http\Controllers\Api\Employee\ShiftController as EmployeeShiftController;
+use App\Http\Controllers\Api\Employee\NotificationController;
 
-use App\Http\Controllers\Mobile\Admin\RoleController;
-use App\Http\Controllers\Mobile\Admin\PayrollApiController;
-use App\Http\Controllers\Mobile\Admin\JobGradeController;
-use App\Http\Controllers\Mobile\Admin\PermissionController;
-use App\Http\Controllers\Mobile\Employee\LeaveTypeController;
+use App\Http\Controllers\Api\Auth\RoleController;
+use App\Http\Controllers\Api\Employee\PayrollApiController;
+use App\Http\Controllers\Api\Auth\JobGradeController;
+use App\Http\Controllers\Api\Auth\PermissionController;
+use App\Http\Controllers\Api\Employee\LeaveTypeController;
 
 use App\Http\Controllers\Web\company\DepartmentController;
 use App\Http\Controllers\Web\HR\EmployeeContractController;
@@ -59,8 +59,7 @@ Route::prefix('/mobile')->group(function () {
             Route::get('/attendances/history', [AttendanceController::class, 'history']);
             Route::post('/attendances/check-out', [AttendanceController::class, 'checkOut']);
 
-            Route::post('/reimbursements', [ReimbursementController::class, 'store']);
-            Route::get('/reimbursements', [ReimbursementController::class, 'index']);
+            Route::apiResource('reimbursements', ReimbursementController::class)->only(['index', 'store']);
         });
 
         Route::middleware('role:employee')->prefix('payroll')->group(function () {
@@ -72,11 +71,8 @@ Route::prefix('/mobile')->group(function () {
 
         Route::post('/attendance/status', [AttendanceController::class, 'checkAttendanceStatus']);
 
-        Route::middleware('role:employee')->prefix('overtime')->group(function () {
-            Route::get('/', [OvertimeController::class, 'index']);
-            Route::post('/', [OvertimeController::class, 'store']);
-            Route::get('/{overtime}', [OvertimeController::class, 'show']);
-            Route::delete('/{overtime}', [OvertimeController::class, 'destroy']);
+        Route::middleware('role:employee')->group(function () {
+            Route::apiResource('overtime', OvertimeController::class)->except(['update']);
         });
 
         Route::middleware('role:employee')->prefix('shifts')->group(function () {
@@ -84,19 +80,14 @@ Route::prefix('/mobile')->group(function () {
             Route::get('/peers', [EmployeeShiftController::class, 'eligiblePeers']);
         });
 
-        Route::middleware('role:employee')->prefix('shift-exchange')->group(function () {
-            Route::get('/', [EmployeeShiftController::class, 'index']);
-            Route::post('/', [EmployeeShiftController::class, 'store']);
-
-
+        Route::middleware('role:employee')->group(function () {
+            Route::apiResource('shift-exchange', EmployeeShiftController::class)->only(['index', 'store']);
         });
 
 
-        Route::get('/leave-requests', [LeaveRequestController::class, 'index']);
-        Route::post('/leave-requests', [LeaveRequestController::class, 'store']);
-        Route::get('/leave-types', [LeaveTypeController::class, 'index']);
-        Route::delete('/leave-requests/{id}', [LeaveRequestController::class, 'destroy']);
-        Route::middleware('role:hr')->patch('/leave-requests/{id}/approve', [LeaveRequestController::class, 'approve']);
+        Route::apiResource('leave-requests', LeaveRequestController::class)->except(['show', 'update']);
+        Route::apiResource('leave-types', LeaveTypeController::class)->only(['index']);
+        Route::middleware('role:hr')->patch('/leave-requests/{leave_request}/approve', [LeaveRequestController::class, 'approve']);
 
 
         Route::get('/contracts/reminder-h30', [EmployeeContractController::class, 'reminderH30']);

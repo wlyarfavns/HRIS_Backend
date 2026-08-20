@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Mobile\Employee;
+namespace App\Http\Controllers\Api\Employee;
 
 use App\Http\Controllers\Controller;
 use App\Models\LeaveType;

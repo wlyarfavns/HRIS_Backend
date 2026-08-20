@@ -11,7 +11,7 @@ use App\Http\Controllers\Web\Auth\RegisterCompanyController;
 use App\Http\Controllers\Web\company\UserManagementController;
 use App\Http\Controllers\Web\company\DepartmentController;
 use App\Http\Controllers\Web\HR\PositionController;
-use App\Http\Controllers\Mobile\Employee\EmployeeController;
+use App\Http\Controllers\Api\Employee\EmployeeController;
 use App\Http\Controllers\Web\company\DashboardController;
 use App\Http\Controllers\Web\Shared\NotificationController;
 use App\Http\Controllers\Web\Auth\PasswordResetController;
